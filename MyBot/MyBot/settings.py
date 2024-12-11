@@ -14,6 +14,8 @@ from pathlib import Path
 
 from environs import Env
 
+import MyBot
+
 env = Env()
 env.read_env()
 
@@ -32,6 +34,7 @@ DEBUG = env.bool('DEBUG')
 
 ALLOWED_HOSTS = []
 
+TOKEN_BOT=env.str('TOKEN_BOT')
 # Application definition
 
 INSTALLED_APPS = [
@@ -41,6 +44,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'Bot',
+    'Bot.management',
 ]
 
 MIDDLEWARE = [
