@@ -13,9 +13,13 @@ logger = logging.getLogger(__name__)
 # Handle '/start' and '/help'
 @bot.message_handler(commands=['help', 'start'])
 async def send_welcome(message):
-    print(message.text)
-    text = 'Привет друг'
-    await bot.reply_to(message, text)
+    logger.info(f'{message.text}')
+    text = f'😊 Привет <b>{message.chat.first_name}</b> 😊'
+    text_message = (f'😱 Пользователь <b>{message.chat.first_name}</b> с id {message.from_user.id} написал:\n'
+                    f'{message.text}')
+    await bot.send_message(chat_id=message.from_user.id, text=text)
+    await bot.send_message(chat_id=settings.TELEGRAM_ID_ADMIN, text=text_message)
+
 
 
 # Handle all other messages with content_type 'text' (content_types defaults to ['text'])
