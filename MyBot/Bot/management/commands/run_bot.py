@@ -1,4 +1,4 @@
-import asyncio
+
 import logging
 
 from django.conf import settings
@@ -14,7 +14,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         print('run')
         try:
-            asyncio.run(bot.infinity_polling(logger_level=settings.LOG_LEVEL))
+            bot.infinity_polling()
         except Exception as err:
             logger.error(f'Ошибка: {err}')
 
