@@ -1,0 +1,24 @@
+import logging
+
+from aiogram import Bot, types, Router, F
+
+from Bot.Work_db.card_work import card_list
+from Bot.keyboard.reply_keybord import my_card_kbd
+
+logger = logging.getLogger(__name__)
+
+card_work_router = Router()
+
+
+
+@card_work_router.message(F.text =='Мои карты')
+async def card_support(message: types.Message):
+    card_lst = await card_list(message)
+    logger.info(f'Пользователь: {message.chat.first_name} '
+                f'с Telegram id: {message.from_user.id} написал:\n'
+                f'{message.text}')
+    await message.answer(f'вот Ваши карты:\n{card_lst}', reply_markup=my_card_kbd)
+    await message.answer('Выберете что надо сделать с картами')
+
+
+

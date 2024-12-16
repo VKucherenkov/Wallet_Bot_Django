@@ -1,21 +1,37 @@
-
+import asyncio
 import logging
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from Bot.main_bot import bot
+from aiogram import Bot, Dispatcher, types
+
+from Bot.Cards.cards import card_work_router
+from Bot.common.cmd_list import cmd
+from Bot.main_bot import user_start_router
 
 logger = logging.getLogger(__name__)
+
+bot = Bot(token=settings.TOKEN_BOT)
+dp = Dispatcher()
+
+dp.include_router(user_start_router)
+dp.include_router(card_work_router)
 
 class Command(BaseCommand):
     help = "Запускаем бота"
 
     def handle(self, *args, **options):
         print('run')
-        try:
-            bot.infinity_polling()
-        except Exception as err:
-            logger.error(f'Ошибка: {err}')
+        # try:
+        #     asyncio.run(dp.start_polling(bot))
+        # except Exception as err:
+        #     logger.error(f'Ошибка: {err}')
+        async def main():
+            await bot.delete_webhook(drop_pending_updates=True)
+            # await bot.delete_my_commands(scope=types.BotCommandScopeAllPrivateChats())
+            await bot.set_my_commands(commands=cmd, scope=types.BotCommandScopeAllPrivateChats())
+            await dp.start_polling(bot)
 
+        asyncio.run(main())
 
