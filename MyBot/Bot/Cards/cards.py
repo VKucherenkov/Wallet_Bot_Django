@@ -17,8 +17,12 @@ async def card_support(message: types.Message):
     logger.info(f'Пользователь: {message.chat.first_name} '
                 f'с Telegram id: {message.from_user.id} написал:\n'
                 f'{message.text}')
-    await message.answer(f'вот Ваши карты:\n{card_lst}', reply_markup=my_card_kbd)
-    await message.answer('Выберете что надо сделать с картами')
+    if card_lst:
+        await message.answer(f'Вот Ваши карты:\n{card_lst}', reply_markup=my_card_kbd)
+        await message.answer('Выберете что надо сделать с картами')
+    else:
+        await message.answer(f'У Вас нет активных карт', reply_markup=my_card_kbd)
+        await message.answer('Выберете что надо сделать с картами')
 
 
 
