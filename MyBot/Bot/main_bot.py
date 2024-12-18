@@ -33,6 +33,3 @@ async def start(message: types.Message):
 async def menu(message: types.Message):
     await message.answer('Выходим в главное меню', reply_markup=del_my_card_kbd)
     await message.answer('Вот меню', reply_markup=start_kbd)
-
-
-
