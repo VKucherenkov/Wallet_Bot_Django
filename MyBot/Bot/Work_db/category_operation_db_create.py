@@ -34,14 +34,14 @@ categoryes = {
 }
 
 
-# @sync_to_async
+@sync_to_async
 def db_categoryoperation(msg=None):
     cat = [i for i in categoryes.keys()]
     cat_obj = CategoryOperation.objects.all()
     typeoperation = [(i, j) for i in cat for j, value in type_category.items() if i in value]
     db_name_all = [i.name_cat for i in cat_obj]
-    logger.info(f'{db_name_all}')
-    logger.info(f'{typeoperation}')
+    # logger.info(f'{db_name_all}')
+    # logger.info(f'{typeoperation}')
     if not db_name_all:
         for i, j in typeoperation:
             pk = TypeOperation.objects.get(name_type=j).pk

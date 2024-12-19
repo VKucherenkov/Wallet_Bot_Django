@@ -8,8 +8,6 @@ from django.conf import settings
 from aiogram import F
 
 from Bot.Midlleware.add_db_user import UserUpdateMiddleware
-from Bot.Work_db.type_operation_db_create import db_typeoperation
-from Bot.Work_db.category_operation_db_create import db_categoryoperation
 from Bot.keyboard.reply_keybord import start_kbd, del_my_card_kbd
 
 logger = logging.getLogger(__name__)
@@ -17,8 +15,6 @@ logger = logging.getLogger(__name__)
 user_start_router = Router()
 user_start_router.message.outer_middleware(UserUpdateMiddleware())
 
-type_operation = db_typeoperation()
-type_category = db_categoryoperation()
 
 # Handle '/start' and '/help'
 @user_start_router.message(CommandStart())
