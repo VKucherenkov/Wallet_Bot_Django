@@ -18,6 +18,7 @@ dp = Dispatcher()
 dp.include_router(user_start_router)
 dp.include_router(card_work_router)
 
+
 class Command(BaseCommand):
     help = "Запускаем бота"
 

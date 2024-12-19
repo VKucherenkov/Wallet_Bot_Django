@@ -1,13 +1,15 @@
 import logging
 from asyncio import sleep
 
-from aiogram import Bot, types, Router
+from aiogram import types, Router
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command
 from django.conf import settings
 from aiogram import F
 
 from Bot.Midlleware.add_db_user import UserUpdateMiddleware
+from Bot.Work_db.type_operation_db_create import db_typeoperation
+from Bot.Work_db.category_operation_db_create import db_categoryoperation
 from Bot.keyboard.reply_keybord import start_kbd, del_my_card_kbd
 
 logger = logging.getLogger(__name__)
@@ -15,6 +17,8 @@ logger = logging.getLogger(__name__)
 user_start_router = Router()
 user_start_router.message.outer_middleware(UserUpdateMiddleware())
 
+type_operation = db_typeoperation()
+type_category = db_categoryoperation()
 
 # Handle '/start' and '/help'
 @user_start_router.message(CommandStart())
@@ -37,5 +41,5 @@ async def start(message: types.Message):
 @user_start_router.message(F.text == 'Главное меню')
 async def menu(message: types.Message):
     await message.answer('Выходим в главное меню', reply_markup=del_my_card_kbd)
-    await sleep(2)
+    await sleep(1)
     await message.answer('Вот меню', reply_markup=start_kbd)
