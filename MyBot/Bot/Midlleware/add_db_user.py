@@ -4,8 +4,9 @@ from typing import Callable, Dict, Any, Awaitable
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
 
-from Bot.Work_db.category_operation_db_create import db_categoryoperation
-from Bot.Work_db.type_operation_db_create import db_typeoperation
+from Bot.Work_db.bank_db import db_bank_create
+from Bot.Work_db.category_operation_db import db_categoryoperation_create
+from Bot.Work_db.type_operation_db import db_typeoperation_crate
 from Bot.Work_db.user_db_create_update import db_telegramuser
 
 logger = logging.getLogger(__name__)
@@ -18,8 +19,9 @@ class UserUpdateMiddleware(BaseMiddleware):
                        data: Dict[str, Any]) -> Any:
         logger.info('Действие до обработчика')
         await db_telegramuser(event)
-        await db_typeoperation()
-        await db_categoryoperation()
+        await db_bank_create()
+        await db_typeoperation_crate()
+        await db_categoryoperation_create()
         logger.info('Действие до обработчика завершено')
         result = await handler(event, data)
         logger.info('Действия после обработчика')

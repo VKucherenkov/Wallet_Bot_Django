@@ -1,6 +1,6 @@
 import logging
 
-from aiogram import Bot, types, Router, F
+from aiogram import types, Router, F
 
 from Bot.Work_db.card_work import card_list
 from Bot.keyboard.reply_keybord import my_card_kbd

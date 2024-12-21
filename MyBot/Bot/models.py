@@ -39,7 +39,7 @@ class CardUser(models.Model):
     '''Карты пользователя'''
     TelegramUser_CardUser = models.ForeignKey(TelegramUser, on_delete=models.CASCADE, related_name='cards')
     BankCard_CardUser = models.ForeignKey(BankCard, on_delete=models.CASCADE, related_name='cards')
-    title = models.CharField(('Имя карты'), max_length=150, blank=True, null=True)
+    name_card = models.CharField(('Имя карты'), max_length=150, blank=True, null=True)
     number_card = models.IntegerField(('Номер карты'), null=True, unique=True)
     balans_card = models.DecimalField('Баланс карты', max_digits=10, decimal_places=2, db_index=True, blank=True,
                                       null=True)
@@ -51,7 +51,7 @@ class CardUser(models.Model):
         verbose_name_plural = 'Платежные карты'
 
     def __str__(self):
-        return (f'\nимя = {self.title}, id = {self.number_card},\n'
+        return (f'\nимя = {self.name_card}, id = {self.number_card},\n'
                 f'Время добавления = {self.datetime_add},\n'
                 f'Владелец: {self.TelegramUser_CardUser.first_name}\n'
                 f'Баланс карты: {self.balans_card}')
@@ -97,8 +97,9 @@ class OperationUser(models.Model):
     CardUser_OperationUser = models.ForeignKey(CardUser, on_delete=models.CASCADE, related_name='Operation')
     CategoryOperation_OperationUser = models.ForeignKey(CategoryOperation, on_delete=models.CASCADE, related_name='Operation')
     datetime_amount = models.DateTimeField(('Время операции'), blank=True, null=True)
-    amount = models.DecimalField('Сумма операции', max_digits=10, decimal_places=2, db_index=True, blank=True,
+    amount_operation = models.DecimalField('Сумма операции', max_digits=10, decimal_places=2, db_index=True, blank=True,
                                       null=True)
+    note_operation = models.CharField(('Текст уведомления'), max_length=250, blank=True, null=True)
     datetime_add = models.DateTimeField(('Время добавления'), auto_now_add=True, blank=True, null=True)
     datetime_update = models.DateTimeField(('Время последнего изменения'), auto_now=True, blank=True, null=True)
 
@@ -109,6 +110,26 @@ class OperationUser(models.Model):
     def __str__(self):
         return (f'\nСумма операции = {self.amount},\n'
                 f'Время операции = {self.datetime_amount},\n'
+                f'Время добавления = {self.datetime_add},\n'
+                f'Время изменения: {self.datetime_update}\n'
+                )
+
+
+class Recipient(models.Model):
+    '''Получатели/плательщики'''
+    Recipient_CategoryOperation = models.ForeignKey(TypeOperation, on_delete=models.CASCADE,
+                                                        related_name='recipient')
+    name_recipient = models.CharField(('Наименование контрагента'), max_length=150, blank=True, null=True)
+    recipient_in_notification = models.CharField(('Контрагент в уведомлнии'), max_length=150, blank=True, null=True)
+    datetime_add = models.DateTimeField(('Время добавления'), auto_now_add=True, blank=True, null=True)
+    datetime_update = models.DateTimeField(('Время последнего изменения'), auto_now=True, blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Получатель/плательщик'
+        verbose_name_plural = 'Получатели/плательщики'
+
+    def __str__(self):
+        return (f'\nНаименование контрагента = {self.name_recipient},\n'
                 f'Время добавления = {self.datetime_add},\n'
                 f'Время изменения: {self.datetime_update}\n'
                 )
