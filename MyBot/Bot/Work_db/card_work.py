@@ -21,10 +21,9 @@ def card_list(msg):
     return result
 
 @sync_to_async
-def card_name(message: types.Message) -> str:
-    cards = CardUser.objects.all()
+def card_name(number_card) -> str:
     try:
-        card_name = cards.get(number_card=data_parser['number_card']).card_name
+        card_name = CardUser.objects.get(number_card=number_card).name_card
     except Exception:
         return
     return card_name

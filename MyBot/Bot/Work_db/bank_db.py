@@ -29,6 +29,7 @@ def db_bank_create(msg=None):
 def name_bank():
     try:
         bank_pk = CardUser.objects.get(number_card=data_parser['number_card']).BankCard_CardUser_id
-    except Exception:
+    except Exception as err:
+        logger.info(err)
         return
-    return BankCard.get(pk=bank_pk).name_bank
+    return BankCard.objects.get(pk=bank_pk).name_bank
