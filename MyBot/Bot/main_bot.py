@@ -39,3 +39,10 @@ async def menu(message: types.Message):
     await message.answer('Выходим в главное меню', reply_markup=del_my_card_kbd)
     await sleep(1)
     await message.answer('Вот меню', reply_markup=start_kbd)
+
+
+@user_start_router.message(F.text)
+async def menu(message: types.Message):
+    await message.answer('Не понял что ты написал', reply_markup=del_my_card_kbd)
+    await sleep(1)
+    await message.answer('Вот меню', reply_markup=start_kbd)

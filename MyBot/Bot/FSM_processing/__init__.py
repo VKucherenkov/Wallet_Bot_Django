@@ -1,3 +1,7 @@
+from aiogram import Router
+from Bot.FSM_processing.parser_hand import router as parser_hand_router
 
-if __name__ == '__main__':
-    main()
+
+router = Router(name=__name__)
+router.include_router(parser_hand_router)
+
