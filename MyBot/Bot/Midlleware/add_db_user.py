@@ -26,11 +26,11 @@ class UserUpdateMiddleware(BaseMiddleware):
         result = await handler(event, data)
         logger.info('Действия после обработчика')
         msg = event.text
-        if '[' in event.text:
+        if event.text and '[' in event.text:
             msg_date = msg[msg.index('[') + 1: msg.index('[') + 1 + 10] + ' ' + msg[
                                                                                 msg.index(']') + 1 - 6: msg.index(']')]
             logger.info(msg_date)
-        logger.info(f'Пользователь написал:\n{event.text}')
+            logger.info(f'Пользователь написал:\n{event.text}')
         logger.info('Действия после обработчика завершены')
 
         return result
