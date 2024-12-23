@@ -12,5 +12,6 @@ router = Router(name=__name__)
 router.include_router(command_router)
 router.include_router(cards_router)
 router.include_router(fsm_router)
+
 '''echo_router подключается последним'''
 router.include_router(echo_router)
