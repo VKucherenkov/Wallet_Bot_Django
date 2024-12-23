@@ -1,5 +1,5 @@
 from aiogram import Router
-from Bot.FSM_processing.parser_hand import router as parser_hand_router
+from Bot.routers.FSM.parser_hand.parser_hand import router as parser_hand_router
 
 
 router = Router(name=__name__)
