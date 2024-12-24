@@ -117,10 +117,10 @@ class OperationUser(models.Model):
 
 class Recipient(models.Model):
     '''Получатели/плательщики'''
-    Recipient_CategoryOperation = models.ForeignKey(TypeOperation, on_delete=models.CASCADE,
-                                                        related_name='recipient')
+    Recipient_CategoryOperation = models.ForeignKey(CategoryOperation, on_delete=models.CASCADE,
+                                                        related_name='category')
     name_recipient = models.CharField(('Наименование контрагента'), max_length=150, blank=True, null=True)
-    recipient_in_notification = models.CharField(('Контрагент в уведомлнии'), max_length=150, blank=True, null=True)
+    recipient_in_notification = models.CharField(('Контрагент в уведомлении'), max_length=150, blank=True, null=True)
     datetime_add = models.DateTimeField(('Время добавления'), auto_now_add=True, blank=True, null=True)
     datetime_update = models.DateTimeField(('Время последнего изменения'), auto_now=True, blank=True, null=True)
 

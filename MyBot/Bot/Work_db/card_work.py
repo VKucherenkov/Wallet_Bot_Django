@@ -27,3 +27,11 @@ def card_name(number_card) -> str:
     except Exception:
         return
     return card_name
+
+@sync_to_async
+def card_balance(number_card) -> str:
+    try:
+        card_name = CardUser.objects.get(number_card=number_card).name_card
+    except Exception:
+        return
+    return card_name

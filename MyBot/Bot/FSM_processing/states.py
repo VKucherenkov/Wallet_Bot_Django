@@ -6,5 +6,7 @@ class ParserHand(StatesGroup):
     type_state = State()
     category_state = State()
     bank_state = State()
-    card_state = State()
+    card_name_state = State()
+    card_number_state = State()
     operation_state = State()
+    balance_state = State()

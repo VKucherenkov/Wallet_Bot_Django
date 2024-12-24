@@ -17,19 +17,19 @@ def db_typeoperation_crate(msg=None):
     # logger.info(f'{db_name_all}')
     if not db_name_all:
         for i in types:
-            TypeOperation.objects.update_or_create(name_type=f'{i}')
+            TypeOperation.objects.update_or_create(name_type=f'{i.lower()}')
             logger.info(
                 f'Тип операции: "{i}"\n'
-                f'добавлен в базу данных {TypeOperation.objects.get(name_type=i).datetime_add}')
+                f'добавлен в базу данных {TypeOperation.objects.get(name_type=i.lower()).datetime_add}')
     else:
         logger.info(f'Таблица "Тип операции" уже была создана')
 
 @sync_to_async
 def name_type(message: types.Message) -> str:
     if 'оплата' in message.text.lower() or 'покупка' in message.text.lower() or 'списан' in message.text.lower():
-        return 'Расходы'
+        return 'расходы'
     elif 'зачисл' in message.text.lower() or 'аванс' in message.text.lower():
-        return 'Доходы'
+        return 'доходы'
     try:
         categoryes_pk = Recipient.objects.get(name_recipient=data_parser['name_recipient']).Recipient_CategoryOperation_id
         type_pk = CategoryOperation.get(pk=categoryes_pk).TypeOperation_CategoryOperation_id

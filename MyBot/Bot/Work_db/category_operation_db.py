@@ -19,19 +19,21 @@ def db_categoryoperation_create():
     # logger.info(f'{typeoperation}')
     if not db_name_all:
         for i, j in typeoperation:
-            pk = TypeOperation.objects.get(name_type=j).pk
-            CategoryOperation.objects.update_or_create(name_cat=f'{i}', TypeOperation_CategoryOperation_id=pk)
+            pk = TypeOperation.objects.get(name_type=j.lower()).pk
+            CategoryOperation.objects.update_or_create(name_cat=f'{i.lower()}', TypeOperation_CategoryOperation_id=pk)
             logger.info(
                 f'Категория операции: "{i}"\n'
                 f'Тип операции: "{j}"\n'
-                f'добавлен в базу данных {CategoryOperation.objects.get(name_cat=i).datetime_add}')
+                f'добавлен в базу данных {CategoryOperation.objects.get(name_cat=i.lower()).datetime_add}')
     else:
         logger.info(f'Таблица "Категория операции" уже была создана')
 
 @sync_to_async
-def name_cat(message: types.Message) -> str:
+def get_name_category(message: types.Message) -> str:
     try:
         categoryes_pk = Recipient.objects.get(name_recipient=data_parser['name_recipient']).Recipient_CategoryOperation_id
     except Exception:
         return
-    return CategoryOperation.get(pk=categoryes_pk).name_cat
+    return CategoryOperation.get(pk=categoryes_pk).get_name_category
+
+

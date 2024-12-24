@@ -17,10 +17,10 @@ def db_bank_create(msg=None):
     # logger.info(f'{typeoperation}')
     if not db_name_all:
         for i in bank:
-            BankCard.objects.update_or_create(name_bank=f'{i}')
+            BankCard.objects.update_or_create(name_bank=f'{i.lower()}')
             logger.info(
                 f'Наименование банка: "{i}"\n'
-                f'добавлен в базу данных {BankCard.objects.get(name_bank=i).datetime_add}')
+                f'добавлен в базу данных {BankCard.objects.get(name_bank=i.lower()).datetime_add}')
     else:
         logger.info(f'Таблица "Банки" уже была создана')
 
