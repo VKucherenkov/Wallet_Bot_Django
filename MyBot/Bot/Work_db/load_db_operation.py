@@ -9,21 +9,20 @@ def load_db_operaion(data):
         [print(key, value, sep='\n') for key, value in data.items()]
         types = [i.name_type.lower() for i in TypeOperation.objects.all()]
         if data['name_type'].lower() not in types:
-            TypeOperation.objects.create(name_type=data['name_type'])
+            TypeOperation.objects.create(name_type=data['name_type'].lower())
         types_id = TypeOperation.objects.get(name_type=data['name_type']).id
         print("Тип операций записан в базу")
 
         category = [i.name_cat.lower() for i in CategoryOperation.objects.all()]
         if data['name_cat'].lower() not in category:
-            CategoryOperation.objects.create(name_cat=data['name_cat'],
+            CategoryOperation.objects.create(name_cat=data['name_cat'].lower(),
                                              TypeOperation_CategoryOperation_id=types_id)
-        category_id = CategoryOperation.objects.get(name_cat=data['name_cat']).id
+        category_id = CategoryOperation.objects.get(name_cat=data['name_cat'].lower()).id
         print("Категория операции записана в базу")
-
 
         recipient = [i.name_recipient.lower() for i in Recipient.objects.all()]
         if not recipient or data['name_recipient'].lower() not in recipient:
-            Recipient.objects.create(name_recipient=data['name_recipient'],
+            Recipient.objects.create(name_recipient=data['name_recipient'].lower(),
                                      Recipient_CategoryOperation_id=category_id)
         print("Реципиент записан в базу")
 
@@ -35,21 +34,31 @@ def load_db_operaion(data):
 
         cards = [i.number_card for i in CardUser.objects.all()]
         user_id = TelegramUser.objects.get(telegram_id=data['telegram_id']).id
-        if not cards or data['number_card'] not in cards:
+        if not cards or int(data['number_card']) not in cards:
             CardUser.objects.create(number_card=data['number_card'],
                                     name_card=data['name_card'].lower(),
+                                    balans_card=data['balans'],
                                     BankCard_CardUser_id=bank_id,
                                     TelegramUser_CardUser_id=user_id)
+        elif data['balans'] == CardUser.objects.get(number_card=data['number_card']).balans_card - data[
+                'amount_operation']:
+                card_user = CardUser.objects.get(number_card=data['number_card'])
+                card_user.balans_card = data['balans']
+                card_user.save()
+        else:
+            return 'Ошибка обновления баланса'
+
+
         card_id = CardUser.objects.get(number_card=data['number_card']).id
         print("Имя и номер карты записаны в базу")
-
 
         OperationUser.objects.create(datetime_amount=data['datetime_amount'],
                                      amount_operation=data['amount_operation'],
                                      CardUser_OperationUser_id=card_id,
                                      CategoryOperation_OperationUser_id=category_id)
-        operation_id = CardUser.objects.get(datetime_amount=data['datetime_amount']).id
-        print("Операция записана в базу")
+        operation_id = CardUser.objects.last().id
+        print(f"Операция записана в базу\n"
+              f"ID операции: {operation_id}")
 
     except Exception as err:
         print(err)

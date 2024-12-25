@@ -35,6 +35,7 @@ class BankCard(models.Model):
         return (f'\nИмя банка = {self.name_bank},\n'
                 f'Время добавления = {self.datetime_add}')
 
+
 class CardUser(models.Model):
     '''Карты пользователя'''
     TelegramUser_CardUser = models.ForeignKey(TelegramUser, on_delete=models.CASCADE, related_name='cards')
@@ -51,10 +52,12 @@ class CardUser(models.Model):
         verbose_name_plural = 'Платежные карты'
 
     def __str__(self):
-        return (f'\nимя = {self.name_card}, id = {self.number_card},\n'
+        return (f'\nимя = {self.name_card}, номер карты: {self.number_card},\n'
+                f'Баланс карты: {self.balans_card},\n'
                 f'Время добавления = {self.datetime_add},\n'
+                f'Время последнего изменения: {self.datetime_update},\n'
                 f'Владелец: {self.TelegramUser_CardUser.first_name}\n'
-                f'Баланс карты: {self.balans_card}')
+                )
 
 
 class TypeOperation(models.Model):
@@ -76,7 +79,8 @@ class TypeOperation(models.Model):
 
 class CategoryOperation(models.Model):
     '''Категория операции'''
-    TypeOperation_CategoryOperation = models.ForeignKey(TypeOperation, on_delete=models.CASCADE, related_name='typeoperation')
+    TypeOperation_CategoryOperation = models.ForeignKey(TypeOperation, on_delete=models.CASCADE,
+                                                        related_name='typeoperation')
     name_cat = models.CharField(('Наименование категории'), max_length=150, blank=True, null=True)
     datetime_add = models.DateTimeField(('Время добавления'), auto_now_add=True, blank=True, null=True)
     datetime_update = models.DateTimeField(('Время последнего изменения'), auto_now=True, blank=True, null=True)
@@ -95,10 +99,11 @@ class CategoryOperation(models.Model):
 class OperationUser(models.Model):
     '''Операция списания/зачисления'''
     CardUser_OperationUser = models.ForeignKey(CardUser, on_delete=models.CASCADE, related_name='Operation')
-    CategoryOperation_OperationUser = models.ForeignKey(CategoryOperation, on_delete=models.CASCADE, related_name='Operation')
+    CategoryOperation_OperationUser = models.ForeignKey(CategoryOperation, on_delete=models.CASCADE,
+                                                        related_name='Operation')
     datetime_amount = models.DateTimeField(('Время операции'), blank=True, null=True)
     amount_operation = models.DecimalField('Сумма операции', max_digits=10, decimal_places=2, db_index=True, blank=True,
-                                      null=True)
+                                           null=True)
     note_operation = models.CharField(('Текст уведомления'), max_length=250, blank=True, null=True)
     datetime_add = models.DateTimeField(('Время добавления'), auto_now_add=True, blank=True, null=True)
     datetime_update = models.DateTimeField(('Время последнего изменения'), auto_now=True, blank=True, null=True)
@@ -108,7 +113,7 @@ class OperationUser(models.Model):
         verbose_name_plural = 'Операции списаний/зачислений'
 
     def __str__(self):
-        return (f'\nСумма операции = {self.amount},\n'
+        return (f'\nСумма операции = {self.amount_operation},\n'
                 f'Время операции = {self.datetime_amount},\n'
                 f'Время добавления = {self.datetime_add},\n'
                 f'Время изменения: {self.datetime_update}\n'
@@ -118,7 +123,7 @@ class OperationUser(models.Model):
 class Recipient(models.Model):
     '''Получатели/плательщики'''
     Recipient_CategoryOperation = models.ForeignKey(CategoryOperation, on_delete=models.CASCADE,
-                                                        related_name='category')
+                                                    related_name='category')
     name_recipient = models.CharField(('Наименование контрагента'), max_length=150, blank=True, null=True)
     recipient_in_notification = models.CharField(('Контрагент в уведомлении'), max_length=150, blank=True, null=True)
     datetime_add = models.DateTimeField(('Время добавления'), auto_now_add=True, blank=True, null=True)

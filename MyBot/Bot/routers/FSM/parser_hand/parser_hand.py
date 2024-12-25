@@ -1,5 +1,7 @@
 import datetime
 import logging
+from decimal import Decimal
+
 import pytz
 
 from aiogram import Router, F, types
@@ -149,7 +151,7 @@ async def get_invalid_number_card(message: types.Message,):
 async def get_operation(message: types.Message,
                         state: FSMContext):
     operation = message.text.replace(',', '.').replace(' ', '').replace('[NBSP]', '')
-    await state.update_data(amount_operation=operation)
+    await state.update_data(amount_operation=Decimal(operation))
     await state.set_state(ParserHand.balance_state)
     await message.answer(f'Введите баланс по карте',
                          parse_mode=ParseMode.HTML,
@@ -167,8 +169,9 @@ async def get_invalid_operation(message: types.Message,):
 @router.message(ParserHand.balance_state, F.text, F.func(validator_balance))
 async def get_balance(message: types.Message,
                         state: FSMContext):
+    tz = pytz.timezone("Asia/Novosibirsk")
     balance = message.text.replace(',', '.').replace(' ', '').replace('[NBSP]', '')
-    data = await state.update_data(balans=balance, datetime_amount=datetime.datetime.now(tz=pytz.timezone("Europe/London")), telegram_id=message.from_user.id)
+    data = await state.update_data(balans=Decimal(balance), datetime_amount=datetime.datetime.now(tz), telegram_id=message.from_user.id)
     await state.clear()
     await message.answer(f'Проверьте правильность введенной операции.',
                          parse_mode=ParseMode.HTML,
