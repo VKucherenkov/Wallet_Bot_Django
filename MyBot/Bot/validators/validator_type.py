@@ -4,4 +4,4 @@ from Bot.common.global_variable import type_category
 
 
 def validate_type(message):
-    return message.text in [i.lower() for i in type_category.keys()]
+    return message.text in [i for i in type_category.keys()]

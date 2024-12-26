@@ -12,7 +12,7 @@ from aiogram.enums import ParseMode
 from Bot.FSM_processing.states import ParserHand
 from Bot.Work_db.load_db_operation import load_db_operaion
 from Bot.common.global_variable import type_category
-from Bot.keyboard.reply_keybord import start_kbd
+from Bot.keyboard.reply_keybord import start_kbd, choice_type_kbd, get_category_kbd, get_bank_kbd
 from Bot.validators.valid_balance import validator_balance
 from Bot.validators.valid_bank import validator_bank
 from Bot.validators.valid_card_name import validator_name_card
@@ -48,18 +48,17 @@ async def parser(message: types.Message, state: FSMContext):
 
 @router.message(ParserHand.recipient_state, F.text)
 async def get_recipient_data(message: types.Message, state: FSMContext):
-    await state.update_data(name_recipient=message.text)
+    await state.update_data(name_recipient=message.text.lower())
     await state.set_state(ParserHand.type_state)
     await message.answer(f'Введите тип операции',
                          parse_mode=ParseMode.HTML,
-                         reply_markup=start_kbd)
+                         reply_markup=choice_type_kbd)
 
 
 @router.message(ParserHand.recipient_state)
 async def get_invalid_recipient_data(message: types.Message,):
     await message.answer(f'Введите корректного получателя платежа',
-                         parse_mode=ParseMode.HTML,
-                         reply_markup=start_kbd)
+                         parse_mode=ParseMode.HTML)
 
 @router.message(ParserHand.type_state,
                 F.text, F.func(validate_type))
@@ -68,15 +67,13 @@ async def get_name_type(message: types.Message,
     await state.update_data(name_type=message.text.lower())
     await state.set_state(ParserHand.category_state)
     await message.answer(f'Введите категорию операции',
-                         parse_mode=ParseMode.HTML,
-                         reply_markup=start_kbd)
+                         parse_mode=ParseMode.HTML, reply_markup=get_category_kbd())
 
 
 @router.message(ParserHand.type_state)
 async def get_invalid_name_type(message: types.Message,):
     await message.answer(f'Введите корректный тип операции',
-                         parse_mode=ParseMode.HTML,
-                         reply_markup=start_kbd)
+                         parse_mode=ParseMode.HTML)
 
 
 @router.message(ParserHand.category_state, F.text, F.func(validator_categoryes))
@@ -86,7 +83,7 @@ async def get_name_category(message: types.Message,
     await state.set_state(ParserHand.bank_state)
     await message.answer(f'Введите банк эмитента карты',
                          parse_mode=ParseMode.HTML,
-                         reply_markup=start_kbd)
+                         reply_markup=get_bank_kbd())
 
 
 @router.message(ParserHand.category_state)
