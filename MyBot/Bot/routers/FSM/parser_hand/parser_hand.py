@@ -187,6 +187,8 @@ async def resume_input_notification(message: types.Message, data):
     for key, value in data.items():
         text += f'{key}------{value}\n'
     result = await load_db_operaion(data)
-    if result:
+    if result.isdigit():
         text += 'Данные по операции записаны в базу данных.' + '\n' + f'ID операции:  {result}'
+    else:
+        text += 'Данные по операции не записаны в базу данных.' + '\n' + f'{result}'
     await message.answer(text=text)
