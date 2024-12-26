@@ -56,7 +56,7 @@ def load_db_operaion(data):
                                      amount_operation=data['amount_operation'],
                                      CardUser_OperationUser_id=card_id,
                                      CategoryOperation_OperationUser_id=category_id)
-        operation_id = CardUser.objects.last().id
+        operation_id = OperationUser.objects.last().id
         print(f"Операция записана в базу\n"
               f"ID операции: {operation_id}")
 
