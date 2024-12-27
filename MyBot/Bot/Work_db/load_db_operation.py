@@ -47,13 +47,13 @@ def load_db_operaion(data):
             card_user.save()
         else:
             return (f'Ошибка обновления баланса\n'
-                    f'Баланс до операции: {CardUser.objects.get(number_card=data['number_card']).balans_card}\n'
-                    f'Сумма по операции: {data['amount_operation']}\n'
-                    f'Баланс после операции должен быть: {CardUser.objects.get(number_card=data['number_card']).balans_card - data['amount_operation']}\n'
-                    f'Вы ввели сумму: {data['balans']}\n'
-                    f'Разница: {CardUser.objects.get(number_card=data['number_card']).balans_card} - '
-                    f'{data['amount_operation']} - {data['balans']} = '
-                    f'{CardUser.objects.get(number_card=data['number_card']).balans_card - data['amount_operation'] - data['balans']}')
+                    f'Баланс до операции: {CardUser.objects.get(number_card=data["number_card"]).balans_card}\n'
+                    f'Сумма по операции: {data["amount_operation"]}\n'
+            f'Баланс после операции должен быть: {CardUser.objects.get(number_card=data["number_card"]).balans_card - data["amount_operation"]}\n'
+            f'Вы ввели сумму: {data["balans"]}\n'
+            f'Разница: {CardUser.objects.get(number_card=data["number_card"]).balans_card} - '
+            f'{data["amount_operation"]} - {data["balans"]} = '
+            f'{CardUser.objects.get(number_card=data["number_card"]).balans_card - data["amount_operation"] - data["balans"]}')
 
         card_id = CardUser.objects.get(number_card=data['number_card']).id
         print("Имя и номер карты записаны в базу")
