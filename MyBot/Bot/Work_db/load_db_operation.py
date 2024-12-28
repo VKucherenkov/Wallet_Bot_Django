@@ -26,15 +26,21 @@ def load_db_operaion(data):
                                      Recipient_CategoryOperation_id=category_id)
         print("Реципиент записан в базу")
 
-        banks = [i.name_bank for i in BankCard.objects.all()]
-        if all([data['name_bank'].lower() not in i.lower() for i in banks]):
-            BankCard.objects.create(name_bank=data['name_bank'].lower())
-        bank_id = BankCard.objects.get(name_bank=data['name_bank'].lower()).id
-        print("Имя банка записано в базу")
+        # banks = [i.name_bank for i in BankCard.objects.all()]
+        # if all([data['name_bank'].lower() not in i.lower() for i in banks]):
+        #     BankCard.objects.create(name_bank=data['name_bank'].lower())
+        # bank_id = BankCard.objects.get(name_bank=data['name_bank'].lower()).id
+        # print("Имя банка записано в базу")
 
         cards = [i.number_card for i in CardUser.objects.all()]
         user_id = TelegramUser.objects.get(telegram_id=data['telegram_id']).id
         if not cards or int(data['number_card']) not in cards:
+            banks = [i.name_bank for i in BankCard.objects.all()]
+            if all([data['name_bank'].lower() not in i.lower() for i in banks]):
+                BankCard.objects.create(name_bank=data['name_bank'].lower())
+            bank_id = BankCard.objects.get(name_bank=data['name_bank'].lower()).id
+            print("Имя банка записано в базу")
+
             CardUser.objects.create(number_card=data['number_card'],
                                     name_card=data['name_card'].lower(),
                                     balans_card=data['balans'],
@@ -45,6 +51,8 @@ def load_db_operaion(data):
             card_user = CardUser.objects.get(number_card=data['number_card'])
             card_user.balans_card = data['balans']
             card_user.save()
+            data['name_bank'] = CardUser.objects.get(number_card=data['number_card']).BankCard_CardUser.name_bank
+            data['name_card'] = CardUser.objects.get(number_card=data['number_card']).name_card
         else:
             return (f'Ошибка обновления баланса\n'
                     f'Баланс до операции: {CardUser.objects.get(number_card=data["number_card"]).balans_card}\n'

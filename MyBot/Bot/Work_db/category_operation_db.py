@@ -3,6 +3,7 @@ import logging
 from aiogram import types
 from asgiref.sync import sync_to_async
 
+import Bot.routers.FSM.parser_hand.category_operation_state
 from Bot.common.global_variable import categoryes, type_category, data_parser
 from Bot.models import CategoryOperation, TypeOperation, Recipient
 
@@ -34,6 +35,6 @@ def get_name_category(message: types.Message) -> str:
         categoryes_pk = Recipient.objects.get(name_recipient=data_parser['name_recipient']).Recipient_CategoryOperation_id
     except Exception:
         return
-    return CategoryOperation.get(pk=categoryes_pk).get_name_category
+    return Bot.routers.FSM.parser_hand.category_operation_state.get_name_category
 
 

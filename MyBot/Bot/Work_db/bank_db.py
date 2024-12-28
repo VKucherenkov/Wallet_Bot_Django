@@ -26,9 +26,9 @@ def db_bank_create(msg=None):
 
 
 @sync_to_async
-def name_bank():
+def name_bank(number_card):
     try:
-        bank_pk = CardUser.objects.get(number_card=data_parser['number_card']).BankCard_CardUser_id
+        bank_pk = CardUser.objects.get(number_card=number_card).BankCard_CardUser_id
     except Exception as err:
         logger.info(err)
         return

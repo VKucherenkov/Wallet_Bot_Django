@@ -1,10 +1,7 @@
 import logging
-from pyexpat.errors import messages
 
-from aiogram import types
 from asgiref.sync import sync_to_async
 
-from Bot.common.global_variable import data_parser
 from Bot.models import CardUser
 
 logger = logging.getLogger(__name__)
@@ -27,14 +24,26 @@ def card_list(msg):
     # logger.info(result_lst)
     result_txt = ''
     for i in result_dict.keys():
-        result_txt += i + '          '
-    result_txt += '\n' + '-' * len(result_txt) + '\n'
+        result_txt += f'{i:20d}'
+    if result_lst:
+        result_txt += '\n' + '-' * len(result_txt) + '\n'
     for n, i in enumerate(result_lst, 1):
         for j in i.values():
-            result_txt += str(j).upper() + '           '
+            result_txt += f'{str(j).upper():40d}'
         result_txt += '\n'
     # logger.info(result_txt)
-    return result_txt
+    return result_txt, result_lst
+
+
+@sync_to_async
+def card_number(number_card) -> bool:
+    try:
+        number_card_db = CardUser.objects.get(number_card=number_card).number_card
+    except Exception as err:
+        logger.info(err)
+        return False
+    # logger.info(number_card, number_card_db)
+    return int(number_card) == number_card_db
 
 
 @sync_to_async
@@ -53,3 +62,20 @@ def card_balance(number_card) -> str:
     except Exception:
         return
     return card_name
+
+
+@sync_to_async
+def card_list_for_kb(msg):
+    cards = CardUser.objects.all()
+    # logger.info(cards)
+    result_dict = {}
+    result_lst = []
+    if cards:
+        for i in cards:
+            if i.TelegramUser_CardUser.telegram_id == msg.from_user.id:
+                result_dict['ID'] = i.pk
+                result_dict['Имя'] = i.name_card
+                result_dict['Номер'] = i.number_card
+                result_dict['Баланс'] = i.balans_card
+            result_lst += [result_dict.copy()]
+    return result_lst

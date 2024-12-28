@@ -1,6 +1,8 @@
+from aiogram import types
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
+from Bot.Work_db.card_work import card_list_for_kb
 from Bot.common.global_variable import type_category, categoryes, banks
 
 start_kbd = ReplyKeyboardMarkup(
@@ -67,13 +69,25 @@ choice_type_kbd = ReplyKeyboardMarkup(
 )
 
 
-def get_category_kbd() -> ReplyKeyboardMarkup:
+def get_prev_cancel_builder() -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
-    for button in categoryes.keys():
-        builder.button(text=button)
     builder.button(text="Назад")
     builder.button(text="Отмена")
-    builder.adjust(7)
+    return builder
+
+
+def get_prev_cancel_kbd() -> ReplyKeyboardMarkup:
+    builder = ReplyKeyboardBuilder()
+    builder.attach(get_prev_cancel_builder())
+    return builder.as_markup(resize_keyboard=True)
+
+
+def get_category_kbd() -> ReplyKeyboardMarkup:
+    builder = ReplyKeyboardBuilder()
+    for button in sorted(categoryes.keys()):
+        builder.button(text=button)
+    builder.attach(get_prev_cancel_builder())
+    builder.adjust(3)
     return builder.as_markup(resize_keyboard=True)
 
 
@@ -81,7 +95,15 @@ def get_bank_kbd() -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
     for button in banks.keys():
         builder.button(text=button)
-    builder.button(text="Назад")
-    builder.button(text="Отмена")
-    builder.adjust(7)
+    builder.attach(get_prev_cancel_builder())
+    builder.adjust(3)
+    return builder.as_markup(resize_keyboard=True)
+
+
+def get_card_kbd(card_list) -> ReplyKeyboardMarkup:
+    builder = ReplyKeyboardBuilder()
+    for button in card_list:
+        builder.button(text=f'{button["Номер"]}')
+    builder.attach(get_prev_cancel_builder())
+    builder.adjust(3)
     return builder.as_markup(resize_keyboard=True)

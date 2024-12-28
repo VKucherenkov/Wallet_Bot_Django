@@ -12,12 +12,12 @@ router = Router(name=__name__)
 
 @router.message(F.text =='Мои карты')
 async def card_support(message: types.Message):
-    card_dict = await card_list(message)
+    card = await card_list(message)
     logger.info(f'Пользователь: {message.chat.first_name} '
                 f'с Telegram id: {message.from_user.id} написал:\n'
                 f'{message.text}')
-    if card_dict:
-        await message.answer(f'Вот Ваши карты:\n\n{card_dict}', reply_markup=my_card_kbd)
+    if card[0]:
+        await message.answer(f'Вот Ваши карты:\n\n{card[0]}', reply_markup=my_card_kbd)
         await message.answer('Выберете что надо сделать с картами')
     else:
         await message.answer(f'У Вас нет активных карт', reply_markup=my_card_kbd)
