@@ -39,12 +39,13 @@ async def parser_logic_notification(message):
     elif 'покупка' in [i.lower() for i in msg.split('\n')][1] or 'зачислен' in [i.lower() for i in msg.split('\n')][1]:
         data_parser['number_card'] = msg[msg.rindex('•') + 2: msg.index('•') + 2 + 5]
         data_parser['name_recipient'] = ' '.join([i for i in msg.split('\n')][1].split()[1:])
-        data_parser['name_bank'] = await name_bank()
+        data_parser['name_bank'] = await name_bank(data_parser['number_card'])
         data_parser['amount_operation'] = [i for i in msg.split('\n')][2][:-2].replace(',', '.').replace(' ',
                                                                                                          '').replace(
             '+', '')
         data_parser['balans'] = ''.join([i for i in msg.split('\n')][-1].split()[1:-1]).replace(',', '.')
     data_parser['name_card'] = await card_name(data_parser['number_card'])
 
-    [print(f'{key} ------ {value}') for key, value in data_parser.items()]
-    return (all([i for i in data_parser.values()]))
+    data_parser_txt = '\n'.join([f'<code>{key:<16} - {str(value)}</code>' for key, value in data_parser.items()][1:])
+    print(data_parser_txt)
+    return data_parser, data_parser_txt

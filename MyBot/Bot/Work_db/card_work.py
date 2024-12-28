@@ -24,12 +24,12 @@ def card_list(msg):
     # logger.info(result_lst)
     result_txt = ''
     for i in result_dict.keys():
-        result_txt += f'{i:20d}'
+        result_txt += f'<code>{i:^8}</code>'
     if result_lst:
-        result_txt += '\n' + '-' * len(result_txt) + '\n'
+        result_txt += '\n' + '-' * 71 + '\n'
     for n, i in enumerate(result_lst, 1):
         for j in i.values():
-            result_txt += f'{str(j).upper():40d}'
+            result_txt += f'<code>{str(j).upper():^8}</code>'
         result_txt += '\n'
     # logger.info(result_txt)
     return result_txt, result_lst
