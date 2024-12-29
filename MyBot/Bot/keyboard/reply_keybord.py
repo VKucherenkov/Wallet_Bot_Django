@@ -86,8 +86,11 @@ def get_category_kbd() -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
     for button in sorted(categoryes.keys()):
         builder.button(text=button)
-    builder.attach(get_prev_cancel_builder())
+    # builder.attach(get_prev_cancel_builder())
     builder.adjust(3)
+    builder.row(KeyboardButton(text='Назад'),
+            KeyboardButton(text='Отмена'))
+
     return builder.as_markup(resize_keyboard=True)
 
 
@@ -95,8 +98,11 @@ def get_bank_kbd() -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
     for button in banks.keys():
         builder.button(text=button)
-    builder.attach(get_prev_cancel_builder())
+    # builder.attach(get_prev_cancel_builder())
     builder.adjust(3)
+    builder.row(KeyboardButton(text='Назад'),
+                KeyboardButton(text='Отмена'))
+
     return builder.as_markup(resize_keyboard=True)
 
 
@@ -104,6 +110,9 @@ def get_card_kbd(card_list) -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
     for button in card_list:
         builder.button(text=f'{button["Номер"]}')
-    builder.attach(get_prev_cancel_builder())
+    # builder.attach(get_prev_cancel_builder())
     builder.adjust(3)
+    builder.row(KeyboardButton(text='Назад'),
+                KeyboardButton(text='Отмена'))
+
     return builder.as_markup(resize_keyboard=True)
