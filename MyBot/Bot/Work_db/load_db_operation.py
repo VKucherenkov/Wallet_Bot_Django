@@ -26,12 +26,6 @@ def load_db_operaion(data):
                                      Recipient_CategoryOperation_id=category_id)
         print("Реципиент записан в базу")
 
-        # banks = [i.name_bank for i in BankCard.objects.all()]
-        # if all([data['name_bank'].lower() not in i.lower() for i in banks]):
-        #     BankCard.objects.create(name_bank=data['name_bank'].lower())
-        # bank_id = BankCard.objects.get(name_bank=data['name_bank'].lower()).id
-        # print("Имя банка записано в базу")
-
         cards = [i.number_card for i in CardUser.objects.all()]
         user_id = TelegramUser.objects.get(telegram_id=data['telegram_id']).id
         if not cards or int(data['number_card']) not in cards:

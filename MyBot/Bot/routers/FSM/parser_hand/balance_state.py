@@ -37,10 +37,10 @@ async def get_invalid_balance(message: types.Message,):
 async def resume_input_notification(message: types.Message, data):
     text = ''
     for key, value in data.items():
-        text += f'{key}------{value}\n'
+        text += f'<code>{key:<17} ------ {value}</code>\n'
     result = await load_db_operaion(data)
     if type(result) == int:
-        text += 'Данные по операции записаны в базу данных.' + '\n' + f'ID операции:  {result}'
+        text += '<code>Данные по операции записаны в базу данных.' + '\n' + f'ID операции:  {result}</code>'
     else:
-        text += 'Данные по операции не записаны в базу данных.' + '\n' + f'{result}'
-    await message.answer(text=text)
+        text += '<code>Данные по операции не записаны в базу данных.' + '\n' + f'{result}</code>'
+    await message.answer(text=text, parse_mode=ParseMode.HTML)

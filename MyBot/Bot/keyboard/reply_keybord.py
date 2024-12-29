@@ -1,7 +1,12 @@
+import logging
+
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 from Bot.common.global_variable import type_category, categoryes, banks
+
+logger = logging.getLogger(name=__name__)
+
 
 start_kbd = ReplyKeyboardMarkup(
     keyboard=[
@@ -18,7 +23,9 @@ start_kbd = ReplyKeyboardMarkup(
     input_field_placeholder='Выберите что Вас интересует'
 )
 
+
 del_start_kbd = ReplyKeyboardRemove()
+
 
 my_card_kbd = ReplyKeyboardMarkup(
     keyboard=[
@@ -35,7 +42,9 @@ my_card_kbd = ReplyKeyboardMarkup(
     input_field_placeholder='Выберите интересующий Вас пункт меню "Работа с картами/кошельками"'
 )
 
+
 del_my_card_kbd = ReplyKeyboardRemove()
+
 
 add_card_kbd = ReplyKeyboardMarkup(
     keyboard=[
@@ -47,6 +56,7 @@ add_card_kbd = ReplyKeyboardMarkup(
     resize_keyboard=True,
     input_field_placeholder='Введите запрашиваему информацию, либо выберете пункт меню ниже'
 )
+
 
 del_add_card_kbd = ReplyKeyboardRemove()
 
@@ -88,7 +98,6 @@ def get_category_kbd() -> ReplyKeyboardMarkup:
     builder.adjust(3)
     builder.row(KeyboardButton(text='Назад'),
             KeyboardButton(text='Отмена'))
-
     return builder.as_markup(resize_keyboard=True)
 
 
@@ -96,19 +105,20 @@ def get_bank_kbd() -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
     for button in banks.keys():
         builder.button(text=button)
-    # builder.attach(get_prev_cancel_builder())
     builder.adjust(3)
     builder.row(KeyboardButton(text='Назад'),
                 KeyboardButton(text='Отмена'))
-
     return builder.as_markup(resize_keyboard=True)
 
 
 def get_card_kbd(card_list) -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
-    for button in card_list:
-        builder.button(text=f'{button["Номер"]}')
-    # builder.attach(get_prev_cancel_builder())
+    try:
+        for button in card_list:
+            builder.button(text=f'{button["Номер"]}')
+    except Exception as err:
+        logger.info(err)
+        builder.button(text=f'Сохраненные карты отсутствуют')
     builder.adjust(3)
     builder.row(KeyboardButton(text='Назад'),
                 KeyboardButton(text='Отмена'))
