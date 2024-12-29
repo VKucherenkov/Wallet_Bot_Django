@@ -1,8 +1,6 @@
-from aiogram import types
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
-from Bot.Work_db.card_work import card_list_for_kb
 from Bot.common.global_variable import type_category, categoryes, banks
 
 start_kbd = ReplyKeyboardMarkup(
@@ -114,5 +112,14 @@ def get_card_kbd(card_list) -> ReplyKeyboardMarkup:
     builder.adjust(3)
     builder.row(KeyboardButton(text='Назад'),
                 KeyboardButton(text='Отмена'))
+    return builder.as_markup(resize_keyboard=True)
 
+
+def get_recipient_kbd(recipient_lst: list[str]) -> ReplyKeyboardMarkup:
+    builder = ReplyKeyboardBuilder()
+    for button in recipient_lst:
+        builder.button(text=button)
+    builder.adjust(3)
+    builder.row(KeyboardButton(text='Назад'),
+                KeyboardButton(text='Отмена'))
     return builder.as_markup(resize_keyboard=True)

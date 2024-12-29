@@ -23,7 +23,8 @@ async def start(message: types.Message):
                     f'{message.text}')
     if message.from_user.id != settings.TELEGRAM_ID_ADMIN:
         await message.bot.send_message(chat_id=settings.TELEGRAM_ID_ADMIN,
-                                       text=f'{message.date}\n ------------- \n{text_message}',
+                                       text=f'Пользователь с ID: <b>{message.from_user.id}</b>, написал:\n'
+                                            f'<code>{message.date}\n ------------- \n{message.text}</code>',
                                        parse_mode=ParseMode.HTML)
     await message.answer(f'{text}', parse_mode=ParseMode.HTML)
     await message.answer(f'{text_message}', parse_mode=ParseMode.HTML, reply_markup=start_kbd)
@@ -32,6 +33,11 @@ async def start(message: types.Message):
 @router.message(Command('menu'))
 @router.message(F.text == 'Главное меню')
 async def menu(message: types.Message):
+    if message.from_user.id != settings.TELEGRAM_ID_ADMIN:
+        await message.bot.send_message(chat_id=settings.TELEGRAM_ID_ADMIN,
+                                       text=f'Пользователь с ID: <b>{message.from_user.id}</b>, написал:\n'
+                                            f'<code>{message.date}\n ------------- \n{message.text}</code>',
+                                       parse_mode=ParseMode.HTML)
     await message.answer('Выходим в главное меню', reply_markup=del_my_card_kbd)
     await sleep(1)
     await message.answer('Вот меню', reply_markup=start_kbd)
