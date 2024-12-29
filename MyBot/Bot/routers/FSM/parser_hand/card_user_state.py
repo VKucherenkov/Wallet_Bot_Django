@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from Bot.FSM_processing.states import ParserHand
 from Bot.Work_db.bank_db import name_bank
 from Bot.Work_db.card_work import card_number, card_name, card_list_for_kb
-from Bot.keyboard.reply_keybord import start_kbd, get_bank_kbd, get_prev_cancel_kbd, get_card_kbd
+from Bot.keyboard.reply_keybord import get_bank_kbd, get_prev_cancel_kbd, get_card_kbd
 from Bot.validators.valid_card_name import validator_name_card
 from Bot.validators.valid_card_number import validator_card_number
 
@@ -53,8 +53,3 @@ async def get_invalid_name_card(message: types.Message,):
     await message.answer(f'Введите корректное имя карты',
                          parse_mode=ParseMode.HTML,
                          reply_markup=get_prev_cancel_kbd())
-
-
-
-
-

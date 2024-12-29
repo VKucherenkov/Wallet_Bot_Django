@@ -77,5 +77,5 @@ def card_list_for_kb(msg):
                 result_dict['Имя'] = i.name_card
                 result_dict['Номер'] = i.number_card
                 result_dict['Баланс'] = i.balans_card
-            result_lst += [result_dict.copy()]
+                result_lst += [result_dict.copy()]
     return result_lst

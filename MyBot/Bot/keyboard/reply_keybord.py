@@ -113,11 +113,9 @@ def get_bank_kbd() -> ReplyKeyboardMarkup:
 
 def get_card_kbd(card_list) -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
-    try:
-        for button in card_list:
-            builder.button(text=f'{button["Номер"]}')
-    except Exception as err:
-        logger.info(err)
+    for button in card_list:
+        builder.button(text=f'{button["Номер"]}')
+    if not card_list:
         builder.button(text=f'Сохраненные карты отсутствуют')
     builder.adjust(3)
     builder.row(KeyboardButton(text='Назад'),
