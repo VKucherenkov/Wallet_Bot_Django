@@ -6,6 +6,7 @@ from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command
 from django.conf import settings
 
+from Bot.FSM_processing.states import ParserAuto, ParserHand
 from Bot.keyboard.reply_keybord import start_kbd, del_my_card_kbd
 
 
@@ -41,3 +42,9 @@ async def menu(message: types.Message):
     await message.answer('Выходим в главное меню', reply_markup=del_my_card_kbd)
     await sleep(1)
     await message.answer('Вот меню', reply_markup=start_kbd)
+
+
+@router.message(F.text.lower().contains('отмена'), ParserAuto())
+@router.message(F.text.lower().contains('отмена'), ParserHand())
+async def cancel_handler(message: types.Message) -> None:
+    await message.answer('Вы все отменили, выходим в главное меню', reply_markup=start_kbd)

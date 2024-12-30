@@ -9,6 +9,7 @@ router = Router(name=__name__)
 
 logger = logging.getLogger(__name__)
 
+
 @router.message(F.text)
 async def menu(message: types.Message):
     await message.answer('Не понял что ты написал', reply_markup=del_my_card_kbd)

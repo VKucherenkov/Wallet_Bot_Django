@@ -13,6 +13,7 @@ class ParserHand(StatesGroup):
 
 
 class ParserAuto(StatesGroup):
+    start_state = State()
     recipient_state = State()
     type_state = State()
     category_state = State()
