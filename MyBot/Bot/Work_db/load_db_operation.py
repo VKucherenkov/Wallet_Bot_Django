@@ -6,7 +6,7 @@ from Bot.models import TypeOperation, CategoryOperation, Recipient, BankCard, Ca
 @sync_to_async
 def load_db_operaion(data):
     try:
-        [print(key, value, sep='\n') for key, value in data.items()]
+        [print(f'{key:<15} --- {value:<20}\n') for key, value in data.items()]
         types = [i.name_type.lower() for i in TypeOperation.objects.all()]
         if data['name_type'].lower() not in types:
             TypeOperation.objects.create(name_type=data['name_type'].lower())
@@ -22,8 +22,10 @@ def load_db_operaion(data):
 
         recipient = [i.name_recipient.lower() for i in Recipient.objects.all()]
         if not recipient or data['name_recipient'].lower() not in recipient:
-            Recipient.objects.create(name_recipient=data['name_recipient'].lower(),
-                                     Recipient_CategoryOperation_id=category_id)
+            rec = Recipient.objects.create(name_recipient=data['name_recipient'].lower())
+        else:
+            rec = Recipient.objects.get(name_recipient=data['name_recipient'].lower())
+        rec.categories.add(CategoryOperation.objects.get(id=category_id))
         print("Реципиент записан в базу")
 
         cards = [i.number_card for i in CardUser.objects.all()]

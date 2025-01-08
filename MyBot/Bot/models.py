@@ -122,12 +122,22 @@ class OperationUser(models.Model):
 
 class Recipient(models.Model):
     '''Получатели/плательщики'''
-    Recipient_CategoryOperation = models.ForeignKey(CategoryOperation, on_delete=models.CASCADE,
-                                                    related_name='category')
-    name_recipient = models.CharField(('Наименование контрагента'), max_length=150, blank=True, null=True)
-    recipient_in_notification = models.CharField(('Контрагент в уведомлении'), max_length=150, blank=True, null=True)
-    datetime_add = models.DateTimeField(('Время добавления'), auto_now_add=True, blank=True, null=True)
-    datetime_update = models.DateTimeField(('Время последнего изменения'), auto_now=True, blank=True, null=True)
+    categories = models.ManyToManyField(CategoryOperation, through='Cat_Recipient')
+    name_recipient = models.CharField(('Наименование контрагента'),
+                                      max_length=150,
+                                      blank=True, null=True)
+    recipient_in_notification = models.CharField(('Контрагент в уведомлении'),
+                                                 max_length=150,
+                                                 blank=True,
+                                                 null=True)
+    datetime_add = models.DateTimeField(('Время добавления'),
+                                        auto_now_add=True,
+                                        blank=True,
+                                        null=True)
+    datetime_update = models.DateTimeField(('Время последнего изменения'),
+                                           auto_now=True,
+                                           blank=True,
+                                           null=True)
 
     class Meta:
         verbose_name = 'Получатель/плательщик'
@@ -135,6 +145,30 @@ class Recipient(models.Model):
 
     def __str__(self):
         return (f'\nНаименование контрагента = {self.name_recipient},\n'
+                f'Время добавления = {self.datetime_add},\n'
+                f'Время изменения: {self.datetime_update}\n'
+                )
+
+
+class Cat_Recipient(models.Model):
+    category = models.ForeignKey(CategoryOperation, on_delete=models.CASCADE)
+    recipient = models.ForeignKey(Recipient, on_delete=models.CASCADE)
+    datetime_add = models.DateTimeField(('Время создания'),
+                                        auto_now_add=True,
+                                        blank=True,
+                                        null=True)
+    datetime_update = models.DateTimeField(('Время последнего использования'),
+                                           auto_now=True,
+                                           blank=True,
+                                           null=True)
+
+    class Meta:
+        verbose_name = 'Получатель - Категория'
+        verbose_name_plural = 'Получатели - Категории'
+
+    def __str__(self):
+        return (f'\nНаименование контрагента = {self.recipient.name_recipient},\n'
+                f'Наименование категории = {self.category.name_cat},\n'
                 f'Время добавления = {self.datetime_add},\n'
                 f'Время изменения: {self.datetime_update}\n'
                 )

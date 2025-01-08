@@ -27,9 +27,9 @@ def db_typeoperation_crate(msg=None):
 @sync_to_async
 def name_type(message: types.Message) -> str:
     if 'оплата' in message.text.lower() or 'покупка' in message.text.lower() or 'списан' in message.text.lower():
-        return 'расходы'
+        return 'расход'
     elif 'зачисл' in message.text.lower() or 'аванс' in message.text.lower():
-        return 'доходы'
+        return 'доход'
     try:
         categoryes_pk = Recipient.objects.get(name_recipient=data_parser['name_recipient']).Recipient_CategoryOperation_id
         type_pk = CategoryOperation.get(pk=categoryes_pk).TypeOperation_CategoryOperation_id

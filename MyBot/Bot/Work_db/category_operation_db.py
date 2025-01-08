@@ -37,3 +37,11 @@ def get_name_category(message: types.Message) -> str:
     return categoryes_pk
 
 
+@sync_to_async
+def get_name_category_auto(data: str) -> list[str]:
+    try:
+        recipient_pk = Recipient.objects.get(name_recipient=data.lower())
+        categoryes_name = [i.name_cat for i in recipient_pk.categories.all()]
+    except Exception:
+        return
+    return categoryes_name

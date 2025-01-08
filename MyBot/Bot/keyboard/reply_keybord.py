@@ -131,3 +131,10 @@ def get_recipient_kbd(recipient_lst: list[str]) -> ReplyKeyboardMarkup:
     builder.row(KeyboardButton(text='Назад'),
                 KeyboardButton(text='Отмена'))
     return builder.as_markup(resize_keyboard=True)
+
+
+def get_yes_no_kbd():
+    builder = ReplyKeyboardBuilder()
+    builder.button(text='Да')
+    builder.button(text='Нет')
+    return builder.as_markup(resize_keyboard=True)

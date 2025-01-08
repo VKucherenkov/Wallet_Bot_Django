@@ -1,4 +1,7 @@
 import logging
+from datetime import datetime, tzinfo
+
+import pytz
 
 from Bot.Work_db.bank_db import name_bank
 from Bot.Work_db.card_work import card_name
@@ -20,12 +23,24 @@ msg2 = (f'[18.12.2024 в 08:31]\n'
         f'Баланс: 702062,63₽')
 
 
+def get_datetime(msg):
+    date = msg[msg.index('[') + 1: msg.index('[') + 1 + 10] + ' ' + msg[msg.index(
+        ']') + 1 - 6: msg.index(']')]
+    year = int(date[6 : 10])
+    month = int(date[3 : 5])
+    day = int(date[:2])
+    hours = int(date[11 : 13])
+    minutes = int(date[14:])
+    sec = int('0')
+    milisec = int('000000')
+    tz = pytz.timezone("Asia/Novosibirsk")
+    return datetime(year, month, day, hours, minutes, sec, milisec, tz)
+
 async def parser_logic_notification(message):
     msg = message.text
     data_parser = {}
     data_parser['note_operation'] = msg
-    data_parser['datetime_amount'] = msg[msg.index('[') + 1: msg.index('[') + 1 + 10] + ' ' + msg[msg.index(
-        ']') + 1 - 6: msg.index(']')]
+    data_parser['datetime_amount'] = get_datetime(msg)
     data_parser['name_type'] = await name_type(message)
     data_parser['name_cat'] = await get_name_category(message)
     data_parser['recipient_in_notification'] = [i for i in msg.split('\n')][1]
