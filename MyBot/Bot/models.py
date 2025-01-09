@@ -1,21 +1,31 @@
 from django.db import models
+from django.urls import reverse
 
 
 # Create your models here.
 class TelegramUser(models.Model):
     '''Пользователи чат бота'''
+    MALE = 'M'
+    FEMALE = 'Ж'
+    GENDER_CHOISES = [
+        (MALE, 'Мужчина'),
+        (FEMALE, 'Женщина')
+    ]
+
     telegram_id = models.PositiveBigIntegerField(('ID Telegram'), null=True, db_index=True, unique=True)
     email = models.EmailField(('email'), blank=True, null=True)
-    first_name = models.CharField(('Имя'), max_length=150, blank=True, null=True)
-    last_name = models.CharField(('Фамилия'), max_length=150, blank=True, null=True)
+    first_name = models.CharField(('Имя'), max_length=20, blank=True, null=True)
+    last_name = models.CharField(('Фамилия'), max_length=20, blank=True, null=True)
+    gender = models.CharField(('Пол'), max_length=1, choices=GENDER_CHOISES, blank=True, null=True)
     datetime_add = models.DateTimeField(('Время регистрации'), auto_now_add=True, blank=True, null=True)
     datetime_update = models.DateTimeField(('Время последней активности'), auto_now=True, blank=True, null=True)
 
+    def get_url(self):
+        return reverse('user-detail', args=[self.id])
+
     def __str__(self):
-        return f'\nимя = {self.first_name},' \
-               f'id = {self.telegram_id},\n' \
-               f'Регистрация = {self.datetime_add}, ' \
-               f'Был = {self.datetime_update}'
+        return (f'id = {self.telegram_id} ---- '
+                f'имя = {self.first_name}')
 
     class Meta:
         verbose_name = 'Пользователь бота'
@@ -32,8 +42,7 @@ class BankCard(models.Model):
         verbose_name_plural = 'Банки эмитенты'
 
     def __str__(self):
-        return (f'\nИмя банка = {self.name_bank},\n'
-                f'Время добавления = {self.datetime_add}')
+        return (f'Имя банка = {self.name_bank}')
 
 
 class CardUser(models.Model):
