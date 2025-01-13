@@ -3,6 +3,7 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 
 from Bot.FSM_processing.states import ParserHand
+from Bot.Work_db.category_operation_db import get_categories_for_keyboard
 from Bot.keyboard.reply_keybord import get_category_kbd, choice_type_kbd
 from Bot.validators.validator_type import validate_type
 
@@ -11,13 +12,13 @@ router = Router(name=__name__)
 
 @router.message(ParserHand.type_state,
                 F.text, F.func(validate_type))
-async def get_name_type(message: types.Message,
-                        state: FSMContext):
+async def get_name_type(message: types.Message, state: FSMContext):
+    categories = await get_categories_for_keyboard()
     await state.update_data(name_type=message.text.lower())
     await state.set_state(ParserHand.category_state)
     await message.answer(f'Введите категорию операции',
                          parse_mode=ParseMode.HTML,
-                         reply_markup=get_category_kbd())
+                         reply_markup=get_category_kbd(categories))
 
 
 @router.message(ParserHand.type_state)

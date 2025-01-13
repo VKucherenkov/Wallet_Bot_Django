@@ -3,14 +3,33 @@
 {% block title %} Все пользователи телеграм бота {% endblock %}
 
 {% block content %}
-    <h2> Список пользователей </h2>
-    <ul>
-        {% for user in users %}
-            <li>ID пользователя: <a href="{{ user.get_url }}">{{ user.id }}</a>,
-                Телеграмм ID: <a href="{{ user.get_url }}">{{ user.telegram_id }}</a>,
-                Имя пользователя: {{ user.first_name }},
-                Email: {{ user.email }}
-            </li>
+<div>
+    <h1>
+        Список пользователей
+    </h1>
+</div>
+<table class="table table-hover text-center auto-numbered">
+    <thead>
+    <tr>
+        <th scope="col">п/п</th>
+        {% for title in title_col %}
+        <th scope="col">{{ title.title }}</th>
         {% endfor %}
-    </ul>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in users %}
+    <tr>
+        <td></td>
+        <td><a href="{{ user.get_url }}">{{ user.id }}</a></td>
+        <td><a href="{{ user.get_url }}">{{ user.telegram_id }}</a></td>
+        <td>{{ user.first_name }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.gender }}</td>
+        <td>{{ user.datetime_add }}</td>
+        <td>{{ user.datetime_update }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
 {% endblock %}

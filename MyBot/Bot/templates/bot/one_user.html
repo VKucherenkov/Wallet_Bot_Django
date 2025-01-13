@@ -3,9 +3,23 @@
 {% block title %} Информация о пользователе {% endblock %}
 
 {% block content %}
+  <!-- Боковое меню -->
+  <div class="sidebar">
+    <a href="#">Мои финансы</a>
+    <a href="#">Мои операции</a>
+    <a href="#">Мои карты</a>
+    <a href="#">Мои отчеты</a>
+  </div>
+
+  <!-- Основной контент -->
+  <div class="content">
+
     <h2> Информация о пользователе {{ user }}</h2>
-    <h3>ID пользователя: {{ user.id }} </h3>
-    <h3>Телеграмм ID: {{ user.telegram_id }}</h3>
-    <h3>Имя пользователя: {{ user.first_name }}</h3>
-    <h3>Email: {{ user.email }}</h3>
+    <h4>ID пользователя: {{ user.id }} </h4>
+    <h4>Телеграмм ID: {{ user.telegram_id }}</h4>
+    <h4>Имя пользователя: {{ user.first_name }}</h4>
+    <h4>Email: {{ user.email }}</h4>
+    <h4>Пол: {{ user.gender }}</h4>
+  </div>
+
 {% endblock %}

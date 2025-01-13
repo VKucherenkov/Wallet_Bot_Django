@@ -4,6 +4,7 @@ from django.db.models import QuerySet
 from Bot.models import TelegramUser, CardUser, CategoryOperation, TypeOperation, OperationUser, Recipient, BankCard, \
     Cat_Recipient
 
+
 @admin.register(TelegramUser)
 class TelegramUserAdmin(admin.ModelAdmin):
     list_display = ['telegram_id', 'email', 'first_name', 'last_name', 'gender', 'datetime_add', 'datetime_update']
@@ -29,11 +30,96 @@ class TelegramUserAdmin(admin.ModelAdmin):
             f'Было обновлено {count_update} записей'
         )
 
-# Register your models here.
-admin.site.register(BankCard)
-admin.site.register(CardUser)
-admin.site.register(CategoryOperation)
-admin.site.register(TypeOperation)
-admin.site.register(OperationUser)
-admin.site.register(Recipient)
-admin.site.register(Cat_Recipient)
+
+@admin.register(BankCard)
+class BankCardAdmin(admin.ModelAdmin):
+    list_display = ['name_bank',
+                    'datetime_add']
+    ordering = ['name_bank']
+    list_per_page = 10
+    search_fields = ['name_bank']
+
+
+@admin.register(CategoryOperation)
+class CategoryOperationAdmin(admin.ModelAdmin):
+    list_display = ['name_cat',
+                    'TypeOperation_CategoryOperation',
+                    'datetime_add',
+                    'datetime_update']
+    ordering = ['name_cat']
+    list_per_page = 10
+    search_fields = ['name_cat']
+
+
+@admin.register(TypeOperation)
+class TypeOperationAdmin(admin.ModelAdmin):
+    list_display = ['name_type',
+                    'datetime_add',
+                    'datetime_update']
+    ordering = ['name_type']
+    list_per_page = 10
+    search_fields = ['name_type']
+
+
+@admin.register(CardUser)
+class CardUserAdmin(admin.ModelAdmin):
+    list_display = ['name_card',
+                    'number_card',
+                    'balans_card',
+                    'TelegramUser_CardUser',
+                    'BankCard_CardUser',
+                    'datetime_add',
+                    'datetime_update']
+    ordering = ['name_card',
+                'number_card',
+                'balans_card']
+    list_per_page = 10
+    search_fields = ['name_card',
+                     'number_card',
+                     'balans_card']
+
+
+@admin.register(Recipient)
+class RecipientAdmin(admin.ModelAdmin):
+    list_display = ['name_recipient',
+                    'recipient_in_notification',
+                    'datetime_add',
+                    'datetime_update']
+    ordering = ['name_recipient',
+                'recipient_in_notification']
+    list_per_page = 10
+    search_fields = ['name_recipient',
+                     'recipient_in_notification']
+
+
+@admin.register(OperationUser)
+class OperationUserAdmin(admin.ModelAdmin):
+    list_display = ['datetime_amount',
+                    'amount_operation',
+                    'note_operation',
+                    'balans',
+                    'CardUser_OperationUser',
+                    'CategoryOperation_OperationUser',
+                    'datetime_add',
+                    'datetime_update']
+    ordering = ['-datetime_amount',
+                'amount_operation',
+                'note_operation']
+    list_per_page = 10
+    search_fields = ['datetime_amount',
+                     'amount_operation',
+                     'balans',
+                     'note_operation']
+
+
+@admin.register(Cat_Recipient)
+class Cat_RecipientAdmin(admin.ModelAdmin):
+    list_display = ['category',
+                    'recipient',
+                    'datetime_add',
+                    'datetime_update']
+    ordering = ['category',
+                'recipient']
+    list_per_page = 10
+    search_fields = ['category',
+                    'recipient']

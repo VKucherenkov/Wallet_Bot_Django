@@ -1,5 +1,6 @@
 import logging
-from datetime import datetime, tzinfo
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import pytz
 
@@ -26,15 +27,21 @@ msg2 = (f'[18.12.2024 в 08:31]\n'
 def get_datetime(msg):
     date = msg[msg.index('[') + 1: msg.index('[') + 1 + 10] + ' ' + msg[msg.index(
         ']') + 1 - 6: msg.index(']')]
-    year = int(date[6 : 10])
-    month = int(date[3 : 5])
+    year = int(date[6: 10])
+    month = int(date[3: 5])
     day = int(date[:2])
-    hours = int(date[11 : 13])
+    hours = int(date[11: 13])
     minutes = int(date[14:])
     sec = int('0')
     milisec = int('000000')
-    tz = pytz.timezone("Asia/Novosibirsk")
-    return datetime(year, month, day, hours, minutes, sec, milisec, tz)
+    # Создание конкретной даты и времени
+    specific_time = datetime(year, month, day, hours, minutes, sec, milisec)
+    # Указание временной зоны
+    timezone = ZoneInfo('Asia/Novosibirsk')
+    # Привязка времени к временной зоне
+    specific_time_with_tz = specific_time.replace(tzinfo=timezone)
+    return specific_time_with_tz
+
 
 async def parser_logic_notification(message):
     msg = message.text
@@ -46,13 +53,19 @@ async def parser_logic_notification(message):
     data_parser['recipient_in_notification'] = [i for i in msg.split('\n')][1]
     if 'списание' in [i.lower() for i in msg.split('\n')][1]:
         data_parser['number_card'] = msg[msg.index('*') + 1: msg.index('*') + 1 + 4]
+        if data_parser['number_card'] == '7473':
+            data_parser['number_card'] = '8314'
         data_parser['name_bank'] = 'Сбербанк'
         data_parser['name_recipient'] = 'Сбербанк'
         data_parser['amount_operation'] = [j[:-1] for j in [i for i in msg.split('\n')][2].split() if j[-1] == 'р'][0]
         data_parser['balans'] = [i for i in msg.split('\n')][-1].split()[-1][:-2].replace(',', '.')
 
-    elif 'покупка' in [i.lower() for i in msg.split('\n')][1] or 'зачислен' in [i.lower() for i in msg.split('\n')][1]:
+    elif 'покупка' in [i.lower() for i in msg.split('\n')][1] or 'зачислен' in [i.lower() for i in msg.split('\n')][
+        1] or 'оплата' in [i.lower() for i in msg.split('\n')][1] or 'возвр' in [i.lower() for i in msg.split('\n')][
+        1] or 'перевод от' in [i.lower() for i in msg.split('\n')][1]:
         data_parser['number_card'] = msg[msg.rindex('•') + 2: msg.index('•') + 2 + 5]
+        if data_parser['number_card'] == '7473':
+            data_parser['number_card'] = '8314'
         data_parser['name_recipient'] = ' '.join([i for i in msg.split('\n')][1].split()[1:])
         data_parser['name_bank'] = await name_bank(data_parser['number_card'])
         data_parser['amount_operation'] = [i for i in msg.split('\n')][2][:-2].replace(',', '.').replace(' ',

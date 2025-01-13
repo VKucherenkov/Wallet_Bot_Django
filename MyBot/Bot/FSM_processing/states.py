@@ -17,6 +17,7 @@ class ParserAuto(StatesGroup):
     card_name_state = State()
     bank_state_auto = State()
     recipient_state = State()
+    type_state_auto = State()
     category_state_auto = State()
     resume_state = State()
 

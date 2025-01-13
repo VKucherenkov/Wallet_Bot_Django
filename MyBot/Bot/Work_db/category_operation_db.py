@@ -38,10 +38,15 @@ def get_name_category(message: types.Message) -> str:
 
 
 @sync_to_async
-def get_name_category_auto(data: str) -> list[str]:
+def get_name_category_auto(data: str):
     try:
         recipient_pk = Recipient.objects.get(name_recipient=data.lower())
         categoryes_name = [i.name_cat for i in recipient_pk.categories.all()]
     except Exception:
         return
+    return categoryes_name
+
+@sync_to_async
+def get_categories_for_keyboard() -> list[str]:
+    categoryes_name = [i.name_cat for i in CategoryOperation.objects.all()]
     return categoryes_name

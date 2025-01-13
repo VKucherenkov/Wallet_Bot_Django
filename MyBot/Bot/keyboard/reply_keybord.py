@@ -3,6 +3,7 @@ import logging
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
+from Bot.Work_db.category_operation_db import get_categories_for_keyboard
 from Bot.common.global_variable import type_category, categoryes, banks
 
 logger = logging.getLogger(name=__name__)
@@ -77,31 +78,40 @@ choice_type_kbd = ReplyKeyboardMarkup(
 )
 
 
-def get_prev_cancel_builder() -> ReplyKeyboardMarkup:
+def get_prev_cancel_builder():
     builder = ReplyKeyboardBuilder()
     builder.button(text="Назад")
     builder.button(text="Отмена")
     return builder
 
 
-def get_prev_cancel_kbd() -> ReplyKeyboardMarkup:
+def get_prev_cancel_kbd():
     builder = ReplyKeyboardBuilder()
     builder.attach(get_prev_cancel_builder())
     return builder.as_markup(resize_keyboard=True)
 
 
-def get_category_kbd() -> ReplyKeyboardMarkup:
+def get_type_kbd(types):
     builder = ReplyKeyboardBuilder()
-    for button in sorted(categoryes.keys()):
+    for button in sorted(types):
         builder.button(text=button)
-    # builder.attach(get_prev_cancel_builder())
+    builder.adjust(3)
+    builder.row(KeyboardButton(text='Назад'),
+                KeyboardButton(text='Отмена'))
+    return builder.as_markup(resize_keyboard=True)
+
+
+def get_category_kbd(categories):
+    builder = ReplyKeyboardBuilder()
+    for button in sorted(categories):
+        builder.button(text=button)
     builder.adjust(3)
     builder.row(KeyboardButton(text='Назад'),
             KeyboardButton(text='Отмена'))
     return builder.as_markup(resize_keyboard=True)
 
 
-def get_bank_kbd() -> ReplyKeyboardMarkup:
+def get_bank_kbd():
     builder = ReplyKeyboardBuilder()
     for button in banks.keys():
         builder.button(text=button)
@@ -111,7 +121,7 @@ def get_bank_kbd() -> ReplyKeyboardMarkup:
     return builder.as_markup(resize_keyboard=True)
 
 
-def get_card_kbd(card_list) -> ReplyKeyboardMarkup:
+def get_card_kbd(card_list):
     builder = ReplyKeyboardBuilder()
     for button in card_list:
         builder.button(text=f'{button["Номер"]}')
@@ -123,7 +133,7 @@ def get_card_kbd(card_list) -> ReplyKeyboardMarkup:
     return builder.as_markup(resize_keyboard=True)
 
 
-def get_recipient_kbd(recipient_lst: list[str]) -> ReplyKeyboardMarkup:
+def get_recipient_kbd(recipient_lst):
     builder = ReplyKeyboardBuilder()
     for button in recipient_lst:
         builder.button(text=button)

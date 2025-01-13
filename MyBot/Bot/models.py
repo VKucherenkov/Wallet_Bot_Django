@@ -1,3 +1,4 @@
+from autoslug import AutoSlugField
 from django.db import models
 from django.urls import reverse
 
@@ -12,16 +13,18 @@ class TelegramUser(models.Model):
         (FEMALE, 'Женщина')
     ]
 
-    telegram_id = models.PositiveBigIntegerField(('ID Telegram'), null=True, db_index=True, unique=True)
-    email = models.EmailField(('email'), blank=True, null=True)
-    first_name = models.CharField(('Имя'), max_length=20, blank=True, null=True)
-    last_name = models.CharField(('Фамилия'), max_length=20, blank=True, null=True)
-    gender = models.CharField(('Пол'), max_length=1, choices=GENDER_CHOISES, blank=True, null=True)
-    datetime_add = models.DateTimeField(('Время регистрации'), auto_now_add=True, blank=True, null=True)
-    datetime_update = models.DateTimeField(('Время последней активности'), auto_now=True, blank=True, null=True)
+    telegram_id = models.PositiveBigIntegerField('ID Telegram', null=True, db_index=True, unique=True)
+    email = models.EmailField(blank=True, null=True, verbose_name='Email')
+    first_name = models.CharField(max_length=20, blank=True, null=True, verbose_name='Имя')
+    last_name = models.CharField(max_length=20, blank=True, null=True, verbose_name="Фамилия")
+    gender = models.CharField(max_length=1, choices=GENDER_CHOISES, blank=True, null=True,
+                              verbose_name="Пол")
+    slug = AutoSlugField(populate_from='first_name', max_length=255, unique=True, db_index=True, verbose_name="slug")
+    datetime_add = models.DateTimeField('Время регистрации', auto_now_add=True, blank=True, null=True)
+    datetime_update = models.DateTimeField('Время последней активности', auto_now=True, blank=True, null=True)
 
     def get_url(self):
-        return reverse('user-detail', args=[self.id])
+        return reverse('userdetail', kwargs={'userdetail_slug': self.slug})
 
     def __str__(self):
         return (f'id = {self.telegram_id} ---- '
@@ -34,92 +37,106 @@ class TelegramUser(models.Model):
 
 class BankCard(models.Model):
     '''Банки эмитенты карт'''
-    name_bank = models.CharField(('Имя банка'), max_length=150, blank=True, null=True)
-    datetime_add = models.DateTimeField(('Время добавления'), auto_now_add=True, blank=True, null=True)
+    name_bank = models.CharField(max_length=150, blank=True, null=True, verbose_name='Банк')
+    slug = AutoSlugField(populate_from='name_bank', max_length=255, unique=True, db_index=True, verbose_name="slug")
+    datetime_add = models.DateTimeField('Время добавления', auto_now_add=True, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Банк эмитент'
         verbose_name_plural = 'Банки эмитенты'
 
+    def get_url(self):
+        return reverse('bank-detail', args=[self.slug])
+
     def __str__(self):
-        return (f'Имя банка = {self.name_bank}')
+        return f'{self.name_bank}'
 
 
 class CardUser(models.Model):
     '''Карты пользователя'''
-    TelegramUser_CardUser = models.ForeignKey(TelegramUser, on_delete=models.CASCADE, related_name='cards')
-    BankCard_CardUser = models.ForeignKey(BankCard, on_delete=models.CASCADE, related_name='cards')
-    name_card = models.CharField(('Имя карты'), max_length=150, blank=True, null=True)
-    number_card = models.IntegerField(('Номер карты'), null=True, unique=True)
+    TelegramUser_CardUser = models.ForeignKey(TelegramUser, on_delete=models.CASCADE, related_name='cards',
+                                              verbose_name="Пользователь")
+    BankCard_CardUser = models.ForeignKey(BankCard, on_delete=models.CASCADE, related_name='cards', verbose_name="Банк")
+    name_card = models.CharField(max_length=150, blank=True, null=True,
+                                 verbose_name="Наименование карты")
+    number_card = models.IntegerField('Номер карты', null=True, unique=True)
     balans_card = models.DecimalField('Баланс карты', max_digits=10, decimal_places=2, db_index=True, blank=True,
                                       null=True)
-    datetime_add = models.DateTimeField(('Время добавления'), auto_now_add=True, blank=True, null=True)
-    datetime_update = models.DateTimeField(('Время последнего изменения'), auto_now=True, blank=True, null=True)
+    datetime_add = models.DateTimeField('Время добавления', auto_now_add=True, blank=True, null=True)
+    datetime_update = models.DateTimeField('Время последнего изменения', auto_now=True, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Платежная карта'
         verbose_name_plural = 'Платежные карты'
 
+    def get_url(self):
+        return reverse('card-detail', args=[self.id])
+
     def __str__(self):
-        return (f'\nимя = {self.name_card}, номер карты: {self.number_card},\n'
-                f'Баланс карты: {self.balans_card},\n'
-                f'Время добавления = {self.datetime_add},\n'
-                f'Время последнего изменения: {self.datetime_update},\n'
-                f'Владелец: {self.TelegramUser_CardUser.first_name}\n'
-                )
+        return (f'номер карты: {self.number_card}, {self.name_card.upper()}')
 
 
 class TypeOperation(models.Model):
     '''Тип операции'''
-    name_type = models.CharField(('Наименование типа'), max_length=150, blank=True, null=True)
-    datetime_add = models.DateTimeField(('Время добавления'), auto_now_add=True, blank=True, null=True)
-    datetime_update = models.DateTimeField(('Время последнего изменения'), auto_now=True, blank=True, null=True)
+    name_type = models.CharField(max_length=150, blank=True, null=True, verbose_name='Наименование типа')
+    slug = AutoSlugField(populate_from='name_type', max_length=255, unique=True, db_index=True, verbose_name="slug")
+    datetime_add = models.DateTimeField('Время добавления', auto_now_add=True, blank=True, null=True)
+    datetime_update = models.DateTimeField('Время последнего изменения', auto_now=True, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Тип операции'
         verbose_name_plural = 'Типы операций'
 
+    def get_url(self):
+        return reverse('type-detail', args=[self.slug])
+
     def __str__(self):
-        return (f'\nТип операции = {self.name_type},\n'
-                f'Время добавления = {self.datetime_add},\n'
-                f'Время изменения: {self.datetime_update}\n'
-                )
+        return f'Тип операции: {self.name_type}'
 
 
 class CategoryOperation(models.Model):
     '''Категория операции'''
     TypeOperation_CategoryOperation = models.ForeignKey(TypeOperation, on_delete=models.CASCADE,
-                                                        related_name='typeoperation')
-    name_cat = models.CharField(('Наименование категории'), max_length=150, blank=True, null=True)
-    datetime_add = models.DateTimeField(('Время добавления'), auto_now_add=True, blank=True, null=True)
-    datetime_update = models.DateTimeField(('Время последнего изменения'), auto_now=True, blank=True, null=True)
+                                                        related_name='typeoperation', verbose_name='Тип операции')
+    name_cat = models.CharField(max_length=150, blank=True, null=True, verbose_name='Наименование категории')
+    slug = AutoSlugField(populate_from='name_cat', max_length=255, unique=True, db_index=True, verbose_name="slug")
+    datetime_add = models.DateTimeField('Время добавления', auto_now_add=True, blank=True, null=True)
+    datetime_update = models.DateTimeField('Время последнего изменения', auto_now=True, blank=True,
+                                           null=True)
 
     class Meta:
         verbose_name = 'Категория операции'
         verbose_name_plural = 'Категории операций'
 
+    def get_url(self):
+        return reverse('category-detail', args=[self.slug])
+
     def __str__(self):
-        return (f'\nКатегория = {self.name_cat},\n'
-                f'Время добавления = {self.datetime_add},\n'
-                f'Время изменения: {self.datetime_update}\n'
-                )
+        return (f'Категория: {self.name_cat},  '
+                f'{self.TypeOperation_CategoryOperation}')
 
 
 class OperationUser(models.Model):
     '''Операция списания/зачисления'''
-    CardUser_OperationUser = models.ForeignKey(CardUser, on_delete=models.CASCADE, related_name='Operation')
+    CardUser_OperationUser = models.ForeignKey(CardUser, on_delete=models.CASCADE, related_name='Operation',
+                                               verbose_name='Карта')
     CategoryOperation_OperationUser = models.ForeignKey(CategoryOperation, on_delete=models.CASCADE,
-                                                        related_name='Operation')
-    datetime_amount = models.DateTimeField(('Время операции'), blank=True, null=True)
+                                                        related_name='Operation', verbose_name="Категория")
+    datetime_amount = models.DateTimeField('Время операции', blank=True, null=True)
     amount_operation = models.DecimalField('Сумма операции', max_digits=10, decimal_places=2, db_index=True, blank=True,
                                            null=True)
-    note_operation = models.CharField(('Текст уведомления'), max_length=250, blank=True, null=True)
-    datetime_add = models.DateTimeField(('Время добавления'), auto_now_add=True, blank=True, null=True)
-    datetime_update = models.DateTimeField(('Время последнего изменения'), auto_now=True, blank=True, null=True)
+    note_operation = models.CharField(max_length=250, blank=True, null=True, verbose_name='Текст уведомления')
+    balans = models.DecimalField('Баланс после операции', max_digits=10, decimal_places=2, db_index=True, blank=True,
+                                      null=True)
+    datetime_add = models.DateTimeField('Время добавления', auto_now_add=True, blank=True, null=True)
+    datetime_update = models.DateTimeField('Время последнего изменения', auto_now=True, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Операция списания/зачисления'
         verbose_name_plural = 'Операции списаний/зачислений'
+
+    def get_url(self):
+        return reverse('operation-detail', args=[self.id])
 
     def __str__(self):
         return (f'\nСумма операции = {self.amount_operation},\n'
@@ -132,18 +149,15 @@ class OperationUser(models.Model):
 class Recipient(models.Model):
     '''Получатели/плательщики'''
     categories = models.ManyToManyField(CategoryOperation, through='Cat_Recipient')
-    name_recipient = models.CharField(('Наименование контрагента'),
-                                      max_length=150,
-                                      blank=True, null=True)
-    recipient_in_notification = models.CharField(('Контрагент в уведомлении'),
-                                                 max_length=150,
-                                                 blank=True,
-                                                 null=True)
-    datetime_add = models.DateTimeField(('Время добавления'),
+    name_recipient = models.CharField(max_length=150, blank=True, null=True, verbose_name='Получатель платежа')
+    recipient_in_notification = models.CharField(max_length=150, blank=True, null=True,
+                                                 verbose_name="Получатель в уведомлении")
+    slug = AutoSlugField(populate_from='name_recipient', max_length=255, unique=True, db_index=True, verbose_name="slug")
+    datetime_add = models.DateTimeField('Время добавления',
                                         auto_now_add=True,
                                         blank=True,
                                         null=True)
-    datetime_update = models.DateTimeField(('Время последнего изменения'),
+    datetime_update = models.DateTimeField('Время последнего изменения',
                                            auto_now=True,
                                            blank=True,
                                            null=True)
@@ -152,21 +166,21 @@ class Recipient(models.Model):
         verbose_name = 'Получатель/плательщик'
         verbose_name_plural = 'Получатели/плательщики'
 
+    def get_url(self):
+        return reverse('recipient-detail', args=[self.slug])
+
     def __str__(self):
-        return (f'\nНаименование контрагента = {self.name_recipient},\n'
-                f'Время добавления = {self.datetime_add},\n'
-                f'Время изменения: {self.datetime_update}\n'
-                )
+        return f'Наименование контрагента: {self.name_recipient}'
 
 
 class Cat_Recipient(models.Model):
-    category = models.ForeignKey(CategoryOperation, on_delete=models.CASCADE)
-    recipient = models.ForeignKey(Recipient, on_delete=models.CASCADE)
-    datetime_add = models.DateTimeField(('Время создания'),
+    category = models.ForeignKey(CategoryOperation, on_delete=models.CASCADE, verbose_name="Категория")
+    recipient = models.ForeignKey(Recipient, on_delete=models.CASCADE, verbose_name="Получатель платежа")
+    datetime_add = models.DateTimeField('Время создания',
                                         auto_now_add=True,
                                         blank=True,
                                         null=True)
-    datetime_update = models.DateTimeField(('Время последнего использования'),
+    datetime_update = models.DateTimeField('Время последнего использования',
                                            auto_now=True,
                                            blank=True,
                                            null=True)
@@ -174,6 +188,9 @@ class Cat_Recipient(models.Model):
     class Meta:
         verbose_name = 'Получатель - Категория'
         verbose_name_plural = 'Получатели - Категории'
+
+    def get_url(self):
+        return reverse('cat-recipient-detail', args=[self.id])
 
     def __str__(self):
         return (f'\nНаименование контрагента = {self.recipient.name_recipient},\n'

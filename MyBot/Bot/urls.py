@@ -19,10 +19,14 @@ from debug_toolbar.toolbar import debug_toolbar_urls
 from . import wiews
 from django.urls import path, include
 
-
+from .wiews import index, about, contact, login_in
 
 urlpatterns = [
-    path('', wiews.show_all_telegram_users),
-    path('user/<int:id_user>', wiews.show_telegram_users, name='user-detail'),
+    path('home/', index, name='home'),
+    path('about/', about, name='about'),
+    path('users/', wiews.show_all_telegram_users, name='users'),
+    path('contact/', contact, name='contact'),
+    path('login_in/', login_in, name='login_in'),
+    path('user/<slug:userdetail_slug>/', wiews.show_telegram_users, name='userdetail'),
 ]
 

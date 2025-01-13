@@ -22,7 +22,8 @@ def load_db_operaion(data):
 
         recipient = [i.name_recipient.lower() for i in Recipient.objects.all()]
         if not recipient or data['name_recipient'].lower() not in recipient:
-            rec = Recipient.objects.create(name_recipient=data['name_recipient'].lower())
+            rec = Recipient.objects.create(name_recipient=data['name_recipient'].lower(),
+                                           recipient_in_notification=data['recipient_in_notification'])
         else:
             rec = Recipient.objects.get(name_recipient=data['name_recipient'].lower())
         rec.categories.add(CategoryOperation.objects.get(id=category_id))
@@ -49,6 +50,13 @@ def load_db_operaion(data):
             card_user.save()
             data['name_bank'] = CardUser.objects.get(number_card=data['number_card']).BankCard_CardUser.name_bank
             data['name_card'] = CardUser.objects.get(number_card=data['number_card']).name_card
+        elif data['balans'] == CardUser.objects.get(number_card=data['number_card']).balans_card + data[
+            'amount_operation']:
+            card_user = CardUser.objects.get(number_card=data['number_card'])
+            card_user.balans_card = data['balans']
+            card_user.save()
+            data['name_bank'] = CardUser.objects.get(number_card=data['number_card']).BankCard_CardUser.name_bank
+            data['name_card'] = CardUser.objects.get(number_card=data['number_card']).name_card
         else:
             return (f'Ошибка обновления баланса\n'
                     f'Баланс до операции: {CardUser.objects.get(number_card=data["number_card"]).balans_card}\n'
@@ -64,6 +72,8 @@ def load_db_operaion(data):
 
         OperationUser.objects.create(datetime_amount=data['datetime_amount'],
                                      amount_operation=data['amount_operation'],
+                                     balans=data['balans'],
+                                     note_operation=data['note_operation'],
                                      CardUser_OperationUser_id=card_id,
                                      CategoryOperation_OperationUser_id=category_id)
         operation_id = OperationUser.objects.last().id

@@ -1,4 +1,3 @@
-import pytz
 from aiogram import Router, F, types
 from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext

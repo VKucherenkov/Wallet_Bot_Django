@@ -30,9 +30,17 @@ def name_type(message: types.Message) -> str:
         return 'расход'
     elif 'зачисл' in message.text.lower() or 'аванс' in message.text.lower():
         return 'доход'
+    elif 'возвр' in message.text.lower() or 'аванс' in message.text.lower():
+        return 'возврат'
     try:
         categoryes_pk = Recipient.objects.get(name_recipient=data_parser['name_recipient']).Recipient_CategoryOperation_id
         type_pk = CategoryOperation.get(pk=categoryes_pk).TypeOperation_CategoryOperation_id
     except Exception:
         return
     return TypeOperation.get(pk=type_pk).name_type
+
+
+@sync_to_async
+def get_type_for_keyboard():
+    types = [i.name_type for i in TypeOperation.objects.all()]
+    return types
