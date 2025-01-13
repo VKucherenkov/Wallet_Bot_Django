@@ -28,9 +28,11 @@ def db_typeoperation_crate(msg=None):
 def name_type(message: types.Message) -> str:
     if 'оплата' in message.text.lower() or 'покупка' in message.text.lower() or 'списан' in message.text.lower():
         return 'расход'
+    elif 'с карты' in message.text.lower():
+        return 'перевод между своими счетами'
     elif 'зачисл' in message.text.lower() or 'аванс' in message.text.lower():
         return 'доход'
-    elif 'возвр' in message.text.lower() or 'аванс' in message.text.lower():
+    elif 'возвр' in message.text.lower():
         return 'возврат'
     try:
         categoryes_pk = Recipient.objects.get(name_recipient=data_parser['name_recipient']).Recipient_CategoryOperation_id

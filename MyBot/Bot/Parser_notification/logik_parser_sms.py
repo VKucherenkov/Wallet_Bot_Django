@@ -62,7 +62,8 @@ async def parser_logic_notification(message):
 
     elif 'покупка' in [i.lower() for i in msg.split('\n')][1] or 'зачислен' in [i.lower() for i in msg.split('\n')][
         1] or 'оплата' in [i.lower() for i in msg.split('\n')][1] or 'возвр' in [i.lower() for i in msg.split('\n')][
-        1] or 'перевод от' in [i.lower() for i in msg.split('\n')][1]:
+        1] or 'перевод от' in [i.lower() for i in msg.split('\n')][1] or 'перевод' in \
+            [i.lower() for i in msg.split('\n')][1]:
         data_parser['number_card'] = msg[msg.rindex('•') + 2: msg.index('•') + 2 + 5]
         if data_parser['number_card'] == '7473':
             data_parser['number_card'] = '8314'
