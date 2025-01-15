@@ -1,0 +1,56 @@
+html, body {
+  height: 100%; /* Занимаем всю высоту экрана */
+  display: grid;
+  grid-template-rows: auto 1fr auto; /* Шапка, контент, футер */
+}
+
+.auto-numbered {
+    counter-reset: rowNumber; /* Инициализация счетчика */
+    }
+
+.auto-numbered tbody tr {
+  counter-increment: rowNumber; /* Увеличение счетчика для каждой строки */
+}
+
+.auto-numbered tbody tr td:first-child::before {
+  content: counter(rowNumber); /* Отображение номера строки */
+  margin-right: 10px;
+}
+
+footer {
+  grid-row: 3; /* Футер в третьей строке */
+}
+
+.sidebar {
+  height: 533px; /* Высота на всю страницу */
+  width: 150px; /* Ширина меню */
+  position: fixed; /* Фиксированное положение */
+  top: 7vh;
+  left: 0;
+  background-color: #1b2394; /* фон */
+  padding-top: 20px;
+}
+
+.sidebar a {
+  color: white; /* Белый цвет текста */
+  padding: 10px 15px;
+  text-decoration: none;
+  display: block;
+}
+
+.sidebar a:hover {
+  background-color: #575d63; /* Цвет при наведении */
+}
+
+.content {
+  margin-left: 0px; /* Отступ для основного контента */
+  padding: 20px;
+}
+
+.my-accordion {
+    margin-left: 0px;
+    padding: 5px;
+}
+
+.footer {
+    margin-left: auto;}

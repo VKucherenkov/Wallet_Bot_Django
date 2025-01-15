@@ -27,8 +27,8 @@ class TelegramUser(models.Model):
         return reverse('userdetail', kwargs={'userdetail_slug': self.slug})
 
     def __str__(self):
-        return (f'id = {self.telegram_id} ---- '
-                f'имя = {self.first_name}')
+        return (f'id: {self.telegram_id} ---- '
+                f'имя: {self.first_name}')
 
     class Meta:
         verbose_name = 'Пользователь бота'

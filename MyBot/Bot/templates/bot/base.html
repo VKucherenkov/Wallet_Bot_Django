@@ -4,61 +4,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ title }}</title>
-    <link type="text/css" href="{% static 'bot/css/styles.css' %}" rel="stylesheet"/>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-            crossorigin="anonymous"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        .auto-numbered {
-          counter-reset: rowNumber; /* Инициализация счетчика */
-        }
-
-        .auto-numbered tbody tr {
-          counter-increment: rowNumber; /* Увеличение счетчика для каждой строки */
-        }
-
-        .auto-numbered tbody tr td:first-child::before {
-          content: counter(rowNumber); /* Отображение номера строки */
-          margin-right: 10px;
-        }
-            html, body {
-      height: 100%; /* Занимаем всю высоту экрана */
-      margin: 0;
-      display: grid;
-      grid-template-rows: auto 1fr auto; /* Шапка, контент, футер */
-    }
-
-    footer {
-      grid-row: 3; /* Футер в третьей строке */
-    }
-        .sidebar {
-      height: 533px; /* Высота на всю страницу */
-      width: 150px; /* Ширина меню */
-      position: fixed; /* Фиксированное положение */
-      top: 7vh;
-      left: 0;
-      background-color: #1b2394; /* фон */
-      padding-top: 20px;
-    }
-    .sidebar a {
-      color: white; /* Белый цвет текста */
-      padding: 10px 15px;
-      text-decoration: none;
-      display: block;
-    }
-    .sidebar a:hover {
-      background-color: #575d63; /* Цвет при наведении */
-    }
-    .content {
-      margin-left: 250px; /* Отступ для основного контента */
-      padding: 20px;
-    }
-    </style>
+    <link type="text/css" href="{% static 'bot/css/styles.css' %}" rel="stylesheet"/>
 </head>
+<body>
 <nav class="navbar navbar-expand-lg navbar-light bg-primary-subtle">
     <div class="container-fluid">
         <!-- Логотип или название сайта -->
@@ -84,19 +36,16 @@
         </div>
     </div>
 </nav>
-<body>
-{% block mainmenu %}
-
-{% endblock %}
-<div class="container mt-4">
     {% block content %}
 
     {% endblock %}
-</div>
+
+<!--<div class="container mt-4">-->
+<!--</div>-->
 
 <!-- Футер -->
 <footer class="text-white py-4 mt-4" style="background-color: rgba(22, 8, 69, 0.75);">
-    <div class="container">
+    <div class="container footer">
         <div class="row">
             <div class="col-md-4">
                 <h5>О нас</h5>
@@ -119,9 +68,15 @@
             </div>
         </div>
     </div>
-    <div class="text-center py-3" style="background-color: rgba(51, 2, 66, 0.5);">
+    <div class="text-center py-3 footer" style="background-color: rgba(51, 2, 66, 0.5);">
         © 2025 Wallet site. Все права защищены.
     </div>
 </footer>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+        integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+        crossorigin="anonymous"></script>
 </body>
 </html>
