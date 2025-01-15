@@ -1,0 +1,27 @@
+{% load static %}
+
+<nav class="navbar navbar-expand-lg navbar-light bg-primary-subtle">
+    <div class="container-fluid">
+        <!-- Логотип или название сайта -->
+        <a class="navbar-brand" href="/home/"><img src="{% static 'bot/images/Logo VVK.png' %}" alt="Логотип" width="30"
+                                                   height="30"
+                                                   class="d-inline-block align-text-top">Главная</a>
+
+        <!-- Кнопка для мобильных устройств -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Основное меню -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                {% for m in menu %}
+                <li class="nav-item">
+                    <a class="nav-link activ" href="{% url m.url_link %}">{{m.title}}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</nav>

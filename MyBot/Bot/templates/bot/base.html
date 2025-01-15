@@ -11,67 +11,16 @@
     <link type="text/css" href="{% static 'bot/css/styles.css' %}" rel="stylesheet"/>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-light bg-primary-subtle">
-    <div class="container-fluid">
-        <!-- Логотип или название сайта -->
-        <a class="navbar-brand" href="/home/"><img src="{% static 'bot/images/Logo VVK.png' %}" alt="Логотип" width="30"
-                                                   height="30"
-                                                   class="d-inline-block align-text-top">Главная</a>
+<!--Подключаем NavBar-->
+{% include 'bot/includes/nav_bar.html' %}
 
-        <!-- Кнопка для мобильных устройств -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+{% block content %}
 
-        <!-- Основное меню -->
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                {% for m in menu %}
-                <li class="nav-item">
-                    <a class="nav-link activ" href="{% url m.url_link %}">{{m.title}}</a>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-</nav>
-    {% block content %}
+{% endblock %}
 
-    {% endblock %}
+<!--Подключаем футер -->
+{% include 'bot/includes/footer.html' %}
 
-<!--<div class="container mt-4">-->
-<!--</div>-->
-
-<!-- Футер -->
-<footer class="text-white py-4 mt-4" style="background-color: rgba(22, 8, 69, 0.75);">
-    <div class="container footer">
-        <div class="row">
-            <div class="col-md-4">
-                <h5>О нас</h5>
-                <p>Первый проект в Django + Телеграм bot.</p>
-            </div>
-            <div class="col-md-4">
-                <h5>Ссылки</h5>
-                <ul class="list-unstyled">
-                    <li><a href="/home" class="text-white">Главная</a></li>
-                    <li><a href="/about" class="text-white">О нас</a></li>
-                    <li><a href="/contact" class="text-white">Контакты</a></li>
-                </ul>
-            </div>
-            <div class="col-md-4">
-                <h5>Контакты</h5>
-                <ul class="list-unstyled">
-                    <li>Email: vvk77777@mail.ru</li>
-                    <li>Телефон: +7 (913) 505-07-73</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div class="text-center py-3 footer" style="background-color: rgba(51, 2, 66, 0.5);">
-        © 2025 Wallet site. Все права защищены.
-    </div>
-</footer>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
         integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
         crossorigin="anonymous"></script>
