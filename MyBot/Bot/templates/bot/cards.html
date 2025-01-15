@@ -10,6 +10,13 @@
         <!-- Основной контент -->
         <div class="content col-xxl-6 col-xl-6 col-md-5 col-sm-4 col-xs-3">
             <h2> Карты (кошельки) {{ user }}</h2>
+                {% if not cards %}
+            <hr>
+                <h3>
+                    У вас нет открытых карт
+                </h3>
+            <hr>
+            {% else %}
             <table class="table table-hover text-center auto-numbered">
                 <thead>
                 <tr>
@@ -25,11 +32,13 @@
                     <td></td>
                     <td>{{ card.BankCard_CardUser }}</td>
                     <td>{{ card.name_card }}</td>
-                    <td>{{ card.balans_card }} </td>
+                    <td>{{ card.balans_card }}</td>
                 </tr>
                 {% endfor %}
+
                 </tbody>
             </table>
+            {% endif %}
         </div>
 
         <!-- Фото -->
