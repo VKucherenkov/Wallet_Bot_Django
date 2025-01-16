@@ -1,7 +1,11 @@
+import logging
+
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, TemplateView
 
 from Bot.models import TelegramUser, CardUser, TypeOperation, CategoryOperation
+
+logger = logging.getLogger(__name__)
 
 menu = [{'title': 'О сайте', 'url_link': 'about'},
         {'title': "Информация о пользователях", 'url_link': 'users'},
@@ -44,59 +48,80 @@ def login_in(request):
     return render(request, 'bot/about.html', context=context)
 
 
-def show_all_telegram_users(request):
-    users = TelegramUser.objects.all()
+class TelegramUsersShow(ListView):
+    template_name = 'bot/info_users.html'
+    context_object_name = 'users'
     title_col = [{'title': 'ID пользователя:'},
                  {'title': 'Телеграмм ID:'},
                  {'title': 'Имя пользователя:'},
-                 {'title': 'Email:',},
-                 {'title': 'Пол:',},
+                 {'title': 'Email:', },
+                 {'title': 'Пол:', },
                  {'title': 'Дата регистрации'},
                  {'title': 'Дата последней активности'}]
-    context = {
-        'menu': menu,
-        'users': users,
-        'title_col': title_col,
-        'title': 'Пользователи бота',
-    }
-    return render(request, 'bot/info_users.html', context=context)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Пользователи бота'
+        context['menu'] = menu
+        context['title_col'] = self.title_col
+        return context
+
+    def get_queryset(self):
+        return TelegramUser.objects.order_by('telegram_id')
 
 
-def show_telegram_users(request, userdetail_slug):
-    user = get_object_or_404(TelegramUser, slug=userdetail_slug)
-    context = {
-        'menu': menu,
-        'user': user,
-        'title': 'Пользователь бота',
-    }
-    return render(request, 'bot/one_user.html', context=context)
+class TelegramUserShow(ListView):
+    template_name = 'bot/one_user.html'
+    context_object_name = 'userdetail'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        slug = self.kwargs['userdetail_slug']
+        context['title'] = 'Пользователь бота'
+        context['menu'] = menu
+        context['user'] = TelegramUser.objects.get(slug=slug)
+        return context
+
+    def get_queryset(self):
+        return TelegramUser.objects.all()
 
 
-def get_cards(request, userdetail_slug):
-    user = TelegramUser.objects.get(slug=userdetail_slug)
-    cards = CardUser.objects.filter(TelegramUser_CardUser=user.id)
-    context = {
-        'menu': menu,
-        'title': 'Карты пользователя',
-        'user': user,
-        'cards': cards
-    }
-    return render(request, 'bot/cards.html', context=context)
+class Cards(ListView):
+    template_name = 'bot/cards.html'
+    context_object_name = 'cards'
 
-def get_types(request, userdetail_slug):
-    types = TypeOperation.objects.all()
-    user = TelegramUser.objects.get(slug=userdetail_slug)
-    context = {
-        'menu': menu,
-        'title': 'Типы операций',
-        'user': user,
-        'types': types
-    }
-    return render(request, 'bot/types.html', context=context)
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        slug_user = self.kwargs['userdetail_slug']
+        context['title'] = 'Карты пользователя'
+        context['menu'] = menu
+        context['user'] = TelegramUser.objects.get(slug=slug_user)
+        return context
+
+    def get_queryset(self):
+        slug_user = self.kwargs['userdetail_slug']
+        return CardUser.objects.filter(
+            TelegramUser_CardUser=TelegramUser.objects.get(slug=slug_user).id).order_by(
+            'number_card')
+
+
+class Types(ListView):
+    template_name = 'bot/types.html'
+    context_object_name = 'types'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        slug = self.kwargs['userdetail_slug']
+        context['title'] = 'Тип операций'
+        context['menu'] = menu
+        context['user'] = TelegramUser.objects.get(slug=slug)
+        return context
+
+    def get_queryset(self):
+        return TypeOperation.objects.order_by('name_type')
 
 
 class Categoryes(ListView):
-    # model = CategoryOperation
     template_name = 'bot/categoryes.html'
     context_object_name = 'categoryes'
 
@@ -110,15 +135,3 @@ class Categoryes(ListView):
 
     def get_queryset(self):
         return CategoryOperation.objects.order_by('name_cat')
-
-
-# def get_categoryes(request, userdetail_slug):
-#     categoryes = CategoryOperation.objects.all()
-#     user = TelegramUser.objects.get(slug=userdetail_slug)
-#     context = {
-#         'menu': menu,
-#         'title': 'Типы операций',
-#         'user': user,
-#         'categoryes': categoryes
-#     }
-#     return render(request, 'bot/categoryes.html', context=context)

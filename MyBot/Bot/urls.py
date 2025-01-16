@@ -20,19 +20,18 @@ from django import views
 
 from django.urls import path, include
 
-from .wiews import index, about, contact, login_in, show_telegram_users, get_types, \
-    get_cards, Categoryes, show_all_telegram_users
+from .wiews import index, about, contact, login_in, Cards, Categoryes, Types, TelegramUserShow, TelegramUsersShow
 
 urlpatterns = [
     path('', index, name='home'),
     path('home/', index, name='home'),
     path('about/', about, name='about'),
-    path('users/', show_all_telegram_users, name='users'),
+    path('users/', TelegramUsersShow.as_view(), name='users'),
     path('contact/', contact, name='contact'),
     path('login_in/', login_in, name='login_in'),
-    path('user/<slug:userdetail_slug>/', show_telegram_users, name='userdetail'),
-    path('user/<slug:userdetail_slug>/cards/', get_cards, name='cards'),
-    path('user/<slug:userdetail_slug>/types/', get_types, name='types'),
+    path('user/<slug:userdetail_slug>/', TelegramUserShow.as_view(), name='userdetail'),
+    path('user/<slug:userdetail_slug>/cards/', Cards.as_view(), name='cards'),
+    path('user/<slug:userdetail_slug>/types/', Types.as_view(), name='types'),
     path('user/<slug:userdetail_slug>/categoryes/', Categoryes.as_view(), name='categoryes'),
 ]
 
