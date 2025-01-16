@@ -19,7 +19,8 @@ from debug_toolbar.toolbar import debug_toolbar_urls
 from . import wiews
 from django.urls import path, include
 
-from .wiews import index, about, contact, login_in, cards, show_telegram_users, types
+from .wiews import index, about, contact, login_in, show_telegram_users, get_categoryes, get_types, \
+    get_cards
 
 urlpatterns = [
     path('', index, name='home'),
@@ -29,7 +30,8 @@ urlpatterns = [
     path('contact/', contact, name='contact'),
     path('login_in/', login_in, name='login_in'),
     path('user/<slug:userdetail_slug>/', show_telegram_users, name='userdetail'),
-    path('user/<slug:userdetail_slug>/cards/', cards, name='cards'),
-    path('user/<slug:userdetail_slug>/types/', types, name='types'),
+    path('user/<slug:userdetail_slug>/cards/', get_cards, name='cards'),
+    path('user/<slug:userdetail_slug>/types/', get_types, name='types'),
+    path('user/<slug:userdetail_slug>/categoryes/', get_categoryes, name='categoryes'),
 ]
 
