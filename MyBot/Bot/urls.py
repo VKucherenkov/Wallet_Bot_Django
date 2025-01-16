@@ -16,22 +16,23 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from debug_toolbar.toolbar import debug_toolbar_urls
-from . import wiews
+from django import views
+
 from django.urls import path, include
 
-from .wiews import index, about, contact, login_in, show_telegram_users, get_categoryes, get_types, \
-    get_cards
+from .wiews import index, about, contact, login_in, show_telegram_users, get_types, \
+    get_cards, Categoryes, show_all_telegram_users
 
 urlpatterns = [
     path('', index, name='home'),
     path('home/', index, name='home'),
     path('about/', about, name='about'),
-    path('users/', wiews.show_all_telegram_users, name='users'),
+    path('users/', show_all_telegram_users, name='users'),
     path('contact/', contact, name='contact'),
     path('login_in/', login_in, name='login_in'),
     path('user/<slug:userdetail_slug>/', show_telegram_users, name='userdetail'),
     path('user/<slug:userdetail_slug>/cards/', get_cards, name='cards'),
     path('user/<slug:userdetail_slug>/types/', get_types, name='types'),
-    path('user/<slug:userdetail_slug>/categoryes/', get_categoryes, name='categoryes'),
+    path('user/<slug:userdetail_slug>/categoryes/', Categoryes.as_view(), name='categoryes'),
 ]
 

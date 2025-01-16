@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+from django.views.generic import ListView, TemplateView
 
 from Bot.models import TelegramUser, CardUser, TypeOperation, CategoryOperation
 
@@ -93,13 +94,31 @@ def get_types(request, userdetail_slug):
     }
     return render(request, 'bot/types.html', context=context)
 
-def get_categoryes(request, userdetail_slug):
-    categoryes = CategoryOperation.objects.all()
-    user = TelegramUser.objects.get(slug=userdetail_slug)
-    context = {
-        'menu': menu,
-        'title': 'Типы операций',
-        'user': user,
-        'categoryes': categoryes
-    }
-    return render(request, 'bot/categoryes.html', context=context)
+
+class Categoryes(ListView):
+    # model = CategoryOperation
+    template_name = 'bot/categoryes.html'
+    context_object_name = 'categoryes'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        slug = self.kwargs['userdetail_slug']
+        context['title'] = 'Категории операций'
+        context['menu'] = menu
+        context['user'] = TelegramUser.objects.get(slug=slug)
+        return context
+
+    def get_queryset(self):
+        return CategoryOperation.objects.order_by('name_cat')
+
+
+# def get_categoryes(request, userdetail_slug):
+#     categoryes = CategoryOperation.objects.all()
+#     user = TelegramUser.objects.get(slug=userdetail_slug)
+#     context = {
+#         'menu': menu,
+#         'title': 'Типы операций',
+#         'user': user,
+#         'categoryes': categoryes
+#     }
+#     return render(request, 'bot/categoryes.html', context=context)
