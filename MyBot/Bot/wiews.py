@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 
-from Bot.models import TelegramUser, CardUser
+from Bot.models import TelegramUser, CardUser, TypeOperation
 
 menu = [{'title': 'О сайте', 'url_link': 'about'},
         {'title': "Информация о пользователях", 'url_link': 'users'},
@@ -52,12 +52,10 @@ def show_all_telegram_users(request):
                  {'title': 'Пол:',},
                  {'title': 'Дата регистрации'},
                  {'title': 'Дата последней активности'}]
-    pp = 0
     context = {
         'menu': menu,
         'users': users,
         'title_col': title_col,
-        'pp': pp,
         'title': 'Пользователи бота',
     }
     return render(request, 'bot/info_users.html', context=context)
@@ -78,8 +76,19 @@ def cards(request, userdetail_slug):
     cards = CardUser.objects.filter(TelegramUser_CardUser=user.id)
     context = {
         'menu': menu,
-        'title': 'Главная страница',
+        'title': 'Карты пользователя',
         'user': user,
         'cards': cards
     }
     return render(request, 'bot/cards.html', context=context)
+
+def types(request, userdetail_slug):
+    types = TypeOperation.objects.all()
+    user = TelegramUser.objects.get(slug=userdetail_slug)
+    context = {
+        'menu': menu,
+        'title': 'Типы операций',
+        'user': user,
+        'types': types
+    }
+    return render(request, 'bot/types.html', context=context)
