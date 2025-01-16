@@ -1,0 +1,51 @@
+{% extends 'bot/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Боковое меню -->
+<div class="container my-accordion text-center">
+    <div class="row">
+        {% include 'bot/includes/accordion.html' %}
+
+        <!-- Основной контент -->
+        <div class="content col-xxl-9 col-xl-9 col-md-8 col-sm-6 col-xs-5">
+            <h2> Все операции </h2>
+            <h4>Пользователь {{ user }}</h4>
+            {% if all_operation %}
+            <table class="table table-hover text-center auto-numbered">
+                <thead>
+                <tr>
+                    <th scope="col">п/п</th>
+                    <th scope="col">Время операции</th>
+                    <th scope="col">Сумма операции</th>
+                    <th scope="col">Баланс после операции</th>
+                    <th scope="col">Текст уведомления</th>
+                    <th scope="col">Время добавления</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for operation in all_operation %}
+                <tr>
+                    <td></td>
+                    <td>{{ operation.datetime_amount }}</td>
+                    <td>{{ operation.amount_operation }}</td>
+                    <td>{{ operation.balans }}</td>
+                    <td>{{ operation.note_operation }}</td>
+                    <td>{{ operation.datetime_add }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <hr>
+            <h5>У вас нет занесенных транзакций</h5>
+            {% endif %}
+        </div>
+
+        <!-- Фото -->
+<!--        <div class="content col-xxl-2 col-xl-2 col-md-2 col-sm-2 col-xs-2">-->
+<!--            <img class="w-100 img-fluid" src="{% static 'bot/images/cards.jpeg' %}">-->
+<!--        </div>-->
+    </div>
+</div>
+{% endblock %}

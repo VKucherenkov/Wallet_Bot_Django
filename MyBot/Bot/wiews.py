@@ -3,7 +3,7 @@ import logging
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, TemplateView
 
-from Bot.models import TelegramUser, CardUser, TypeOperation, CategoryOperation
+from Bot.models import TelegramUser, CardUser, TypeOperation, CategoryOperation, OperationUser
 
 logger = logging.getLogger(__name__)
 
@@ -135,3 +135,22 @@ class Categoryes(ListView):
 
     def get_queryset(self):
         return CategoryOperation.objects.order_by('name_cat')
+
+
+class AllOperation(ListView):
+    template_name = 'bot/all_operation.html'
+    context_object_name = 'all_operation'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        slug = self.kwargs['userdetail_slug']
+        context['title'] = 'Все операции'
+        context['menu'] = menu
+        context['user'] = TelegramUser.objects.get(slug=slug)
+        return context
+
+    def get_queryset(self):
+        slug = self.kwargs['userdetail_slug']
+        user_id = TelegramUser.objects.get(slug=slug).id
+        cards_user_id = [i.id for i in CardUser.objects.filter(TelegramUser_CardUser=user_id)]
+        return OperationUser.objects.filter(CardUser_OperationUser__in=cards_user_id).order_by('-datetime_add')
