@@ -22,7 +22,7 @@
         {% for user in users %}
         <tr>
             <td></td>
-            <td><a href="{{ user.get_url }}">{{ user.id }}</a></td>
+            <td>{{ user.id }}</td>
             <td><a href="{{ user.get_url }}">{{ user.telegram_id }}</a></td>
             <td>{{ user.first_name }}</td>
             <td>{{ user.email }}</td>

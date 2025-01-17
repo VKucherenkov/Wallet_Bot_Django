@@ -21,7 +21,7 @@ from django import views
 from django.urls import path, include
 
 from .wiews import index, about, contact, login_in, Cards, Categoryes, Types, TelegramUserShow, TelegramUsersShow, \
-    AllOperation
+    AllOperation, profile_view
 
 urlpatterns = [
     path('', index, name='home'),
@@ -35,5 +35,6 @@ urlpatterns = [
     path('user/<slug:userdetail_slug>/types/', Types.as_view(), name='types'),
     path('user/<slug:userdetail_slug>/categoryes/', Categoryes.as_view(), name='categoryes'),
     path('user/<slug:userdetail_slug>/all_operation/', AllOperation.as_view(), name='all_operation'),
+
 ]
 

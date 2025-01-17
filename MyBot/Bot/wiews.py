@@ -76,13 +76,14 @@ class TelegramUserShow(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        slug = self.kwargs['userdetail_slug']
         context['title'] = 'Пользователь бота'
         context['menu'] = menu
-        context['user'] = TelegramUser.objects.get(slug=slug)
+        context['user'] = self.user
         return context
 
     def get_queryset(self):
+        slug = self.kwargs['userdetail_slug']
+        self.user = TelegramUser.objects.get(slug=slug)
         return TelegramUser.objects.all()
 
 
@@ -95,14 +96,15 @@ class Cards(ListView):
         slug_user = self.kwargs['userdetail_slug']
         context['title'] = 'Карты пользователя'
         context['menu'] = menu
-        context['user'] = TelegramUser.objects.get(slug=slug_user)
+        context['user'] = self.user
         return context
 
     def get_queryset(self):
         slug_user = self.kwargs['userdetail_slug']
+        self.user = TelegramUser.objects.get(slug=slug_user)
         return CardUser.objects.filter(
-            TelegramUser_CardUser=TelegramUser.objects.get(slug=slug_user).id).order_by(
-            'number_card')
+            TelegramUser_CardUser=self.user).order_by(
+            'number_card').select_related('BankCard_CardUser')
 
 
 class Types(ListView):
@@ -143,14 +145,17 @@ class AllOperation(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        slug = self.kwargs['userdetail_slug']
         context['title'] = 'Все операции'
         context['menu'] = menu
-        context['user'] = TelegramUser.objects.get(slug=slug)
+        context['user'] = self.user
         return context
 
     def get_queryset(self):
         slug = self.kwargs['userdetail_slug']
-        user_id = TelegramUser.objects.get(slug=slug).id
-        cards_user_id = [i.id for i in CardUser.objects.filter(TelegramUser_CardUser=user_id)]
+        self.user = TelegramUser.objects.get(slug=slug)
+        cards_user_id = [i.id for i in CardUser.objects.filter(TelegramUser_CardUser=self.user)]
         return OperationUser.objects.filter(CardUser_OperationUser__in=cards_user_id).order_by('-datetime_add')
+
+
+def profile_view(request):
+    return render(request, 'bot/profile.html')

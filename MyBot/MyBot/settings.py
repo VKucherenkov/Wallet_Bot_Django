@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os.path
 from pathlib import Path
 
-from django.conf.global_settings import STATIC_ROOT, STATICFILES_DIRS
+from django.conf.global_settings import STATIC_ROOT, STATICFILES_DIRS, LOGIN_REDIRECT_URL
+from django.urls import reverse_lazy
 from environs import Env
 
 import MyBot
@@ -181,3 +182,4 @@ INTERNAL_IPS = [
     "127.0.0.1",
     # ...
 ]
+
