@@ -183,3 +183,4 @@ INTERNAL_IPS = [
     # ...
 ]
 
+LOGIN_REDIRECT_URL = '/home/'
