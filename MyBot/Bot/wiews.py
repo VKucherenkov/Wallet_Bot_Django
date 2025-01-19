@@ -10,11 +10,21 @@ from django.views.generic import ListView, TemplateView, CreateView
 from Bot.forms import RegisterUserForm, LoginUserForm
 from Bot.models import TelegramUser, CardUser, TypeOperation, CategoryOperation, OperationUser
 from Bot.utils import DataMixin, menu
+from MyBot.settings import TELEGRAM_ID_ADMIN
 
 logger = logging.getLogger(__name__)
 
+class IndexShow(DataMixin, TemplateView):
+    template_name = 'bot/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title='Главная страница')
+        return dict(list(context.items()) + list(c_def.items()))
+
 
 def index(request):
+    c_def = DataMixin()
     context = {
         'menu': menu,
         'title': 'Главная страница',
@@ -83,9 +93,11 @@ class TelegramUsersShow(DataMixin, ListView):
         c_def = self.get_user_context(title='Пользователи бота')
         return dict(list(context.items()) + list(c_def.items()))
 
-
     def get_queryset(self):
+        if self.request.user.username == str(TELEGRAM_ID_ADMIN):
             return TelegramUser.objects.order_by('telegram_id')
+        else:
+            return TelegramUser.objects.filter(telegram_id=int(self.request.user.username))
 
 
 class TelegramUserShow(DataMixin, ListView):

@@ -11,6 +11,9 @@
     </div>
     <table class="table table-hover text-center auto-numbered">
         <thead>
+        {% if not users %}
+        <h2> Начните работу с WalletBot чтобы увидеть информацию </h2>
+        {% else %}
         <tr>
             <th scope="col">п/п</th>
             {% for title in title_col %}
@@ -31,6 +34,7 @@
             <td>{{ user.datetime_update }}</td>
         </tr>
         {% endfor %}
+        {% endif %}
         </tbody>
     </table>
 </div>
