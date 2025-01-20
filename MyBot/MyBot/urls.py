@@ -21,6 +21,7 @@ from django.urls import path, include
 admin.site.site_header = 'Моя админка'
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('Bot.urls')),
-] + debug_toolbar_urls()
+              path('admin/', admin.site.urls),
+              path('', include('Bot.urls')),
+              # path('accounts/', include('accounts.urls')),
+              ] + debug_toolbar_urls()

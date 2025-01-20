@@ -28,3 +28,16 @@ class RegisterUserForm(UserCreationForm):
 class LoginUserForm(AuthenticationForm):
     username = forms.IntegerField(label='Логин', widget=forms.NumberInput(attrs={'class': 'form-input'}))
     password = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
+
+
+class UserUpdateForm(forms.ModelForm):
+    email = forms.EmailField()
+
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email', ]
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = MyUser
+        fields = ['gender',]

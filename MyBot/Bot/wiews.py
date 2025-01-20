@@ -1,14 +1,16 @@
 import logging
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, TemplateView, CreateView
 
-from Bot.forms import RegisterUserForm, LoginUserForm
+from Bot.forms import RegisterUserForm, LoginUserForm, UserUpdateForm, ProfileUpdateForm
 from Bot.models import TelegramUser, CardUser, TypeOperation, CategoryOperation, OperationUser
 from Bot.utils import DataMixin, menu
 
@@ -172,5 +174,20 @@ class AllOperation(DataMixin, ListView):
         return OperationUser.objects.filter(CardUser_OperationUser__in=cards_user_id).order_by('-datetime_add')
 
 
-def profile_view(request):
-    return render(request, 'bot/profile.html')
+# @login_required
+def profile(request):
+    if request.method == 'POST':
+        user_form = UserUpdateForm(request.POST, instance=request.user)
+        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, 'Профиль обновлен!')
+            return redirect('profile')
+    else:
+        user_form = UserUpdateForm(instance=request.user)
+        profile_form = ProfileUpdateForm(instance=request.user)
+    return render(request, 'bot/profile.html', {
+        'user_form': user_form,
+        'profile_form': profile_form
+    })
