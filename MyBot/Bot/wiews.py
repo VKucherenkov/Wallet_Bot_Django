@@ -1,5 +1,6 @@
 import logging
 
+from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LoginView
@@ -10,7 +11,6 @@ from django.views.generic import ListView, TemplateView, CreateView
 from Bot.forms import RegisterUserForm, LoginUserForm
 from Bot.models import TelegramUser, CardUser, TypeOperation, CategoryOperation, OperationUser
 from Bot.utils import DataMixin, menu
-from MyBot.settings import TELEGRAM_ID_ADMIN
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +85,7 @@ class TelegramUsersShow(DataMixin, ListView):
         return dict(list(context.items()) + list(c_def.items()))
 
     def get_queryset(self):
-        if self.request.user.username == str(TELEGRAM_ID_ADMIN):
+        if self.request.user.username == str(settings.TELEGRAM_ID_ADMIN):
             return TelegramUser.objects.order_by('telegram_id')
         else:
             return TelegramUser.objects.filter(telegram_id=int(self.request.user.username))

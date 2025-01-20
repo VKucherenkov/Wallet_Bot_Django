@@ -184,3 +184,5 @@ INTERNAL_IPS = [
 ]
 
 LOGIN_REDIRECT_URL = '/home/'
+
+AUTH_USER_MODEL = 'Bot.MyUser'

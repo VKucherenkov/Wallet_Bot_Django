@@ -1,7 +1,24 @@
 from autoslug import AutoSlugField
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.urls import reverse
 
+
+# Расширяем модель User
+class MyUser(AbstractUser):
+    MALE = 'M'
+    FEMALE = 'Ж'
+    GENDER_CHOICES = [
+        (MALE, 'Мужчина'),
+        (FEMALE, 'Женщина')
+    ]
+    # Добавляем дополнительные поля
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True, null=True,
+                              verbose_name="Пол")
+    birth_date = models.DateField(null=True, blank=True, verbose_name="Дата рождения")
+
+    def __str__(self):
+        return self.username
 
 # Create your models here.
 class TelegramUser(models.Model):

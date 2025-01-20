@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 
+from Bot.models import MyUser
+
 
 class RegisterUserForm(UserCreationForm):
     MALE = 'M'
@@ -19,7 +21,7 @@ class RegisterUserForm(UserCreationForm):
     password2 = forms.CharField(label='Повтор пароля', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
 
     class Meta:
-        model = User
+        model = MyUser
         fields = ('username', 'email', 'first_name', 'last_name', 'gender', 'password1', 'password2')
 
 

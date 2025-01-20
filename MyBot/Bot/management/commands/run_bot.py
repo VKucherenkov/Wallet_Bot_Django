@@ -26,13 +26,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         print('run')
-        # try:
-        #     asyncio.run(dp.start_polling(bot))
-        # except Exception as err:
-        #     logger.error(f'Ошибка: {err}')
+
         async def main():
             await bot.delete_webhook(drop_pending_updates=True)
-            # await bot.delete_my_commands(scope=types.BotCommandScopeAllPrivateChats())
             await bot.set_my_commands(commands=cmd, scope=types.BotCommandScopeAllPrivateChats())
             await dp.start_polling(bot)
 
