@@ -8,7 +8,7 @@ class TelegramUser(models.Model):
     '''Пользователи чат бота'''
     MALE = 'M'
     FEMALE = 'Ж'
-    GENDER_CHOISES = [
+    GENDER_CHOICES = [
         (MALE, 'Мужчина'),
         (FEMALE, 'Женщина')
     ]
@@ -17,7 +17,7 @@ class TelegramUser(models.Model):
     email = models.EmailField(blank=True, null=True, verbose_name='Email')
     first_name = models.CharField(max_length=20, blank=True, null=True, verbose_name='Имя')
     last_name = models.CharField(max_length=20, blank=True, null=True, verbose_name="Фамилия")
-    gender = models.CharField(max_length=1, choices=GENDER_CHOISES, blank=True, null=True,
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True, null=True,
                               verbose_name="Пол")
     slug = AutoSlugField(populate_from='first_name', max_length=255, unique=True, db_index=True, verbose_name="slug")
     datetime_add = models.DateTimeField('Время регистрации', auto_now_add=True, blank=True, null=True)

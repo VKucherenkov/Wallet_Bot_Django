@@ -23,15 +23,6 @@ class IndexShow(DataMixin, TemplateView):
         return dict(list(context.items()) + list(c_def.items()))
 
 
-def index(request):
-    c_def = DataMixin()
-    context = {
-        'menu': menu,
-        'title': 'Главная страница',
-    }
-    return render(request, 'bot/index.html', context=context)
-
-
 def about(request):
     context = {
         'menu': menu,

@@ -20,7 +20,7 @@ from django import views
 from django.urls import path, include
 
 from .wiews import about, contact, Cards, Categoryes, Types, TelegramUserShow, TelegramUsersShow, AllOperation, \
-    RegisterUser, LoginUser, logout_user, IndexShow, index
+    RegisterUser, LoginUser, logout_user, IndexShow
 
 urlpatterns = [
     path('', IndexShow.as_view(), name='home'),
