@@ -16,6 +16,8 @@ class MyUser(AbstractUser):
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True, null=True,
                               verbose_name="Пол")
     birth_date = models.DateField(null=True, blank=True, verbose_name="Дата рождения")
+    slug = AutoSlugField(populate_from='username', max_length=255, unique=True, db_index=True, verbose_name="slug")
+
 
     def __str__(self):
         return self.username
@@ -36,7 +38,8 @@ class TelegramUser(models.Model):
     last_name = models.CharField(max_length=20, blank=True, null=True, verbose_name="Фамилия")
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True, null=True,
                               verbose_name="Пол")
-    slug = AutoSlugField(populate_from='first_name', max_length=255, unique=True, db_index=True, verbose_name="slug")
+    birth_date = models.DateField(null=True, blank=True, verbose_name="Дата рождения")
+    slug = AutoSlugField(populate_from='telegram_id', max_length=255, unique=True, db_index=True, verbose_name="slug")
     datetime_add = models.DateTimeField('Время регистрации', auto_now_add=True, blank=True, null=True)
     datetime_update = models.DateTimeField('Время последней активности', auto_now=True, blank=True, null=True)
 

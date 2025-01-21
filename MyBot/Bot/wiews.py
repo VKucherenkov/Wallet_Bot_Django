@@ -1,16 +1,15 @@
 import logging
+from datetime import datetime
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, TemplateView, CreateView
+from django.views.generic import ListView, TemplateView, CreateView, DetailView
 
-from Bot.forms import RegisterUserForm, LoginUserForm, UserUpdateForm, ProfileUpdateForm
+from Bot.forms import RegisterUserForm, LoginUserForm, ProfileUpdateForm
 from Bot.models import TelegramUser, CardUser, TypeOperation, CategoryOperation, OperationUser
 from Bot.utils import DataMixin, menu
 
@@ -47,6 +46,15 @@ class RegisterUser(DataMixin, CreateView):
     form_class = RegisterUserForm
     template_name = 'bot/register.html'
     success_url = reverse_lazy('home')
+
+    def form_valid(self, form):
+        TelegramUser.objects.create(telegram_id=form.instance.username,
+                                    first_name=form.instance.first_name,
+                                    last_name=form.instance.last_name,
+                                    email=form.instance.email,
+                                    gender=form.instance.gender,
+                                    )
+        return super().form_valid(form)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -93,20 +101,18 @@ class TelegramUsersShow(DataMixin, ListView):
             return TelegramUser.objects.filter(telegram_id=int(self.request.user.username))
 
 
-class TelegramUserShow(DataMixin, ListView):
+class TelegramUserShow(DataMixin, DetailView):
+    model = TelegramUser
     template_name = 'bot/one_user.html'
-    context_object_name = 'userdetail'
+    context_object_name = 'user'
+    slug_field = 'slug'  # Поле модели, используемое для поиска
+    slug_url_kwarg = 'userdetail_slug' # Имя параметра в URL
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['user'] = self.user
+        context['now'] = datetime.now()
         c_def = self.get_user_context(title='Пользователь бота')
         return dict(list(context.items()) + list(c_def.items()))
-
-    def get_queryset(self):
-        slug = self.kwargs['userdetail_slug']
-        self.user = TelegramUser.objects.get(slug=slug)
-        return TelegramUser.objects.all()
 
 
 class Cards(DataMixin, ListView):
@@ -177,17 +183,16 @@ class AllOperation(DataMixin, ListView):
 # @login_required
 def profile(request):
     if request.method == 'POST':
-        user_form = UserUpdateForm(request.POST, instance=request.user)
         profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
-        if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
+        if profile_form.is_valid():
             profile_form.save()
+            form = profile_form.cleaned_data
+            telegram_id = form.pop('username', None)
+            TelegramUser.objects.filter(telegram_id=telegram_id).update(**form)
             messages.success(request, 'Профиль обновлен!')
             return redirect('profile')
     else:
-        user_form = UserUpdateForm(instance=request.user)
         profile_form = ProfileUpdateForm(instance=request.user)
     return render(request, 'bot/profile.html', {
-        'user_form': user_form,
         'profile_form': profile_form
     })

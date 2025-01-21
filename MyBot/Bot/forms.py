@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.models import User
 
 from Bot.models import MyUser
 
@@ -30,14 +29,7 @@ class LoginUserForm(AuthenticationForm):
     password = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
 
 
-class UserUpdateForm(forms.ModelForm):
-    email = forms.EmailField()
-
-    class Meta:
-        model = User
-        fields = ['username', 'first_name', 'last_name', 'email', ]
-
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = MyUser
-        fields = ['gender',]
+        fields = ['username', 'first_name', 'last_name', 'email', 'gender', 'birth_date']
