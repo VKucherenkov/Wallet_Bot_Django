@@ -15,7 +15,7 @@ def card_list(msg):
     result_lst = []
     if cards:
         for i in cards:
-            if i.TelegramUser_CardUser.telegram_id == msg.from_user.id:
+            if i.telegram_user.telegram_id == msg.from_user.id:
                 result_dict['ID'] = i.pk
                 result_dict['Имя'] = i.name_card
                 result_dict['Номер '] = i.number_card
@@ -72,7 +72,7 @@ def card_list_for_kb(msg):
     result_lst = []
     if cards:
         for i in cards:
-            if i.TelegramUser_CardUser.telegram_id == msg.from_user.id:
+            if i.telegram_user.telegram_id == msg.from_user.id:
                 result_dict['ID'] = i.pk
                 result_dict['Имя'] = i.name_card
                 result_dict['Номер'] = i.number_card

@@ -48,14 +48,14 @@ def load_db_operaion(data):
             card_user = CardUser.objects.get(number_card=data['number_card'])
             card_user.balans_card = data['balans']
             card_user.save()
-            data['name_bank'] = CardUser.objects.get(number_card=data['number_card']).BankCard_CardUser.name_bank
+            data['name_bank'] = CardUser.objects.get(number_card=data['number_card']).bank.name_bank
             data['name_card'] = CardUser.objects.get(number_card=data['number_card']).name_card
         elif data['balans'] == CardUser.objects.get(number_card=data['number_card']).balans_card + data[
             'amount_operation']:
             card_user = CardUser.objects.get(number_card=data['number_card'])
             card_user.balans_card = data['balans']
             card_user.save()
-            data['name_bank'] = CardUser.objects.get(number_card=data['number_card']).BankCard_CardUser.name_bank
+            data['name_bank'] = CardUser.objects.get(number_card=data['number_card']).bank.name_bank
             data['name_card'] = CardUser.objects.get(number_card=data['number_card']).name_card
         else:
             return (f'Ошибка обновления баланса\n'

@@ -48,12 +48,19 @@ class RegisterUser(DataMixin, CreateView):
     success_url = reverse_lazy('home')
 
     def form_valid(self, form):
-        TelegramUser.objects.create(telegram_id=form.instance.username,
-                                    first_name=form.instance.first_name,
-                                    last_name=form.instance.last_name,
-                                    email=form.instance.email,
-                                    gender=form.instance.gender,
-                                    )
+        user_in = TelegramUser.objects.filter(telegram_id=form.instance.username)
+        if not user_in:
+            TelegramUser.objects.create(telegram_id=form.instance.username,
+                                        first_name=form.instance.first_name,
+                                        last_name=form.instance.last_name,
+                                        email=form.instance.email,
+                                        gender=form.instance.gender,
+                                        )
+        else:
+            user_in.update(first_name=form.instance.first_name,
+                           last_name=form.instance.last_name,
+                           email=form.instance.email,
+                           gender=form.instance.gender,)
         return super().form_valid(form)
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -98,7 +105,7 @@ class TelegramUsersShow(DataMixin, ListView):
         if self.request.user.username == str(settings.TELEGRAM_ID_ADMIN):
             return TelegramUser.objects.order_by('telegram_id')
         else:
-            return TelegramUser.objects.filter(telegram_id=int(self.request.user.username))
+            return TelegramUser.objects.filter(telegram_id=self.request.user.username)
 
 
 class TelegramUserShow(DataMixin, DetailView):
@@ -129,8 +136,8 @@ class Cards(DataMixin, ListView):
         slug_user = self.kwargs['userdetail_slug']
         self.user = TelegramUser.objects.get(slug=slug_user)
         return CardUser.objects.filter(
-            TelegramUser_CardUser=self.user).order_by(
-            'number_card').select_related('BankCard_CardUser')
+            telegram_user=self.user).order_by(
+            'number_card').select_related('bank')
 
 
 class Types(DataMixin, ListView):
@@ -176,8 +183,8 @@ class AllOperation(DataMixin, ListView):
     def get_queryset(self):
         slug = self.kwargs['userdetail_slug']
         self.kwargs['user'] = TelegramUser.objects.get(slug=slug)
-        cards_user_id = [i.id for i in CardUser.objects.filter(TelegramUser_CardUser=self.kwargs['user'])]
-        return OperationUser.objects.filter(CardUser_OperationUser__in=cards_user_id).order_by('-datetime_add')
+        cards_user_id = [i.id for i in CardUser.objects.filter(telegram_user=self.kwargs['user'])]
+        return OperationUser.objects.filter(card__in=cards_user_id).order_by('-datetime_add')
 
 
 # @login_required

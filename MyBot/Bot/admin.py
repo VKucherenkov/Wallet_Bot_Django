@@ -9,13 +9,12 @@ from django.contrib.auth.admin import UserAdmin
 
 class MyUserAdmin(UserAdmin):
     add_form = RegisterUserForm
-    # form = CustomUserChangeForm
     model = MyUser
-    list_display = ('username', 'email', 'is_staff', 'is_active')
+    list_display = ('username', 'first_name', 'last_name', 'email', 'is_staff', 'is_active')
     list_filter = ('is_staff', 'is_active')
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
-        ('Personal Info', {'fields': ('email', 'gender', 'birth_date',)}),
+        ('Personal Info', {'fields': ('first_name', 'last_name', 'email', 'gender', 'birth_date',)}),
         ('Permissions', {'fields': ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
@@ -25,7 +24,7 @@ class MyUserAdmin(UserAdmin):
             'fields': ('username', 'email', 'password1', 'password2', 'is_staff', 'is_active')}
         ),
     )
-    search_fields = ('username', 'email')
+    search_fields = ('username', 'last_name', 'email')
     ordering = ('username',)
 
 admin.site.register(MyUser, MyUserAdmin)
@@ -68,7 +67,7 @@ class BankCardAdmin(admin.ModelAdmin):
 @admin.register(CategoryOperation)
 class CategoryOperationAdmin(admin.ModelAdmin):
     list_display = ['name_cat',
-                    'TypeOperation_CategoryOperation',
+                    'type',
                     'datetime_add',
                     'datetime_update']
     ordering = ['name_cat']
@@ -91,8 +90,8 @@ class CardUserAdmin(admin.ModelAdmin):
     list_display = ['name_card',
                     'number_card',
                     'balans_card',
-                    'TelegramUser_CardUser',
-                    'BankCard_CardUser',
+                    'telegram_user',
+                    'bank',
                     'datetime_add',
                     'datetime_update']
     ordering = ['name_card',
@@ -123,8 +122,8 @@ class OperationUserAdmin(admin.ModelAdmin):
                     'amount_operation',
                     'note_operation',
                     'balans',
-                    'CardUser_OperationUser',
-                    'CategoryOperation_OperationUser',
+                    'card',
+                    'category',
                     'datetime_add',
                     'datetime_update']
     ordering = ['-datetime_amount',

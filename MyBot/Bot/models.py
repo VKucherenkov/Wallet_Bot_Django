@@ -74,9 +74,9 @@ class BankCard(models.Model):
 
 class CardUser(models.Model):
     '''Карты пользователя'''
-    TelegramUser_CardUser = models.ForeignKey(TelegramUser, on_delete=models.CASCADE, related_name='cards',
-                                              verbose_name="Пользователь")
-    BankCard_CardUser = models.ForeignKey(BankCard, on_delete=models.CASCADE, related_name='cards', verbose_name="Банк")
+    telegram_user = models.ForeignKey(TelegramUser, on_delete=models.CASCADE, related_name='cards',
+                                      verbose_name="Пользователь")
+    bank = models.ForeignKey(BankCard, on_delete=models.CASCADE, related_name='cards', verbose_name="Банк")
     name_card = models.CharField(max_length=150, blank=True, null=True,
                                  verbose_name="Наименование карты")
     number_card = models.IntegerField('Номер карты', null=True, unique=True)
@@ -116,8 +116,8 @@ class TypeOperation(models.Model):
 
 class CategoryOperation(models.Model):
     '''Категория операции'''
-    TypeOperation_CategoryOperation = models.ForeignKey(TypeOperation, on_delete=models.CASCADE,
-                                                        related_name='typeoperation', verbose_name='Тип операции')
+    type = models.ForeignKey(TypeOperation, on_delete=models.CASCADE,
+                             related_name='typeoperation', verbose_name='Тип операции')
     name_cat = models.CharField(max_length=150, blank=True, null=True, verbose_name='Наименование категории')
     slug = AutoSlugField(populate_from='name_cat', max_length=255, unique=True, db_index=True, verbose_name="slug")
     datetime_add = models.DateTimeField('Время добавления', auto_now_add=True, blank=True, null=True)
@@ -133,15 +133,15 @@ class CategoryOperation(models.Model):
 
     def __str__(self):
         return (f'Категория: {self.name_cat},  '
-                f'{self.TypeOperation_CategoryOperation}')
+                f'{self.type}')
 
 
 class OperationUser(models.Model):
     '''Операция списания/зачисления'''
-    CardUser_OperationUser = models.ForeignKey(CardUser, on_delete=models.CASCADE, related_name='Operation',
-                                               verbose_name='Карта')
-    CategoryOperation_OperationUser = models.ForeignKey(CategoryOperation, on_delete=models.CASCADE,
-                                                        related_name='Operation', verbose_name="Категория")
+    card = models.ForeignKey(CardUser, on_delete=models.CASCADE, related_name='Operation',
+                             verbose_name='Карта')
+    category = models.ForeignKey(CategoryOperation, on_delete=models.CASCADE,
+                                 related_name='Operation', verbose_name="Категория")
     datetime_amount = models.DateTimeField('Время операции', blank=True, null=True)
     amount_operation = models.DecimalField('Сумма операции', max_digits=10, decimal_places=2, db_index=True, blank=True,
                                            null=True)

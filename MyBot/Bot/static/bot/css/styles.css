@@ -96,3 +96,7 @@ footer {
 .author {
      margin: 2rem 5rem;
 }
+
+.alert {
+    text-align: center;
+}
