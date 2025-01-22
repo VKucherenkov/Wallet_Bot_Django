@@ -20,7 +20,7 @@ from django import views
 from django.urls import path, include
 
 from .wiews import about, contact, Cards, Categoryes, Types, TelegramUserShow, TelegramUsersShow, AllOperation, \
-    RegisterUser, LoginUser, logout_user, IndexShow, profile
+    RegisterUser, LoginUser, logout_user, IndexShow, MyUserUpdate
 
 urlpatterns = [
     path('', IndexShow.as_view(), name='home'),
@@ -31,7 +31,7 @@ urlpatterns = [
     path('login/', LoginUser.as_view(), name='login'),
     path('logout/', logout_user, name='logout'),
     path('register/', RegisterUser.as_view(), name='register'),
-    path('profile/', profile, name='profile'),
+    path('profile/<slug:profile_slug>/', MyUserUpdate.as_view(), name='profile'),
     path('user/<slug:userdetail_slug>/', TelegramUserShow.as_view(), name='userdetail'),
     path('user/<slug:userdetail_slug>/cards/', Cards.as_view(), name='cards'),
     path('user/<slug:userdetail_slug>/types/', Types.as_view(), name='types'),

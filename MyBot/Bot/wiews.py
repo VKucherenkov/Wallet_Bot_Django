@@ -4,13 +4,14 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, TemplateView, CreateView, DetailView
+from django.views.generic import ListView, TemplateView, CreateView, DetailView, UpdateView
 
 from Bot.forms import RegisterUserForm, LoginUserForm, ProfileUpdateForm
-from Bot.models import TelegramUser, CardUser, TypeOperation, CategoryOperation, OperationUser
+from Bot.models import TelegramUser, CardUser, TypeOperation, CategoryOperation, OperationUser, MyUser
 from Bot.utils import DataMixin, menu
 
 logger = logging.getLogger(__name__)
@@ -187,19 +188,23 @@ class AllOperation(DataMixin, ListView):
         return OperationUser.objects.filter(card__in=cards_user_id).order_by('-datetime_add')
 
 
-# @login_required
-def profile(request):
-    if request.method == 'POST':
-        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
-        if profile_form.is_valid():
-            profile_form.save()
-            form = profile_form.cleaned_data
-            telegram_id = form.pop('username', None)
-            TelegramUser.objects.filter(telegram_id=telegram_id).update(**form)
-            messages.success(request, 'Профиль обновлен!')
-            return redirect('profile')
-    else:
-        profile_form = ProfileUpdateForm(instance=request.user)
-    return render(request, 'bot/profile.html', {
-        'profile_form': profile_form
-    })
+class MyUserUpdate(DataMixin, UpdateView):
+    model = MyUser
+    form_class = ProfileUpdateForm
+    template_name = 'bot/profile.html'
+
+    success_url = reverse_lazy('home')
+    slug_field = 'slug'  # Поле модели, используемое для поиска
+    slug_url_kwarg = 'profile_slug'  # Имя параметра в URL
+
+    def form_valid(self, form):
+        form_update = form.cleaned_data
+        telegram_id = form_update.pop('username', None)
+        TelegramUser.objects.filter(telegram_id=telegram_id).update(**form_update)
+        messages.success(self.request, 'Профиль обновлен!')
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title='Все операции')
+        return dict(list(context.items()) + list(c_def.items()))

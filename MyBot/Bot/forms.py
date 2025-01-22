@@ -30,6 +30,18 @@ class LoginUserForm(AuthenticationForm):
 
 
 class ProfileUpdateForm(forms.ModelForm):
+    MALE = 'M'
+    FEMALE = 'Ж'
+    GENDER_CHOICES = [
+        (MALE, 'Мужчина'),
+        (FEMALE, 'Женщина')
+    ]
+    username = forms.IntegerField(label='Логин', widget=forms.NumberInput(attrs={'class': 'form-input'}))
+    email = forms.EmailField(label='Email', widget=forms.TextInput(attrs={'class': 'form-input'}))
+    first_name = forms.CharField(label='Имя', widget=forms.TextInput(attrs={'class': 'form-input'}))
+    last_name = forms.CharField(label='Фамилия', widget=forms.TextInput(attrs={'class': 'form-input'}))
+    gender = forms.ChoiceField(choices=GENDER_CHOICES, label='Пол')
+
     class Meta:
         model = MyUser
         fields = ['username', 'first_name', 'last_name', 'email', 'gender', 'birth_date']

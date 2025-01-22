@@ -1,7 +1,5 @@
 from django.conf import settings
-from django.shortcuts import redirect
 
-from Bot.models import TelegramUser
 
 menu = [{'title': 'О сайте', 'url_link': 'about'},
         {'title': "Обратная связь", 'url_link': 'contact'},

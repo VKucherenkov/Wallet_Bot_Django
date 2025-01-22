@@ -28,7 +28,7 @@
             <ul class="navbar-nav">
                 <li class="nav-link active">
                     {{ user.first_name }} {{ user.last_name }} |
-                    <a href="{% url 'profile' %}">
+                    <a href="{{ user.get_url }}">
                         <button type="button" class="btn btn-primary">
                             Личный кабинет
                         </button>

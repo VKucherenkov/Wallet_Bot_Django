@@ -18,6 +18,8 @@ class MyUser(AbstractUser):
     birth_date = models.DateField(null=True, blank=True, verbose_name="Дата рождения")
     slug = AutoSlugField(populate_from='username', max_length=255, unique=True, db_index=True, verbose_name="slug")
 
+    def get_url(self):
+        return reverse('profile', kwargs={'profile_slug': self.slug})
 
     def __str__(self):
         return self.username

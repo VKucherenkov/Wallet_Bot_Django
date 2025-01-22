@@ -1,6 +1,6 @@
+<!DOCTYPE html>
 {% load static %}
 
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -16,13 +16,33 @@
 {% include 'bot/includes/nav_bar.html' %}
 
 
-{% block content %}
+<div class="container">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <i class="fas
+                    {% if message.tags == 'success' %}fa-check-circle{% endif %}
+                    {% if message.tags == 'info' %}fa-info-circle{% endif %}
+                    {% if message.tags == 'warning' %}fa-exclamation-triangle{% endif %}
+                    {% if message.tags == 'error' %}fa-times-circle{% endif %}
+                "></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
 
+
+{% block content %}
 {% endblock %}
 
-
 <!--Подключаем футер -->
-{% include 'bot/includes/footer.html' %}
+<div>
+    {% include 'bot/includes/footer.html' %}
+</div>
 
 
 <!-- Подключение Bootstrap JS (необязательно, если не используете JS-компоненты) -->
