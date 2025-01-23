@@ -3,45 +3,31 @@
 
 {% block content %}
 <!-- Боковое меню -->
-<div class="d-flex" id="wrapper">
-    <!-- Sidebar-->
-    <div class="border-end bg-white" id="sidebar-wrapper">
-        <div class="list-group list-group-flush">
-            {% include 'bot/includes/accordion.html' %}
+{% include 'bot/includes/accordion.html' %}
+<!-- Page content-->
+<div class="container-fluid">
+    <div class="row">
+        <div class="content col-xxl-7 col-xl-5 col-md-7 col-sm-8 col-xs-9">
+            <ul class="text-left">
+                <h2> Пользователь {{ user.telegram_id }}</h2>
+                <hr>
+                <h4>ID пользователя: {{ user.id }} </h4>
+                <h4>Телеграмм ID: {{ user.telegram_id }}</h4>
+                <h4>Имя пользователя: {{ user.last_name }} {{ user.first_name }}</h4>
+                <h4>Дата рождения: {{ user.birth_date }}</h4>
+                <h4>Пол: {{ user.gender }}</h4>
+                <h4>Email: {{ user.email }}</h4>
+                <hr>
+                <h5>Текущее время: {{ now|date:"DATETIME_FORMAT" }}</h5>
+            </ul>
         </div>
-    </div>
-    <!-- Page content wrapper-->
-    <div id="page-content-wrapper">
-        <!-- Top navigation-->
-        <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-            <div class="container-fluid">
-                <button class="btn btn-primary" id="sidebarToggle">Toggle Menu</button>
-            </div>
-        </nav>
-        <!-- Page content-->
-        <div class="container-fluid">
-            <div class="row">
-                <div class="content col-xxl-7 col-xl-5 col-md-7 col-sm-8 col-xs-9">
-                    <ul class="text-left">
-                        <h2> Пользователь {{ user.telegram_id }}</h2>
-                        <hr>
-                        <h4>ID пользователя: {{ user.id }} </h4>
-                        <h4>Телеграмм ID: {{ user.telegram_id }}</h4>
-                        <h4>Имя пользователя: {{ user.last_name }} {{ user.first_name }}</h4>
-                        <h4>Дата рождения: {{ user.birth_date }}</h4>
-                        <h4>Пол: {{ user.gender }}</h4>
-                        <h4>Email: {{ user.email }}</h4>
-                        <hr>
-                        <h5>Текущее время: {{ now|date:"DATETIME_FORMAT" }}</h5>
-                    </ul>
-                </div>
 
-                <!-- Фото -->
-                <div class="content col-xxl-5 col-xl-4 col-md-5 col-sm-4 col-xs-3">
-                    <img class="img-fluid" src="{% static 'bot/images/wallet.jpg' %}">
-                </div>
-            </div>
+        <!-- Фото -->
+        <div class="content col-xxl-5 col-xl-4 col-md-5 col-sm-4 col-xs-3">
+            <img class="img-fluid" src="{% static 'bot/images/wallet.jpg' %}">
         </div>
     </div>
+</div>
+</div>
 </div>
 {% endblock %}
