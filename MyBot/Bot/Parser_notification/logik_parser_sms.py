@@ -49,7 +49,7 @@ async def parser_logic_notification(message):
     data_parser['note_operation'] = msg
     data_parser['datetime_amount'] = get_datetime(msg)
     data_parser['name_type'] = await name_type(message)
-    data_parser['name_cat'] = await get_name_category(message)
+
     data_parser['recipient_in_notification'] = [i for i in msg.split('\n')][1]
     if 'списание' in [i.lower() for i in msg.split('\n')][1]:
         data_parser['number_card'] = msg[msg.index('*') + 1: msg.index('*') + 1 + 4]
@@ -74,6 +74,7 @@ async def parser_logic_notification(message):
             '+', '')
         data_parser['balans'] = ''.join([i for i in msg.split('\n')][-1].split()[1:-1]).replace(',', '.')
     data_parser['name_card'] = await card_name(data_parser['number_card'])
+    data_parser['name_cat'] = await get_name_category(data_parser['name_recipient'])
 
     data_parser_txt = '\n'.join([f'<code>{key:<16} - {str(value)}</code>' for key, value in data_parser.items()][1:])
     print(data_parser_txt)

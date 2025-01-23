@@ -28,8 +28,8 @@ def db_bank_create(msg=None):
 @sync_to_async
 def name_bank(number_card):
     try:
-        bank_pk = CardUser.objects.get(number_card=number_card).BankCard_CardUser_id
+        bank_name = BankCard.objects.get(cards__number_card=number_card).name_bank
     except Exception as err:
         logger.info(err)
         return
-    return BankCard.objects.get(pk=bank_pk).name_bank
+    return bank_name

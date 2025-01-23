@@ -5,7 +5,8 @@ from aiogram.fsm.context import FSMContext
 from Bot.FSM_processing.states import ParserAuto
 from Bot.Work_db.category_operation_db import get_name_category_auto
 from Bot.Work_db.recipient_db import get_recipient_db
-from Bot.keyboard.reply_keybord import get_bank_kbd, get_prev_cancel_kbd, get_recipient_kbd, get_category_kbd
+from Bot.keyboard.reply_keybord import get_bank_kbd, get_prev_cancel_kbd, get_recipient_kbd, get_category_kbd, \
+    get_yes_no_kbd
 from Bot.validators.valid_bank import validator_bank
 from Bot.validators.valid_card_name import validator_name_card
 
@@ -45,6 +46,17 @@ async def get_name_bank(message: types.Message,
         await message.answer(f'Введите категорию операции или выберете из списка ниже',
                              parse_mode=ParseMode.HTML,
                              reply_markup=get_category_kbd())
+    else:
+        data = await state.update_data(name_cat=category_lst[0])
+        text = ''
+        for key, value in data.items():
+            text += f'<code>{key:<17} ------ {value}</code>\n'
+        await state.set_state(ParserAuto.resume_state)
+        await message.answer(text=text,
+                             parse_mode=ParseMode.HTML)
+        await message.answer(f'Проверьте и подтвердите правильность введенных данных по операции',
+                             parse_mode=ParseMode.HTML,
+                             reply_markup=get_yes_no_kbd())
 
 @router.message(ParserAuto.bank_state_auto)
 async def get_invalid_name_bank(message: types.Message, ):

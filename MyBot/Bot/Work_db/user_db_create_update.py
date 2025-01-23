@@ -21,8 +21,10 @@ def db_telegramuser(msg):
                                               last_name=f'{msg.chat.last_name}')
         logger.info(f'Пользователь {msg.from_user.id} {msg.chat.first_name} {msg.chat.last_name} добавлен в базу данных')
     else:
+        user = TelegramUser.objects.get(telegram_id=f'{msg.from_user.id}')
         TelegramUser.objects.filter(telegram_id=f'{msg.from_user.id}').update(
-            first_name=f'{msg.chat.first_name}',
-            last_name=f'{msg.chat.last_name}')
+            first_name=f'{user.first_name}',
+            last_name=f'{user.last_name}'
+        )
         logger.info(
             f'Данные пользователя {msg.from_user.id} {msg.chat.first_name} {msg.chat.last_name} обновлены в базе данных')

@@ -4,6 +4,7 @@ from aiogram.fsm.context import FSMContext
 
 from Bot.FSM_processing.states import ParserAuto
 from Bot.Work_db.card_work import card_list_for_kb
+from Bot.Work_db.category_operation_db import get_categories_for_keyboard
 from Bot.keyboard.reply_keybord import get_card_kbd, get_category_kbd, get_yes_no_kbd
 from Bot.validators import validator_categoryes
 
@@ -27,6 +28,7 @@ async def get_name_category(message: types.Message,
 
 @router.message(ParserAuto.category_state_auto)
 async def get_invalid_name_category(message: types.Message, ):
+    categories_lst = await get_categories_for_keyboard()
     await message.answer(f'Введите корректную категорию операции, или выберите из предложенных ниже',
                          parse_mode=ParseMode.HTML,
-                         reply_markup=get_category_kbd())
+                         reply_markup=get_category_kbd(categories_lst))

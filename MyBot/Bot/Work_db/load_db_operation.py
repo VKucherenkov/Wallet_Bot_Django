@@ -16,7 +16,7 @@ def load_db_operaion(data):
         category = [i.name_cat.lower() for i in CategoryOperation.objects.all()]
         if data['name_cat'].lower() not in category:
             CategoryOperation.objects.create(name_cat=data['name_cat'].lower(),
-                                             TypeOperation_CategoryOperation_id=types_id)
+                                             type_id=types_id)
         category_id = CategoryOperation.objects.get(name_cat=data['name_cat'].lower()).id
         print("Категория операции записана в базу")
 
@@ -41,8 +41,8 @@ def load_db_operaion(data):
             CardUser.objects.create(number_card=data['number_card'],
                                     name_card=data['name_card'].lower(),
                                     balans_card=data['balans'],
-                                    BankCard_CardUser_id=bank_id,
-                                    TelegramUser_CardUser_id=user_id)
+                                    bank_id=bank_id,
+                                    telegram_user_id=user_id)
         elif data['balans'] == CardUser.objects.get(number_card=data['number_card']).balans_card - data[
             'amount_operation']:
             card_user = CardUser.objects.get(number_card=data['number_card'])
@@ -69,18 +69,23 @@ def load_db_operaion(data):
 
         card_id = CardUser.objects.get(number_card=data['number_card']).id
         print("Имя и номер карты записаны в базу")
-
+        text = ''
+        if not data.get('note_operation'):
+            for key, value in data.items():
+                text += f'<code>{key:<17} ------ {value}</code>\n'
+        text_note_operation = text.replace('<code>', '').replace('</code>', '')
+        data['note_operation'] = text_note_operation
         OperationUser.objects.create(datetime_amount=data['datetime_amount'],
                                      amount_operation=data['amount_operation'],
                                      balans=data['balans'],
                                      note_operation=data['note_operation'],
-                                     CardUser_OperationUser_id=card_id,
-                                     CategoryOperation_OperationUser_id=category_id)
+                                     card_id=card_id,
+                                     category_id=category_id)
         operation_id = OperationUser.objects.last().id
         print(f"Операция записана в базу\n"
               f"ID операции: {operation_id}")
 
     except Exception as err:
         print(err)
-        return False
-    return operation_id
+        return err
+    return (operation_id, text)

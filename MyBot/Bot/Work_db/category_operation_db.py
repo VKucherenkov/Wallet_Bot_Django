@@ -20,7 +20,7 @@ def db_categoryoperation_create():
     if not db_name_all:
         for i, j in typeoperation:
             pk = TypeOperation.objects.get(name_type=j.lower()).pk
-            CategoryOperation.objects.update_or_create(name_cat=f'{i.lower()}', TypeOperation_CategoryOperation_id=pk)
+            CategoryOperation.objects.update_or_create(name_cat=f'{i.lower()}', type_id=pk)
             logger.info(
                 f'Категория операции: "{i}"\n'
                 f'Тип операции: "{j}"\n'
@@ -29,19 +29,19 @@ def db_categoryoperation_create():
         logger.info(f'Таблица "Категория операции" уже была создана')
 
 @sync_to_async
-def get_name_category(message: types.Message) -> str:
+def get_name_category(name_recipient) -> str:
     try:
-        categoryes_pk = Recipient.objects.get(name_recipient=data_parser['name_recipient']).Recipient_CategoryOperation_id
+        categoryes_pk = Recipient.objects.get(name_recipient=name_recipient).categories_id
     except Exception:
         return
     return categoryes_pk
 
 
 @sync_to_async
-def get_name_category_auto(data: str):
+def get_name_category_auto(data: str) -> list[str]:
     try:
-        recipient_pk = Recipient.objects.get(name_recipient=data.lower())
-        categoryes_name = [i.name_cat for i in recipient_pk.categories.all()]
+        recipient = Recipient.objects.get(name_recipient=data.lower())
+        categoryes_name = [i.name_cat for i in recipient.categories.all()]
     except Exception:
         return
     return categoryes_name

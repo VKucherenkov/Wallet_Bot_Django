@@ -35,8 +35,8 @@ def name_type(message: types.Message) -> str:
     elif 'возвр' in message.text.lower():
         return 'возврат'
     try:
-        categoryes_pk = Recipient.objects.get(name_recipient=data_parser['name_recipient']).Recipient_CategoryOperation_id
-        type_pk = CategoryOperation.get(pk=categoryes_pk).TypeOperation_CategoryOperation_id
+        categoryes_pk = Recipient.objects.get(name_recipient=data_parser['name_recipient']).recipient_id
+        type_pk = CategoryOperation.get(pk=categoryes_pk).type_id
     except Exception:
         return
     return TypeOperation.get(pk=type_pk).name_type
