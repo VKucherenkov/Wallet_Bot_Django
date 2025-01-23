@@ -25,22 +25,22 @@ class IndexShow(DataMixin, TemplateView):
         return dict(list(context.items()) + list(c_def.items()))
 
 
-def about(request):
-    context = {
-        'menu': menu,
-        'title': 'О сайте',
-        'description': 'Описание работы сайта'
-    }
-    return render(request, 'bot/about.html', context=context)
+class AboutShow(DataMixin, TemplateView):
+    template_name = 'bot/about.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title='О сайте', description='Описание работы сайта')
+        return dict(list(context.items()) + list(c_def.items()))
 
 
-def contact(request):
-    context = {
-        'menu': menu,
-        'title': 'Контакты',
-        'description': 'Наши контакты для связи'
-    }
-    return render(request, 'bot/about.html', context=context)
+class ContactShow(DataMixin, TemplateView):
+    template_name = 'bot/contact.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title='Контакты', description='Наши контакты для связи')
+        return dict(list(context.items()) + list(c_def.items()))
 
 
 class RegisterUser(DataMixin, CreateView):

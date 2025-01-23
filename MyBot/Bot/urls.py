@@ -19,15 +19,15 @@ from django import views
 
 from django.urls import path, include
 
-from .wiews import about, contact, Cards, Categoryes, Types, TelegramUserShow, TelegramUsersShow, AllOperation, \
-    RegisterUser, LoginUser, logout_user, IndexShow, MyUserUpdate
+from .wiews import Cards, Categoryes, Types, TelegramUserShow, TelegramUsersShow, AllOperation, \
+    RegisterUser, LoginUser, logout_user, IndexShow, MyUserUpdate, AboutShow, ContactShow
 
 urlpatterns = [
     path('', IndexShow.as_view(), name='home'),
     path('home/', IndexShow.as_view(), name='home'),
-    path('about/', about, name='about'),
+    path('about/', AboutShow.as_view(), name='about'),
     path('users/', TelegramUsersShow.as_view(), name='users'),
-    path('contact/', contact, name='contact'),
+    path('contact/', ContactShow.as_view(), name='contact'),
     path('login/', LoginUser.as_view(), name='login'),
     path('logout/', logout_user, name='logout'),
     path('register/', RegisterUser.as_view(), name='register'),
