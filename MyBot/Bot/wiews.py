@@ -4,15 +4,14 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, TemplateView, CreateView, DetailView, UpdateView
 
 from Bot.forms import RegisterUserForm, LoginUserForm, ProfileUpdateForm
 from Bot.models import TelegramUser, CardUser, TypeOperation, CategoryOperation, OperationUser, MyUser
-from Bot.utils import DataMixin, menu
+from Bot.utils import DataMixin
 
 logger = logging.getLogger(__name__)
 

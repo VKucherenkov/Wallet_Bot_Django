@@ -17,9 +17,9 @@ Including another URLconf
 from debug_toolbar.toolbar import debug_toolbar_urls
 from django import views
 
-from django.urls import path, include
+from django.urls import path
 
-from .wiews import Cards, Categoryes, Types, TelegramUserShow, TelegramUsersShow, AllOperation, \
+from Bot.wiews import Cards, Categoryes, Types, TelegramUserShow, TelegramUsersShow, AllOperation, \
     RegisterUser, LoginUser, logout_user, IndexShow, MyUserUpdate, AboutShow, ContactShow
 
 urlpatterns = [

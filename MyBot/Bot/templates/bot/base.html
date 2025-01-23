@@ -10,6 +10,7 @@
     <link href="{% static 'bot/css/bootstrap.min.css' %}" rel="stylesheet">
     <!-- Подключение личных CSS -->
     <link type="text/css" href="{% static 'bot/css/styles.css' %}" rel="stylesheet"/>
+    <link href="{% static 'bot/css/styles1.css' %}" rel="stylesheet" />
 </head>
 <body>
 <!--Подключаем NavBar-->
@@ -34,10 +35,10 @@
 </div>
 {% endif %}
 
-<div>
+
 {% block content %}
 {% endblock %}
-</div>
+
 
 <!--Подключаем футер -->
 <div>
@@ -47,5 +48,6 @@
 
 <!-- Подключение Bootstrap JS (необязательно, если не используете JS-компоненты) -->
 <script src="{% static 'bot/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'bot/js/scripts.js' %}"></script>
 </body>
 </html>
