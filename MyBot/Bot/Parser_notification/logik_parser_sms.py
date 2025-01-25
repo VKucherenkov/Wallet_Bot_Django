@@ -4,43 +4,51 @@ from zoneinfo import ZoneInfo
 
 import pytz
 
-from Bot.Work_db.bank_db import name_bank
+from Bot.Work_db.bank_db import get_bank_name_by_card
 from Bot.Work_db.card_work import card_name
-from Bot.Work_db.category_operation_db import get_name_category
+from Bot.Work_db.category_operation_db import get_name_category_auto, get_name_category
 from Bot.Work_db.type_operation_db import name_type
-from Bot.common.global_variable import data_parser
 
 logger = logging.getLogger(__name__)
 
-msg1 = (f'[03.12.2024 в 12:07]\n'
-        f'Списание за уведомления об операциях\n'
-        f'ПЛАТ.СЧЁТ*7473 01:45 Оплата 40р за уведомления по СберКартам. Следующее списание 03.01.25. '
-        f'Баланс: 3714,22р.')
 
-msg2 = (f'[18.12.2024 в 08:31]\n'
-        f'Покупка MISHA KOFE_VEN\n'
-        f'100 ₽\n'
-        f'МИР •• 6522\n'
-        f'Баланс: 702062,63₽')
+from datetime import datetime
+from zoneinfo import ZoneInfo
+import logging
 
+logger = logging.getLogger(__name__)
 
-def get_datetime(msg):
-    date = msg[msg.index('[') + 1: msg.index('[') + 1 + 10] + ' ' + msg[msg.index(
-        ']') + 1 - 6: msg.index(']')]
-    year = int(date[6: 10])
-    month = int(date[3: 5])
-    day = int(date[:2])
-    hours = int(date[11: 13])
-    minutes = int(date[14:])
-    sec = int('0')
-    milisec = int('000000')
-    # Создание конкретной даты и времени
-    specific_time = datetime(year, month, day, hours, minutes, sec, milisec)
-    # Указание временной зоны
-    timezone = ZoneInfo('Asia/Novosibirsk')
-    # Привязка времени к временной зоне
-    specific_time_with_tz = specific_time.replace(tzinfo=timezone)
-    return specific_time_with_tz
+def get_datetime(msg: str) -> datetime:
+    """
+    Извлекает дату и время из строки сообщения и возвращает объект datetime с временной зоной.
+
+    :param msg: Строка сообщения.
+    :return: Объект datetime с временной зоной.
+    :raises ValueError: Если формат строки не соответствует ожидаемому.
+    """
+    try:
+        # Извлекаем дату и время из строки
+        date_str = msg[msg.index('[') + 1: msg.index('[') + 1 + 10]
+        time_str = msg[msg.index(']') + 1 - 6: msg.index(']')]
+
+        # Разбираем дату и время
+        day, month, year = map(int, date_str.split('.'))
+        hours, minutes = map(int, time_str.split(':'))
+
+        # Создаем объект datetime
+        specific_time = datetime(year, month, day, hours, minutes, 0, 0)
+
+        # Привязываем к временной зоне
+        timezone = ZoneInfo('Asia/Novosibirsk')
+        specific_time_with_tz = specific_time.replace(tzinfo=timezone)
+
+        logger.info(f"Успешно извлечена дата и время: {specific_time_with_tz}")
+        return specific_time_with_tz
+
+    except (ValueError, IndexError) as err:
+        # Логируем ошибку
+        logger.error(f"Ошибка при извлечении даты и времени из строки: {msg}. Ошибка: {err}", exc_info=True)
+        raise ValueError(f"Некорректный формат строки: {msg}") from err
 
 
 async def parser_logic_notification(message):
@@ -68,7 +76,7 @@ async def parser_logic_notification(message):
         if data_parser['number_card'] == '7473':
             data_parser['number_card'] = '8314'
         data_parser['name_recipient'] = ' '.join([i for i in msg.split('\n')][1].split()[1:])
-        data_parser['name_bank'] = await name_bank(data_parser['number_card'])
+        data_parser['name_bank'] = await get_bank_name_by_card(data_parser['number_card'])
         data_parser['amount_operation'] = [i for i in msg.split('\n')][2][:-2].replace(',', '.').replace(' ',
                                                                                                          '').replace(
             '+', '')

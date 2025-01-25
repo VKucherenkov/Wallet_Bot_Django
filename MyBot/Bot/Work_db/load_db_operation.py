@@ -1,91 +1,104 @@
+import logging
 from asgiref.sync import sync_to_async
 
 from Bot.models import TypeOperation, CategoryOperation, Recipient, BankCard, CardUser, OperationUser, TelegramUser
 
+logger = logging.getLogger(__name__)
 
 @sync_to_async
-def load_db_operaion(data):
+def load_db_operation(data) -> tuple[int, str] | Exception:
+    """
+    Обрабатывает данные операции пользователя и сохраняет их в базу данных.
+
+    :param data: Словарь с данными операции.
+    :return: Кортеж (ID операции, текстовое представление данных) или исключение.
+    """
     try:
-        [print(f'{key:<15} --- {value:<20}\n') for key, value in data.items()]
-        types = [i.name_type.lower() for i in TypeOperation.objects.all()]
-        if data['name_type'].lower() not in types:
-            TypeOperation.objects.create(name_type=data['name_type'].lower())
-        types_id = TypeOperation.objects.get(name_type=data['name_type']).id
-        print("Тип операций записан в базу")
+        # Логируем входные данные
+        logger.info("Обрабатываем данные операции:")
+        for key, value in data.items():
+            logger.info(f"{key:<15} --- {str(value):<20}")
 
-        category = [i.name_cat.lower() for i in CategoryOperation.objects.all()]
-        if data['name_cat'].lower() not in category:
-            CategoryOperation.objects.create(name_cat=data['name_cat'].lower(),
-                                             type_id=types_id)
-        category_id = CategoryOperation.objects.get(name_cat=data['name_cat'].lower()).id
-        print("Категория операции записана в базу")
+        # Создаем или получаем тип операции
+        type_operation, _ = TypeOperation.objects.get_or_create(
+            name_type=data['name_type'].lower()
+        )
+        logger.info(f"Тип операции '{type_operation.name_type}' записан в базу")
 
-        recipient = [i.name_recipient.lower() for i in Recipient.objects.all()]
-        if not recipient or data['name_recipient'].lower() not in recipient:
-            rec = Recipient.objects.create(name_recipient=data['name_recipient'].lower(),
-                                           recipient_in_notification=data['recipient_in_notification'])
-        else:
-            rec = Recipient.objects.get(name_recipient=data['name_recipient'].lower())
-        rec.categories.add(CategoryOperation.objects.get(id=category_id))
-        print("Реципиент записан в базу")
+        # Создаем или получаем категорию операции
+        category, _ = CategoryOperation.objects.get_or_create(
+            name_cat=data['name_cat'].lower(),
+            defaults={'type': type_operation}
+        )
+        logger.info(f"Категория операции '{category.name_cat}' записана в базу")
 
-        cards = [i.number_card for i in CardUser.objects.all()]
-        user_id = TelegramUser.objects.get(telegram_id=data['telegram_id']).id
-        if not cards or int(data['number_card']) not in cards:
-            banks = [i.name_bank for i in BankCard.objects.all()]
-            if all([data['name_bank'].lower() not in i.lower() for i in banks]):
-                BankCard.objects.create(name_bank=data['name_bank'].lower())
-            bank_id = BankCard.objects.get(name_bank=data['name_bank'].lower()).id
-            print("Имя банка записано в базу")
+        # Создаем или получаем получателя
 
-            CardUser.objects.create(number_card=data['number_card'],
-                                    name_card=data['name_card'].lower(),
-                                    balans_card=data['balans'],
-                                    bank_id=bank_id,
-                                    telegram_user_id=user_id)
-        elif data['balans'] == CardUser.objects.get(number_card=data['number_card']).balans_card - data[
-            'amount_operation']:
-            card_user = CardUser.objects.get(number_card=data['number_card'])
-            card_user.balans_card = data['balans']
-            card_user.save()
-            data['name_bank'] = CardUser.objects.get(number_card=data['number_card']).bank.name_bank
-            data['name_card'] = CardUser.objects.get(number_card=data['number_card']).name_card
-        elif data['balans'] == CardUser.objects.get(number_card=data['number_card']).balans_card + data[
-            'amount_operation']:
-            card_user = CardUser.objects.get(number_card=data['number_card'])
-            card_user.balans_card = data['balans']
-            card_user.save()
-            data['name_bank'] = CardUser.objects.get(number_card=data['number_card']).bank.name_bank
-            data['name_card'] = CardUser.objects.get(number_card=data['number_card']).name_card
-        else:
-            return (f'Ошибка обновления баланса\n'
-                    f'Баланс до операции: {CardUser.objects.get(number_card=data["number_card"]).balans_card}\n'
+        recipient, _ = Recipient.objects.get_or_create(
+            name_recipient=data['name_recipient'].lower()
+        )
+        recipient.categories.add(category)
+        logger.info(f"Получатель '{recipient.name_recipient}' записан в базу")
+
+        # Создаем или получаем банк
+        bank, _ = BankCard.objects.get_or_create(
+            name_bank=data['name_bank'].lower()
+        )
+        logger.info(f"Банк '{bank.name_bank}' записан в базу")
+
+        # Получаем пользователя
+        user = TelegramUser.objects.get(telegram_id=data['telegram_id'])
+
+        # Создаем или обновляем карту
+        card, created = CardUser.objects.get_or_create(
+            number_card=data['number_card'],
+            defaults={
+                'name_card': data['name_card'].lower(),
+                'balans_card': data['balans'],
+                'bank': bank,
+                'telegram_user': user
+            }
+        )
+        if not created:
+            # Обновляем баланс карты
+            if data['balans'] == card.balans_card - data['amount_operation']:
+                card.balans_card = data['balans']
+                card.save()
+            elif data['balans'] == card.balans_card + data['amount_operation']:
+                card.balans_card = data['balans']
+                card.save()
+            else:
+                error_message = (
+                    f'Ошибка обновления баланса\n'
+                    f'Баланс до операции: {card.balans_card}\n'
                     f'Сумма по операции: {data["amount_operation"]}\n'
-            f'Баланс после операции должен быть: {CardUser.objects.get(number_card=data["number_card"]).balans_card - data["amount_operation"]}\n'
-            f'Вы ввели сумму: {data["balans"]}\n'
-            f'Разница: {CardUser.objects.get(number_card=data["number_card"]).balans_card} - '
-            f'{data["amount_operation"]} - {data["balans"]} = '
-            f'{CardUser.objects.get(number_card=data["number_card"]).balans_card - data["amount_operation"] - data["balans"]}')
+                    f'Баланс после операции должен быть: {card.balans_card - data["amount_operation"]}\n'
+                    f'Вы ввели сумму: {data["balans"]}\n'
+                    f'Разница: {card.balans_card} - {data["amount_operation"]} - {data["balans"]} = '
+                    f'{card.balans_card - data["amount_operation"] - data["balans"]}'
+                )
+                logger.error(error_message)
+                return ValueError(error_message)
+        logger.info(f"Карта '{card.name_card}' записана в базу")
 
-        card_id = CardUser.objects.get(number_card=data['number_card']).id
-        print("Имя и номер карты записаны в базу")
-        text = ''
-        if not data.get('note_operation'):
-            for key, value in data.items():
-                text += f'<code>{key:<17} ------ {value}</code>\n'
+        # Формируем текстовое представление данных
+        text = '\n'.join(f'<code>{key:<17} ------ {value}</code>' for key, value in data.items())
         text_note_operation = text.replace('<code>', '').replace('</code>', '')
         data['note_operation'] = text_note_operation
-        OperationUser.objects.create(datetime_amount=data['datetime_amount'],
-                                     amount_operation=data['amount_operation'],
-                                     balans=data['balans'],
-                                     note_operation=data['note_operation'],
-                                     card_id=card_id,
-                                     category_id=category_id)
-        operation_id = OperationUser.objects.last().id
-        print(f"Операция записана в базу\n"
-              f"ID операции: {operation_id}")
+
+        # Создаем операцию
+        operation = OperationUser.objects.create(
+            datetime_amount=data['datetime_amount'],
+            amount_operation=data['amount_operation'],
+            balans=data['balans'],
+            note_operation=data['note_operation'],
+            card=card,
+            category=category
+        )
+        logger.info(f"Операция записана в базу. ID операции: {operation.id}")
+
+        return operation.id, text
 
     except Exception as err:
-        print(err)
+        logger.error(f"Произошла ошибка при обработке операции: {err}", exc_info=True)
         return err
-    return (operation_id, text)

@@ -7,7 +7,7 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 
 from Bot.FSM_processing.states import ParserHand
-from Bot.Work_db.load_db_operation import load_db_operaion
+from Bot.Work_db.load_db_operation import load_db_operation
 from Bot.keyboard.reply_keybord import start_kbd, get_prev_cancel_kbd
 from Bot.validators.valid_balance import validator_balance
 
@@ -35,9 +35,9 @@ async def get_invalid_balance(message: types.Message,):
 
 
 async def resume_input_notification(message: types.Message, data):
-    result, text = await load_db_operaion(data)
+    result, text = await load_db_operation(data)
     if type(result) == int:
-        text += '<code>Данные по операции записаны в базу данных.' + '\n' + f'ID операции:  {result}</code>'
+        text += '\n<code>Данные по операции записаны в базу данных.' + '\n' + f'ID операции:  {result}</code>'
     else:
-        text += '<code>Данные по операции не записаны в базу данных.' + '\n' + f'{result}</code>'
+        text += '\n<code>Данные по операции не записаны в базу данных.' + '\n' + f'{result}</code>'
     await message.answer(text=text, parse_mode=ParseMode.HTML)

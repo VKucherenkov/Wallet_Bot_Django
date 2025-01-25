@@ -76,9 +76,9 @@ class BankCard(models.Model):
 
 class CardUser(models.Model):
     '''Карты пользователя'''
-    telegram_user = models.ForeignKey(TelegramUser, on_delete=models.CASCADE, related_name='cards',
+    telegram_user = models.ForeignKey(TelegramUser, on_delete=models.CASCADE, related_name='cards_user',
                                       verbose_name="Пользователь")
-    bank = models.ForeignKey(BankCard, on_delete=models.CASCADE, related_name='cards', verbose_name="Банк")
+    bank = models.ForeignKey(BankCard, on_delete=models.CASCADE, related_name='cards_bank', verbose_name="Банк")
     name_card = models.CharField(max_length=150, blank=True, null=True,
                                  verbose_name="Наименование карты")
     number_card = models.IntegerField('Номер карты', null=True, unique=True)
@@ -196,8 +196,8 @@ class Recipient(models.Model):
 
 
 class Cat_Recipient(models.Model):
-    category = models.ForeignKey(CategoryOperation, on_delete=models.CASCADE, verbose_name="Категория")
-    recipient = models.ForeignKey(Recipient, on_delete=models.CASCADE, verbose_name="Получатель платежа")
+    category = models.ForeignKey(CategoryOperation, on_delete=models.CASCADE, related_name='recipient_cat', verbose_name="Категория")
+    recipient = models.ForeignKey(Recipient, on_delete=models.CASCADE, related_name='categories_recepient', verbose_name="Получатель платежа")
     datetime_add = models.DateTimeField('Время создания',
                                         auto_now_add=True,
                                         blank=True,

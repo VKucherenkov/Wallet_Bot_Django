@@ -3,7 +3,7 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 
 from Bot.FSM_processing.states import ParserHand
-from Bot.Work_db.bank_db import name_bank
+from Bot.Work_db.bank_db import get_bank_name_by_card
 from Bot.Work_db.card_work import card_number, card_name, card_list_for_kb
 from Bot.keyboard.reply_keybord import get_bank_kbd, get_prev_cancel_kbd, get_card_kbd
 from Bot.validators.valid_card_name import validator_name_card
@@ -18,7 +18,7 @@ async def get_number_card(message: types.Message,
     await state.update_data(number_card=message.text)
     if await card_number(message.text):
         await state.update_data(name_card=await card_name(message.text),
-                                name_bank=await name_bank(message.text))
+                                name_bank=await get_bank_name_by_card(message.text))
         await state.set_state(ParserHand.operation_state)
         await message.answer(f'Введите сумму по операции',
                              parse_mode=ParseMode.HTML,

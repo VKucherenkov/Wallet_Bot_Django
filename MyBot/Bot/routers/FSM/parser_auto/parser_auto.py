@@ -63,7 +63,7 @@ async def recipient_auto_parser(message: types.Message, state: FSMContext):
     await message.answer(f'{data_txt}', parse_mode=ParseMode.HTML)
     await message.answer(f'{"принят"}', parse_mode=ParseMode.HTML, reply_markup=start_kbd)
     card_num = await card_number(data['number_card'])
-    recipient_lst = await get_recipient_db()
+    recipient_lst = await get_recipient_db(data['name_recipient'])
     category_lst = await get_name_category_auto(data['name_recipient'])
     if not card_num:
         await state.set_state(ParserAuto.card_name_state)
@@ -97,6 +97,3 @@ async def recipient_auto_parser(message: types.Message, state: FSMContext):
         await message.answer(f'Проверьте и подтвердите правильность введенных данных по операции',
                              parse_mode=ParseMode.HTML,
                              reply_markup=get_yes_no_kbd())
-
-
-

@@ -14,6 +14,7 @@ from pathlib import Path
 
 from django.conf.global_settings import STATIC_ROOT, STATICFILES_DIRS, LOGIN_REDIRECT_URL
 from django.urls import reverse_lazy
+from django_extensions.settings import BASE_DIR
 from environs import Env
 
 import MyBot
@@ -186,3 +187,10 @@ INTERNAL_IPS = [
 LOGIN_REDIRECT_URL = '/home/'
 
 AUTH_USER_MODEL = 'Bot.MyUser'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': BASE_DIR / 'var/tmp/django_cache',  # Путь для хранения кэша
+    }
+}
