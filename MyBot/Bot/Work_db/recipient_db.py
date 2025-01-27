@@ -1,17 +1,13 @@
 import logging
 
 from asgiref.sync import sync_to_async
+from django.core.cache import cache
 
 from Bot.models import Recipient
 
 
-from django.core.cache import cache
-
-
 logger = logging.getLogger(__name__)
 
-from django.core.cache import cache
-import logging
 
 logger = logging.getLogger(__name__)
 

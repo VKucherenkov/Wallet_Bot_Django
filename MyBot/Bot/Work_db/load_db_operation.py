@@ -33,11 +33,20 @@ def load_db_operation(data) -> tuple[int, str] | Exception:
         logger.info(f"Категория операции '{category.name_cat}' записана в базу")
 
         # Создаем или получаем получателя
-
-        recipient, _ = Recipient.objects.get_or_create(
-            name_recipient=data['name_recipient'].lower()
+        recipient, created = Recipient.objects.get_or_create(
+            name_recipient=data['name_recipient'].lower(),
+            defaults={'recipient_in_notification': data.get('recipient_in_notification', False)}
         )
+
+        # Если получатель уже существовал и поле recipient_in_notification передано, обновляем его
+        if not created and 'recipient_in_notification' in data:
+            recipient.recipient_in_notification = data['recipient_in_notification']
+            recipient.save()
+
+        # Связываем получателя с категорией
         recipient.categories.add(category)
+
+        # Логируем результат
         logger.info(f"Получатель '{recipient.name_recipient}' записан в базу")
 
         # Создаем или получаем банк
@@ -84,7 +93,8 @@ def load_db_operation(data) -> tuple[int, str] | Exception:
         # Формируем текстовое представление данных
         text = '\n'.join(f'<code>{key:<17} ------ {value}</code>' for key, value in data.items())
         text_note_operation = text.replace('<code>', '').replace('</code>', '')
-        data['note_operation'] = text_note_operation
+        if not data.get('note_operation'):
+            data['note_operation'] = text_note_operation
 
         # Создаем операцию
         operation = OperationUser.objects.create(

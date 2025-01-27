@@ -9,14 +9,11 @@ from Bot.Work_db.card_work import card_name
 from Bot.Work_db.category_operation_db import get_name_category_auto, get_name_category
 from Bot.Work_db.type_operation_db import name_type
 
-logger = logging.getLogger(__name__)
-
-
-from datetime import datetime
-from zoneinfo import ZoneInfo
-import logging
 
 logger = logging.getLogger(__name__)
+
+logger = logging.getLogger(__name__)
+
 
 def get_datetime(msg: str) -> datetime:
     """

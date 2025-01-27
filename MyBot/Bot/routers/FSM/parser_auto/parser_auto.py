@@ -17,25 +17,71 @@ from Bot.Work_db.type_operation_db import get_type_for_keyboard
 from Bot.keyboard.reply_keybord import start_kbd, get_prev_cancel_kbd, get_recipient_kbd, get_category_kbd, \
     get_yes_no_kbd, get_type_kbd
 
+
 logger = logging.getLogger(__name__)
 
 router = Router(name=__name__)
 
 
-@router.message(F.text =='Ввод типичной операции')
-async def start_auto_parser(message: types.Message,
-                            state: FSMContext):
-    await state.set_state(ParserAuto.start_state)
-    logger.info(f'Пользователь: {message.chat.first_name} '
-                f'с Telegram id: {message.from_user.id} написал:\n'
-                f'{message.text}')
-    text_message = 'В поле ввода текста вставьте уведомление полученное из банка'
-    if message.from_user.id != settings.TELEGRAM_ID_ADMIN:
-        await message.bot.send_message(chat_id=settings.TELEGRAM_ID_ADMIN,
-                                       text=f'Пользователь с ID: <b>{message.from_user.id}</b>, написал:\n'
-                                            f'<code>{message.date}\n ------------- \n{message.text}</code>',
-                                       parse_mode=ParseMode.HTML)
-    await message.answer(f'{text_message}', parse_mode=ParseMode.HTML, reply_markup=start_kbd)
+@router.message(F.text == 'Ввод типичной операции')
+async def start_auto_parser(message: types.Message, state: FSMContext):
+    """
+    Обрабатывает команду "Ввод типичной операции" и устанавливает начальное состояние.
+
+    :param message: Объект сообщения.
+    :param state: Состояние FSMContext.
+    """
+    try:
+        # Устанавливаем начальное состояние
+        await state.set_state(ParserAuto.start_state)
+
+        # Логируем входящее сообщение
+        logger.info(
+            f'Пользователь: {message.chat.first_name} '
+            f'с Telegram id: {message.from_user.id} написал:\n'
+            f'{message.text}'
+        )
+
+        # Отправляем инструкцию пользователю
+        text_message = 'В поле ввода текста вставьте уведомление, полученное из банка'
+        await message.answer(text=text_message, parse_mode=ParseMode.HTML, reply_markup=start_kbd)
+
+        # Уведомляем администратора, если пользователь не является им
+        if message.from_user.id != settings.TELEGRAM_ID_ADMIN:
+            admin_message = (
+                f'Пользователь с ID: <b>{message.from_user.id}</b>, написал:\n'
+                f'<code>{message.date}\n ------------- \n{message.text}</code>'
+            )
+            await message.bot.send_message(
+                chat_id=settings.TELEGRAM_ID_ADMIN,
+                text=admin_message,
+                parse_mode=ParseMode.HTML
+            )
+            logger.info(f"Администратор уведомлен о действии пользователя {message.from_user.id}.")
+
+    except Exception as err:
+        # Логируем ошибку
+        logger.error(f"Произошла ошибка при обработке команды 'Ввод типичной операции': {err}", exc_info=True)
+        await message.answer(
+            text='<code>Произошла ошибка при обработке вашего запроса. Попробуйте позже.</code>',
+            parse_mode=ParseMode.HTML,
+            reply_markup=start_kbd
+        )
+
+# @router.message(F.text =='Ввод типичной операции')
+# async def start_auto_parser(message: types.Message,
+#                             state: FSMContext):
+#     await state.set_state(ParserAuto.start_state)
+#     logger.info(f'Пользователь: {message.chat.first_name} '
+#                 f'с Telegram id: {message.from_user.id} написал:\n'
+#                 f'{message.text}')
+#     text_message = 'В поле ввода текста вставьте уведомление полученное из банка'
+#     if message.from_user.id != settings.TELEGRAM_ID_ADMIN:
+#         await message.bot.send_message(chat_id=settings.TELEGRAM_ID_ADMIN,
+#                                        text=f'Пользователь с ID: <b>{message.from_user.id}</b>, написал:\n'
+#                                             f'<code>{message.date}\n ------------- \n{message.text}</code>',
+#                                        parse_mode=ParseMode.HTML)
+#     await message.answer(f'{text_message}', parse_mode=ParseMode.HTML, reply_markup=start_kbd)
 
 
 @router.message(ParserAuto.start_state, F.text.lower().contains('['))
