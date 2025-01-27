@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-import pytz
+from aiogram import types
 
 from Bot.Work_db.bank_db import get_bank_name_by_card
 from Bot.Work_db.card_work import card_name
@@ -12,7 +12,6 @@ from Bot.Work_db.type_operation_db import name_type
 
 logger = logging.getLogger(__name__)
 
-logger = logging.getLogger(__name__)
 
 
 def get_datetime(msg: str) -> datetime:
@@ -48,39 +47,75 @@ def get_datetime(msg: str) -> datetime:
         raise ValueError(f"Некорректный формат строки: {msg}") from err
 
 
-async def parser_logic_notification(message):
+async def parser_logic_notification(message: types.Message):
     msg = message.text
-    data_parser = {}
-    data_parser['note_operation'] = msg
-    data_parser['datetime_amount'] = get_datetime(msg)
-    data_parser['name_type'] = await name_type(message)
+    data_parser = {
+        'note_operation': msg,
+        'datetime_amount': get_datetime(msg),
+        'name_type': await name_type(message),
+    }
 
-    data_parser['recipient_in_notification'] = [i for i in msg.split('\n')][1]
-    if 'списание' in [i.lower() for i in msg.split('\n')][1]:
-        data_parser['number_card'] = msg[msg.index('*') + 1: msg.index('*') + 1 + 4]
-        if data_parser['number_card'] == '7473':
-            data_parser['number_card'] = '8314'
-        data_parser['name_bank'] = 'Сбербанк'
-        data_parser['name_recipient'] = 'Сбербанк'
-        data_parser['amount_operation'] = [j[:-1] for j in [i for i in msg.split('\n')][2].split() if j[-1] == 'р'][0]
-        data_parser['balans'] = [i for i in msg.split('\n')][-1].split()[-1][:-2].replace(',', '.')
+    lines = [line.strip() for line in msg.split('\n') if line.strip()]
+    if len(lines) < 2:
+        raise ValueError("Недостаточно данных в сообщении для парсинга.")
 
-    elif 'покупка' in [i.lower() for i in msg.split('\n')][1] or 'зачислен' in [i.lower() for i in msg.split('\n')][
-        1] or 'оплата' in [i.lower() for i in msg.split('\n')][1] or 'возвр' in [i.lower() for i in msg.split('\n')][
-        1] or 'перевод от' in [i.lower() for i in msg.split('\n')][1] or 'перевод' in \
-            [i.lower() for i in msg.split('\n')][1]:
-        data_parser['number_card'] = msg[msg.rindex('•') + 2: msg.index('•') + 2 + 5]
-        if data_parser['number_card'] == '7473':
-            data_parser['number_card'] = '8314'
-        data_parser['name_recipient'] = ' '.join([i for i in msg.split('\n')][1].split()[1:])
-        data_parser['name_bank'] = await get_bank_name_by_card(data_parser['number_card'])
-        data_parser['amount_operation'] = [i for i in msg.split('\n')][2][:-2].replace(',', '.').replace(' ',
-                                                                                                         '').replace(
-            '+', '')
-        data_parser['balans'] = ''.join([i for i in msg.split('\n')][-1].split()[1:-1]).replace(',', '.')
+    data_parser['recipient_in_notification'] = lines[1]
+
+    # Обработка списания
+    if 'списание' in lines[1].lower():
+        await parse_withdrawal(data_parser, msg, lines)
+
+    # Обработка покупки, зачисления, перевода и т.д.
+    elif any(keyword in lines[1].lower() for keyword in ['покупка', 'зачислен', 'оплата', 'возвр', 'перевод от', 'перевод']):
+        await parse_income_or_payment(data_parser, msg, lines)
+
+    # Дополнительные данные
     data_parser['name_card'] = await card_name(data_parser['number_card'])
     data_parser['name_cat'] = await get_name_category(data_parser['name_recipient'])
 
+    # Форматирование данных для вывода
     data_parser_txt = '\n'.join([f'<code>{key:<16} - {str(value)}</code>' for key, value in data_parser.items()][1:])
-    print(data_parser_txt)
     return data_parser, data_parser_txt
+
+
+async def parse_withdrawal(data_parser, msg, lines):
+    """Обработка списания."""
+    data_parser['number_card'] = extract_card_number(msg, '*', 4)
+    if data_parser['number_card'] == '7473':
+        data_parser['number_card'] = '8314'
+    data_parser['name_bank'] = 'Сбербанк'
+    data_parser['name_recipient'] = 'Сбербанк'
+    data_parser['amount_operation'] = extract_amount(lines[2], 'р')
+    data_parser['balans'] = extract_balance(lines[-1])
+
+
+async def parse_income_or_payment(data_parser, msg, lines):
+    """Обработка зачислений, покупок, переводов и т.д."""
+    data_parser['number_card'] = extract_card_number(msg, '•', 4)
+    if data_parser['number_card'] == '7473':
+        data_parser['number_card'] = '8314'
+    data_parser['name_recipient'] = ' '.join(lines[1].split()[1:])
+    data_parser['name_bank'] = await get_bank_name_by_card(data_parser['number_card'])
+    data_parser['amount_operation'] = lines[2][:-2].replace(',', '.').replace(' ', '').replace('+', '')
+    data_parser['balans'] = ''.join(lines[-1].split()[1:-1]).replace(',', '.')
+
+
+def extract_card_number(msg, symbol, length):
+    """Извлечение номера карты."""
+    try:
+        return msg[msg.rindex(symbol) + 2: msg.rindex(symbol) + 2 + length]
+    except ValueError:
+        return "Неизвестно"
+
+
+def extract_amount(line, currency_symbol):
+    """Извлечение суммы операции."""
+    for part in line.split():
+        if part.endswith(currency_symbol):
+            return part[:-1]
+    return "Неизвестно"
+
+
+def extract_balance(line):
+    """Извлечение баланса."""
+    return line.split()[-1][:-2].replace(',', '.')
