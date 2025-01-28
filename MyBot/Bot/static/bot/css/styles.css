@@ -1,4 +1,5 @@
 html, body {
+
   height: 100%; /* Занимаем всю высоту экрана */
   display: grid;
   grid-template-rows: auto 1fr auto; /* Шапка, контент, футер */
@@ -15,6 +16,12 @@ html, body {
 .auto-numbered tbody tr td:first-child::before {
   content: counter(rowNumber); /* Отображение номера строки */
   margin-right: 10px;
+}
+.img-home {
+    width: 400px;
+    height: 300px;
+    object-fit: contain; /* Обрезка изображения */
+    border-radius: 10px; /* Скругление углов */
 }
 
 footer {
@@ -106,4 +113,63 @@ footer {
     height: 20px;
     background-color: lightblue;
     padding: 20px;
+}
+
+ body {
+    font-family: 'Roboto', sans-serif;
+}
+.hero {
+    background: #f4f4f4;
+    padding: 100px 0;
+}
+.feature-icon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 15px;
+}
+.testimonial img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 15px;
+}
+.contact-section {
+    padding: 80px 0;
+}
+.contact-info {
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 10px;
+}
+.contact-info h3 {
+    margin-bottom: 20px;
+}
+.contact-info ul {
+    list-style: none;
+    padding: 0;
+}
+.contact-info ul li {
+    margin-bottom: 15px;
+}
+.contact-info ul li i {
+    margin-right: 10px;
+    color: #007BFF;
+}
+.contact-form {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+.btn-reg {
+    --bs-btn-color: #2b5076;
+    --bs-btn-hover-bg: #d3d4d5;
+    --bs-btn-bg: #cfe2ff;
+}
+/* Стили для времени в навбаре */
+.navbar-time {
+    margin-left: auto; /* Выравнивание по правому краю */
+    margin-right: 20px; /* Отступ справа */
+    color: #2b5076;
+    font-weight: bold;
 }

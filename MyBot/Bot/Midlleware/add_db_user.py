@@ -2,7 +2,7 @@ import logging
 from typing import Callable, Dict, Any, Awaitable
 
 from aiogram import BaseMiddleware
-from aiogram.types import TelegramObject
+from aiogram.types import TelegramObject, Message
 
 from Bot.Work_db.bank_db import db_bank_create
 from Bot.Work_db.category_operation_db import db_categoryoperation_create
@@ -12,10 +12,6 @@ from Bot.Work_db.user_db_create_update import db_telegramuser
 logger = logging.getLogger(__name__)
 
 
-import logging
-from aiogram import BaseMiddleware
-from aiogram.types import TelegramObject, Message
-from typing import Callable, Dict, Any, Awaitable
 
 logger = logging.getLogger(__name__)
 

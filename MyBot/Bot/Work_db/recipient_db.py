@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 logger = logging.getLogger(__name__)
 
 @sync_to_async
-def get_recipient_db(data: str, cache_timeout: int = 60 * 60) -> list[str] | None:
+def get_recipient_db(data: str = None, cache_timeout: int = 60 * 60) -> list[str] | None:
     """
     Возвращает список имен получателей из таблицы Recipient.
 
@@ -23,7 +23,7 @@ def get_recipient_db(data: str, cache_timeout: int = 60 * 60) -> list[str] | Non
     cache_key = "all_recipients"  # Уникальный ключ для кэша
     recipients_lst = cache.get(cache_key)  # Пытаемся получить данные из кэша
 
-    if recipients_lst is None or data.lower() not in [name.lower() for name in recipients_lst]:  # Если данных нет в кэше
+    if recipients_lst is None or not data or data.lower() not in [name.lower() for name in recipients_lst]:  # Если данных нет в кэше
         try:
             # Используем values_list для оптимизации запроса
             recipients = Recipient.objects.values_list('name_recipient', flat=True)

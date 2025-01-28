@@ -1,14 +1,97 @@
 {% extends 'bot/base.html' %}
+{% load static %}
 
 {% block content %}
 <!--<div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 300px;">-->
 <!--    <p><h1>{{ title }}</h1></p>-->
 <!--</div>-->
-<div class="">
-    <div class="p-3">
-        <p>
-        <h1>{{ title }}</h1></p>
+<!--<div class="">-->
+<!--    <div class="p-3">-->
+<!--        <p>-->
+<!--        <h1>{{ title }}</h1></p>-->
+<!--    </div>-->
+<!--</div>-->
+<section class="hero text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Контролируйте свои финансы легко и эффективно</h1>
+        <p class="lead">Учет доходов и расходов, планирование бюджета и достижение финансовых целей в одном месте.</p>
+        <a href="#" class="btn btn-primary btn-lg">Начать бесплатно</a>
     </div>
-</div>
+</section>
+
+<!-- Преимущества -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Почему выбирают нас?</h2>
+        <div class="row text-center">
+            <div class="col-md-4">
+                <img class="img-fluid img-home" src="{% static 'bot/images/interface.jpg' %}" alt="Удобный интерфейс" class="feature-icon">
+                <h3>Удобный интерфейс</h3>
+                <p>Простое управление финансами для всех.</p>
+            </div>
+            <div class="col-md-4">
+                <img class="img-fluid img-home" src="{% static 'bot/images/images.jpeg' %}" alt="Безопасность" class="feature-icon">
+                <h3>Безопасность</h3>
+                <p>Ваши данные защищены.</p>
+            </div>
+            <div class="col-md-4">
+                <img class="img-fluid img-home" src="{% static 'bot/images/analitics.avif' %}" alt="Аналитика" class="feature-icon">
+                <h3>Аналитика</h3>
+                <p>Наглядные отчеты и графики.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Как это работает -->
+<section class="bg-light py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Всего 3 шага к финансовому контролю</h2>
+        <div class="row text-center">
+            <div class="col-md-4">
+                <img class="img-fluid img-home" src="{% static 'bot/images/registration.jpg' %}" alt="Регистрация" class="feature-icon">
+                <h3>Регистрация</h3>
+                <p>Создайте аккаунт за 2 минуты.</p>
+            </div>
+            <div class="col-md-4">
+                <img class="img-fluid img-home" src="{% static 'bot/images/dohod-rashod.jpg' %}" alt="Добавление данных" class="feature-icon">
+                <h3>Добавление данных</h3>
+                <p>Введите доходы и расходы.</p>
+            </div>
+            <div class="col-md-4">
+                <img class="img-fluid img-home" src="{% static 'bot/images/analis.avif' %}" alt="Анализ" class="feature-icon">
+                <h3>Анализ</h3>
+                <p>Получайте отчеты и советы.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Отзывы -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Что говорят наши пользователи</h2>
+        <div class="row">
+            <div class="col-md-6 text-center">
+                <img class="img-fluid img-home" src="{% static 'bot/images/boy.gif' %}" alt="Пользователь 1" class="testimonial">
+                <p>"Сервис помог мне накопить на отпуск!"</p>
+                <p><strong>Иван Иванов</strong></p>
+            </div>
+            <div class="col-md-6 text-center">
+                <img class="img-fluid img-home" src="{% static 'bot/images/girl.gif' %}" alt="Пользователь 2" class="testimonial">
+                <p>"Теперь я всегда знаю, куда уходят деньги."</p>
+                <p><strong>Мария Петрова</strong></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Призыв к действию -->
+<section class="bg-primary text-white text-center py-5">
+    <div class="container">
+        <h2 class="mb-4">Начните управлять своими финансами уже сегодня!</h2>
+        <a href="#" class="btn btn-light btn-lg">Зарегистрироваться</a>
+    </div>
+</section>
 
 {% endblock %}

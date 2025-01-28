@@ -6,11 +6,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ title }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <!-- Подключение Bootstrap CSS -->
     <link href="{% static 'bot/css/bootstrap.min.css' %}" rel="stylesheet">
     <!-- Подключение личных CSS -->
+    <link href="{% static 'bot/css/styles1.css' %}" rel="stylesheet"/>
     <link type="text/css" href="{% static 'bot/css/styles.css' %}" rel="stylesheet"/>
-    <link href="{% static 'bot/css/styles1.css' %}" rel="stylesheet" />
 </head>
 <body>
 <!--Подключаем NavBar-->
@@ -46,8 +47,10 @@
 </div>
 
 
-<!-- Подключение Bootstrap JS (необязательно, если не используете JS-компоненты) -->
+<!-- Подключение Bootstrap JS и FontAwesome для иконок -->
 <script src="{% static 'bot/js/bootstrap.bundle.min.js' %}"></script>
 <script src="{% static 'bot/js/scripts.js' %}"></script>
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<script src="{% static 'bot/js/time.js' %}"></script>
 </body>
 </html>
