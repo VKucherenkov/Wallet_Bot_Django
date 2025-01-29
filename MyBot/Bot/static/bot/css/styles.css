@@ -173,3 +173,80 @@ footer {
     color: #2b5076;
     font-weight: bold;
 }
+
+/* Стили для analitics */
+.highlight {
+    font-weight: bold;
+    color: #000;
+}
+.section {
+    margin-bottom: 40px;
+}
+
+/* Стили для security */
+.security-section {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+.security-icon {
+    font-size: 48px;
+    color: #0d6efd;
+    margin-bottom: 20px;
+}
+.security-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+.security-text {
+    font-size: 18px;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* Стили для interface */
+.interface-section {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+.interface-icon {
+    font-size: 48px;
+    color: #28a745;
+    margin-bottom: 20px;
+}
+.interface-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+.interface-text {
+    font-size: 18px;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* Стили для registration */
+.registration-icon {
+    font-size: 48px;
+    color: #ffc107;
+    margin-bottom: 20px;
+}
+.registration-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+.registration-text {
+    font-size: 18px;
+    color: #555;
+    line-height: 1.6;
+}

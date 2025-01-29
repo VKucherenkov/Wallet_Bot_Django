@@ -1,9 +1,9 @@
 from django.conf import settings
 
-
-menu = [{'title': 'О сайте', 'url_link': 'about'},
-        {'title': "Обратная связь", 'url_link': 'contact'},
-        ]
+menu = [
+    {'title': 'О сайте', 'url_link': 'about'},
+    {'title': "Обратная связь", 'url_link': 'contact'}
+]
 
 
 class DataMixin:

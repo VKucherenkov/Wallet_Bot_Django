@@ -3,7 +3,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import logout
+from django.contrib.auth import logout, login
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -15,12 +15,44 @@ from Bot.utils import DataMixin
 
 logger = logging.getLogger(__name__)
 
+
 class IndexShow(DataMixin, TemplateView):
     template_name = 'bot/index.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context['user_t'] = TelegramUser.objects.get(telegram_id=self.request.user.username)
         c_def = self.get_user_context(title='Главная страница')
+        return dict(list(context.items()) + list(c_def.items()))
+
+
+class AnaliticsShow(DataMixin, TemplateView):
+    template_name = 'bot/analitics.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title='Аналитика')
+        return dict(list(context.items()) + list(c_def.items()))
+
+
+class SecurityShow(DataMixin, TemplateView):
+    template_name = 'bot/security.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title='Безопасность')
+        return dict(list(context.items()) + list(c_def.items()))
+
+
+class InterfaceShow(DataMixin, TemplateView):
+    template_name = 'bot/interface.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context['user_t'] = TelegramUser.objects.get(telegram_id=self.request.user.username)
+        c_def = self.get_user_context(title='Интерфейс')
         return dict(list(context.items()) + list(c_def.items()))
 
 
@@ -45,27 +77,29 @@ class ContactShow(DataMixin, TemplateView):
 class RegisterUser(DataMixin, CreateView):
     form_class = RegisterUserForm
     template_name = 'bot/register.html'
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('login')
 
     def form_valid(self, form):
+        user = form.save()
         user_in = TelegramUser.objects.filter(telegram_id=form.instance.username)
         if not user_in:
-            TelegramUser.objects.create(telegram_id=form.instance.username,
-                                        first_name=form.instance.first_name,
-                                        last_name=form.instance.last_name,
-                                        email=form.instance.email,
-                                        gender=form.instance.gender,
-                                        )
+            user_in = TelegramUser.objects.create(telegram_id=form.instance.username,
+                                                  first_name=form.instance.first_name,
+                                                  last_name=form.instance.last_name,
+                                                  email=form.instance.email,
+                                                  gender=form.instance.gender,
+                                                  )
         else:
             user_in.update(first_name=form.instance.first_name,
                            last_name=form.instance.last_name,
                            email=form.instance.email,
-                           gender=form.instance.gender,)
-        return super().form_valid(form)
+                           gender=form.instance.gender, )
+        login(self.request, user)
+        return redirect(f'{user_in.get_url()}')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        c_def = self.get_user_context(title = 'Регистрация')
+        c_def = self.get_user_context(title='Регистрация')
         return dict(list(context.items()) + list(c_def.items()))
 
 
@@ -111,9 +145,9 @@ class TelegramUsersShow(DataMixin, ListView):
 class TelegramUserShow(DataMixin, DetailView):
     model = TelegramUser
     template_name = 'bot/one_user.html'
-    context_object_name = 'user'
+    context_object_name = 'telegram_user'
     slug_field = 'slug'  # Поле модели, используемое для поиска
-    slug_url_kwarg = 'userdetail_slug' # Имя параметра в URL
+    slug_url_kwarg = 'userdetail_slug'  # Имя параметра в URL
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -128,7 +162,7 @@ class Cards(DataMixin, ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['user'] = self.user
+        context['telegram_user'] = self.user
         c_def = self.get_user_context(title='Карты пользователя')
         return dict(list(context.items()) + list(c_def.items()))
 
@@ -147,7 +181,7 @@ class Types(DataMixin, ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         slug = self.kwargs['userdetail_slug']
-        context['user'] = TelegramUser.objects.get(slug=slug)
+        context['telegram_user'] = TelegramUser.objects.get(slug=slug)
         c_def = self.get_user_context(title='Тип операций')
         return dict(list(context.items()) + list(c_def.items()))
 
@@ -162,7 +196,7 @@ class Categoryes(DataMixin, ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         slug = self.kwargs['userdetail_slug']
-        context['user'] = TelegramUser.objects.get(slug=slug)
+        context['telegram_user'] = TelegramUser.objects.get(slug=slug)
         c_def = self.get_user_context(title='Категории операций')
         return dict(list(context.items()) + list(c_def.items()))
 
@@ -176,7 +210,7 @@ class AllOperation(DataMixin, ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['user'] = self.kwargs['user']
+        context['telegram_user'] = self.kwargs['user']
         c_def = self.get_user_context(title='Все операции')
         return dict(list(context.items()) + list(c_def.items()))
 
@@ -191,7 +225,6 @@ class MyUserUpdate(DataMixin, UpdateView):
     model = MyUser
     form_class = ProfileUpdateForm
     template_name = 'bot/profile.html'
-
     success_url = reverse_lazy('home')
     slug_field = 'slug'  # Поле модели, используемое для поиска
     slug_url_kwarg = 'profile_slug'  # Имя параметра в URL

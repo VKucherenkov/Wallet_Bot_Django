@@ -20,11 +20,15 @@ from django import views
 from django.urls import path
 
 from Bot.wiews import Cards, Categoryes, Types, TelegramUserShow, TelegramUsersShow, AllOperation, \
-    RegisterUser, LoginUser, logout_user, IndexShow, MyUserUpdate, AboutShow, ContactShow
+    RegisterUser, LoginUser, logout_user, IndexShow, MyUserUpdate, AboutShow, ContactShow, AnaliticsShow, SecurityShow, \
+    InterfaceShow
 
 urlpatterns = [
     path('', IndexShow.as_view(), name='home'),
     path('home/', IndexShow.as_view(), name='home'),
+    path('analitics/', AnaliticsShow.as_view(), name='analitics'),
+    path('security/', SecurityShow.as_view(), name='security'),
+    path('interface/', InterfaceShow.as_view(), name='interface'),
     path('about/', AboutShow.as_view(), name='about'),
     path('users/', TelegramUsersShow.as_view(), name='users'),
     path('contact/', ContactShow.as_view(), name='contact'),

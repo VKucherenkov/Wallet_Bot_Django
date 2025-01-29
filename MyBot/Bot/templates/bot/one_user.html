@@ -9,14 +9,14 @@
     <div class="row">
         <div class="content col-xxl-7 col-xl-5 col-md-7 col-sm-8 col-xs-9">
             <ul class="text-left">
-                <h2> Пользователь {{ user.telegram_id }}</h2>
+                <h2> Пользователь {{ telegram_user.last_name }} {{ user.first_name }}</h2>
                 <hr>
-                <h4>ID пользователя: {{ user.id }} </h4>
-                <h4>Телеграмм ID: {{ user.telegram_id }}</h4>
-                <h4>Имя пользователя: {{ user.last_name }} {{ user.first_name }}</h4>
-                <h4>Дата рождения: {{ user.birth_date }}</h4>
-                <h4>Пол: {{ user.gender }}</h4>
-                <h4>Email: {{ user.email }}</h4>
+                <h4>ID пользователя: {{ telegram_user.id }} </h4>
+                <h4>Телеграмм ID: {{ telegram_user.telegram_id }}</h4>
+                <h4>Имя пользователя: {{ telegram_user.last_name }} {{ user.first_name }}</h4>
+                <h4>Дата рождения: {{ telegram_user.birth_date }}</h4>
+                <h4>Пол: {{ telegram_user.gender }}</h4>
+                <h4>Email: {{ telegram_user.email }}</h4>
                 <hr>
                 <h5>Текущее время: {{ now|date:"DATETIME_FORMAT" }}</h5>
             </ul>
