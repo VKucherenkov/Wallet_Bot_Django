@@ -5,11 +5,13 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout, login
 from django.contrib.auth.views import LoginView
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import ListView, TemplateView, CreateView, DetailView, UpdateView
 
-from Bot.forms import RegisterUserForm, LoginUserForm, ProfileUpdateForm
+from Bot.forms import RegisterUserForm, LoginUserForm, ProfileUpdateForm, AddOperationForm, AddCardForm, \
+    AddCategoryForm, AddRecipientForm
 from Bot.models import TelegramUser, CardUser, TypeOperation, CategoryOperation, OperationUser, MyUser
 from Bot.utils import DataMixin
 
@@ -56,6 +58,28 @@ class InterfaceShow(DataMixin, TemplateView):
         return dict(list(context.items()) + list(c_def.items()))
 
 
+class AnalizShow(DataMixin, TemplateView):
+    template_name = 'bot/analiz.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context['user_t'] = TelegramUser.objects.get(telegram_id=self.request.user.username)
+        c_def = self.get_user_context(title='Анализ')
+        return dict(list(context.items()) + list(c_def.items()))
+
+
+class AddOperationShow(DataMixin, TemplateView):
+    template_name = 'bot/add_operation_text.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context['user_t'] = TelegramUser.objects.get(telegram_id=self.request.user.username)
+        c_def = self.get_user_context(title='Добавление данных')
+        return dict(list(context.items()) + list(c_def.items()))
+
+
 class AboutShow(DataMixin, TemplateView):
     template_name = 'bot/about.html'
 
@@ -95,6 +119,7 @@ class RegisterUser(DataMixin, CreateView):
                            email=form.instance.email,
                            gender=form.instance.gender, )
         login(self.request, user)
+
         return redirect(f'{user_in.get_url()}')
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -240,3 +265,59 @@ class MyUserUpdate(DataMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         c_def = self.get_user_context(title='Все операции')
         return dict(list(context.items()) + list(c_def.items()))
+
+
+class AddOperationView(DataMixin, CreateView):
+    model = OperationUser
+    form_class = AddOperationForm
+    template_name = 'bot/add_operation_form.html'
+    success_url = reverse_lazy('home')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user  # Передаем пользователя
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['card_form'] = AddCardForm()
+        context['category_form'] = AddCategoryForm()
+        context['recipient_form'] = AddRecipientForm()
+        c_def = self.get_user_context(title='Добавление операции')
+        context.update(c_def)
+        return context
+
+    def form_valid(self, form):
+        operation_form = form
+        card_form = AddCardForm(self.request.POST)
+        category_form = AddCategoryForm(self.request.POST)
+        recipient_form = AddRecipientForm(self.request.POST)
+
+        if (operation_form.is_valid() and card_form.is_valid() and
+                category_form.is_valid() and recipient_form.is_valid()):
+            card = card_form.save(commit=False)
+            card.telegram_user = TelegramUser.objects.get(telegram_id=self.user.username)
+            card.save()
+
+            category = category_form.save(commit=False)
+            category.save()
+
+            recipient = recipient_form.save(commit=False)
+            recipient.save()
+
+            operation = operation_form.save(commit=False)
+            operation.card = card
+            operation.category = category
+            operation.recipient = recipient
+            operation.save()
+
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_invalid(self, form):
+        context = self.get_context_data(form=form)
+        context['card_form'] = AddCardForm(self.request.POST)
+        context['category_form'] = AddCategoryForm(self.request.POST)
+        context['recipient_form'] = AddRecipientForm(self.request.POST)
+        return self.render_to_response(context)

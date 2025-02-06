@@ -11,10 +11,6 @@ from Bot.Work_db.user_db_create_update import db_telegramuser
 
 logger = logging.getLogger(__name__)
 
-
-
-logger = logging.getLogger(__name__)
-
 class UserUpdateMiddleware(BaseMiddleware):
     """
     Middleware для обновления данных пользователя и выполнения дополнительных действий

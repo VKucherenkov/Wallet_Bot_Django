@@ -20,17 +20,20 @@
         <h2 class="text-center mb-5">Почему выбирают нас?</h2>
         <div class="row text-center">
             <div class="col-md-4">
-                <img class="img-fluid img-home" src="{% static 'bot/images/interface.jpg' %}" alt="Удобный интерфейс" class="feature-icon">
+                <img class="img-fluid img-home" src="{% static 'bot/images/interface.jpg' %}" alt="Удобный интерфейс"
+                     class="feature-icon">
                 <a href="{% url 'interface' %}"><h3>Удобный интерфейс</h3></a>
                 <p>Простое управление финансами для всех.</p>
             </div>
             <div class="col-md-4">
-                <img class="img-fluid img-home" src="{% static 'bot/images/images.jpeg' %}" alt="Безопасность" class="feature-icon">
+                <img class="img-fluid img-home" src="{% static 'bot/images/images.jpeg' %}" alt="Безопасность"
+                     class="feature-icon">
                 <a href="{% url 'security' %}"><h3>Безопасность</h3></a>
                 <p>Ваши данные защищены.</p>
             </div>
             <div class="col-md-4">
-                <img class="img-fluid img-home" src="{% static 'bot/images/analitics.avif' %}" alt="Аналитика" class="feature-icon">
+                <img class="img-fluid img-home" src="{% static 'bot/images/analitics.avif' %}" alt="Аналитика"
+                     class="feature-icon">
                 <a href="{% url 'analitics' %}"><h3>Аналитика</h3></a>
                 <p>Наглядные отчеты и графики.</p>
             </div>
@@ -44,18 +47,25 @@
         <h2 class="text-center mb-5">Всего 3 шага к финансовому контролю</h2>
         <div class="row text-center">
             <div class="col-md-4">
-                <img class="img-fluid img-home" src="{% static 'bot/images/registration.jpg' %}" alt="Регистрация" class="feature-icon">
-                <h3>Регистрация</h3>
+                <img class="img-fluid img-home" src="{% static 'bot/images/registration.jpg' %}" alt="Регистрация"
+                     class="feature-icon">
+                {% if not request.user.is_authenticated %}
+                <a href="{% url 'register' %}"><h3>Регистрация</h3></a>
                 <p>Создайте аккаунт за 2 минуты.</p>
+                {% else %}
+                <h3>Регистрация</h3>
+                {% endif %}
             </div>
             <div class="col-md-4">
-                <img class="img-fluid img-home" src="{% static 'bot/images/dohod-rashod.jpg' %}" alt="Добавление данных" class="feature-icon">
-                <h3>Добавление данных</h3>
+                <img class="img-fluid img-home" src="{% static 'bot/images/dohod-rashod.jpg' %}" alt="Добавление данных"
+                     class="feature-icon">
+                <a href="{% url 'add-operation' %}"><h3>Добавление данных</h3></a>
                 <p>Введите доходы и расходы.</p>
             </div>
             <div class="col-md-4">
-                <img class="img-fluid img-home" src="{% static 'bot/images/analis.avif' %}" alt="Анализ" class="feature-icon">
-                <h3>Анализ</h3>
+                <img class="img-fluid img-home" src="{% static 'bot/images/analis.avif' %}" alt="Анализ"
+                     class="feature-icon">
+                <a href="{% url 'analiz' %}"><h3>Анализ</h3></a>
                 <p>Получайте отчеты и советы.</p>
             </div>
         </div>
@@ -68,12 +78,14 @@
         <h2 class="text-center mb-5">Что говорят наши пользователи</h2>
         <div class="row">
             <div class="col-md-6 text-center">
-                <img class="img-fluid img-home" src="{% static 'bot/images/boy.gif' %}" alt="Пользователь 1" class="testimonial">
+                <img class="img-fluid img-home" src="{% static 'bot/images/boy.gif' %}" alt="Пользователь 1"
+                     class="testimonial">
                 <p>"Сервис помог мне накопить на отпуск!"</p>
                 <p><strong>Иван Иванов</strong></p>
             </div>
             <div class="col-md-6 text-center">
-                <img class="img-fluid img-home" src="{% static 'bot/images/girl.gif' %}" alt="Пользователь 2" class="testimonial">
+                <img class="img-fluid img-home" src="{% static 'bot/images/girl.gif' %}" alt="Пользователь 2"
+                     class="testimonial">
                 <p>"Теперь я всегда знаю, куда уходят деньги."</p>
                 <p><strong>Мария Петрова</strong></p>
             </div>

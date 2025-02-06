@@ -1,0 +1,45 @@
+{% extends 'bot/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1 class="text-center mb-4">Добавление данных: Доходы и расходы</h1>
+            <p class="lead">
+                Управление личными финансами начинается с учета доходов и расходов.
+                Добавление данных о ваших финансовых операциях позволяет отслеживать,
+                куда уходят деньги и откуда они поступают.
+            </p>
+            <p>
+                Для добавления данных о доходах и расходах, вы можете использовать
+                простую форму, которая включает следующие поля:
+            </p>
+            <ul class="list-group mb-4">
+                <li class="list-group-item">Тип операции (доход или расход)</li>
+                <li class="list-group-item">Категория (например, зарплата, продукты, транспорт)</li>
+                <li class="list-group-item">Сумма</li>
+                <li class="list-group-item">Дата операции</li>
+                <li class="list-group-item">Описание (необязательно)</li>
+            </ul>
+            <p>
+                После заполнения формы данные сохраняются, и вы можете анализировать
+                свои финансовые привычки, строить отчеты и планировать бюджет.
+            </p>
+            <div class="alert alert-info mt-4">
+                <strong>Совет:</strong> Регулярное добавление данных поможет вам
+                лучше контролировать свои финансы и избежать неожиданных расходов.
+            </div>
+            {% if not request.user.is_authenticated %}
+            <a href="{% url 'register' %}">
+                <button class="btn btn-info">Внести данные</button>
+            </a>
+            {% else %}
+            <a href="{% url 'add-operation-form' %}">
+                <button class="btn btn-info">Внести данные</button>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

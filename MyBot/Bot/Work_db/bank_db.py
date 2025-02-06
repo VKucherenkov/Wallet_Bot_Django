@@ -30,7 +30,8 @@ def db_bank_create(cache_timeout: int = 60 * 60):
 
         # Используем транзакцию для атомарности
         with transaction.atomic():
-            BankCard.objects.bulk_create(banks_to_create)
+            for bank in banks_to_create:
+                BankCard.objects.update_or_create(name_bank=bank)
 
         # Обновляем кэш
         cache.set(cache_key, [b.name_bank for b in banks_to_create], timeout=cache_timeout)

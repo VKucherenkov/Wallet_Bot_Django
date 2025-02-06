@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'debug_toolbar',
-
+    'django_select2',
     'Bot',
     'Bot.management',
 ]
@@ -174,12 +174,12 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console', 'file'],
-            'propagate': True,
+            'propagate': False,
         },
-        'Bot': {  # Замените на имя вашего приложения
+        'Bot': {  # Имя моего приложения
             'handlers': ['console', 'file'],
             'level': LOG_LEVEL,
-            'propagate': True,
+            'propagate': False,
         },
     },
 }

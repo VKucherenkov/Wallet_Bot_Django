@@ -1,0 +1,32 @@
+{% extends 'bot/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <h1>Анализ личных финансов</h1>
+            <p class="lead">Управляйте своими финансами эффективно. Получайте отчеты и советы для улучшения вашего
+                финансового состояния.</p>
+            <p>Финансовый анализ помогает вам понять, куда уходят ваши деньги, и как можно оптимизировать расходы. Наши
+                инструменты предоставляют детальные отчеты и персонализированные советы, которые помогут вам достичь
+                финансовых целей.</p>
+            <h2>Преимущества</h2>
+            <ul>
+                <li>Детальные отчеты о доходах и расходах</li>
+                <li>Персонализированные финансовые советы</li>
+                <li>Удобные инструменты для планирования бюджета</li>
+                <li>Возможность отслеживать финансовые цели</li>
+            </ul>
+            {% if request.user.is_authenticated %}
+            <a href="{{ user_t.get_url }}" class="btn btn-primary btn-lg">Начать анализ</a>
+            {% else %}
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Начать анализ</a>
+            {% endif %}
+        </div>
+        <div class="col-md-4">
+            <img src="{% static 'bot/images/analysis.jpg' %}" class="img-fluid" alt="Финансовый анализ">
+        </div>
+    </div>
+</div>
+{% endblock %}

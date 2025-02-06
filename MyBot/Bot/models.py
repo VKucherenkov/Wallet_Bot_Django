@@ -138,39 +138,8 @@ class CategoryOperation(models.Model):
                 f'{self.type}')
 
 
-class OperationUser(models.Model):
-    '''Операция списания/зачисления'''
-    card = models.ForeignKey(CardUser, on_delete=models.CASCADE, related_name='Operation',
-                             verbose_name='Карта')
-    category = models.ForeignKey(CategoryOperation, on_delete=models.CASCADE,
-                                 related_name='Operation', verbose_name="Категория")
-    datetime_amount = models.DateTimeField('Время операции', blank=True, null=True)
-    amount_operation = models.DecimalField('Сумма операции', max_digits=10, decimal_places=2, db_index=True, blank=True,
-                                           null=True)
-    note_operation = models.CharField(max_length=250, blank=True, null=True, verbose_name='Текст уведомления')
-    balans = models.DecimalField('Баланс после операции', max_digits=10, decimal_places=2, db_index=True, blank=True,
-                                      null=True)
-    datetime_add = models.DateTimeField('Время добавления', auto_now_add=True, blank=True, null=True)
-    datetime_update = models.DateTimeField('Время последнего изменения', auto_now=True, blank=True, null=True)
-
-    class Meta:
-        verbose_name = 'Операция списания/зачисления'
-        verbose_name_plural = 'Операции списаний/зачислений'
-
-    def get_url(self):
-        return reverse('operation-detail', args=[self.id])
-
-    def __str__(self):
-        return (f'\nСумма операции = {self.amount_operation},\n'
-                f'Время операции = {self.datetime_amount},\n'
-                f'Время добавления = {self.datetime_add},\n'
-                f'Время изменения: {self.datetime_update}\n'
-                )
-
-
 class Recipient(models.Model):
     '''Получатели/плательщики'''
-    categories = models.ManyToManyField(CategoryOperation, through='Cat_Recipient')
     name_recipient = models.CharField(max_length=150, blank=True, null=True, verbose_name='Получатель платежа')
     recipient_in_notification = models.CharField(max_length=150, blank=True, null=True,
                                                  verbose_name="Получатель в уведомлении")
@@ -195,28 +164,33 @@ class Recipient(models.Model):
         return f'Наименование контрагента: {self.name_recipient}'
 
 
-class Cat_Recipient(models.Model):
-    category = models.ForeignKey(CategoryOperation, on_delete=models.CASCADE, related_name='recipient_cat', verbose_name="Категория")
-    recipient = models.ForeignKey(Recipient, on_delete=models.CASCADE, related_name='categories_recepient', verbose_name="Получатель платежа")
-    datetime_add = models.DateTimeField('Время создания',
-                                        auto_now_add=True,
-                                        blank=True,
-                                        null=True)
-    datetime_update = models.DateTimeField('Время последнего использования',
-                                           auto_now=True,
-                                           blank=True,
+class OperationUser(models.Model):
+    '''Операция списания/зачисления'''
+    card = models.ForeignKey(CardUser, on_delete=models.CASCADE, related_name='Operation',
+                             verbose_name='Карта')
+    category = models.ForeignKey(CategoryOperation, on_delete=models.CASCADE,
+                                 related_name='Operation', verbose_name="Категория")
+    recipient = models.ForeignKey(Recipient, on_delete=models.CASCADE,
+                                 related_name='Recipient', verbose_name="Получатели")
+    datetime_amount = models.DateTimeField('Время операции', blank=True, null=True)
+    amount_operation = models.DecimalField('Сумма операции', max_digits=10, decimal_places=2, db_index=True, blank=True,
                                            null=True)
+    note_operation = models.CharField(max_length=250, blank=True, null=True, verbose_name='Текст уведомления')
+    balans = models.DecimalField('Баланс после операции', max_digits=10, decimal_places=2, db_index=True, blank=True,
+                                      null=True)
+    datetime_add = models.DateTimeField('Время добавления', auto_now_add=True, blank=True, null=True)
+    datetime_update = models.DateTimeField('Время последнего изменения', auto_now=True, blank=True, null=True)
 
     class Meta:
-        verbose_name = 'Получатель - Категория'
-        verbose_name_plural = 'Получатели - Категории'
+        verbose_name = 'Операция списания/зачисления'
+        verbose_name_plural = 'Операции списаний/зачислений'
 
     def get_url(self):
-        return reverse('cat-recipient-detail', args=[self.id])
+        return reverse('operation-detail', args=[self.id])
 
     def __str__(self):
-        return (f'\nНаименование контрагента = {self.recipient.name_recipient},\n'
-                f'Наименование категории = {self.category.name_cat},\n'
+        return (f'\nСумма операции = {self.amount_operation},\n'
+                f'Время операции = {self.datetime_amount},\n'
                 f'Время добавления = {self.datetime_add},\n'
                 f'Время изменения: {self.datetime_update}\n'
                 )

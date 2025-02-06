@@ -43,9 +43,6 @@ def load_db_operation(data) -> tuple[int, str] | Exception:
             recipient.recipient_in_notification = data['recipient_in_notification']
             recipient.save()
 
-        # Связываем получателя с категорией
-        recipient.categories.add(category)
-
         # Логируем результат
         logger.info(f"Получатель '{recipient.name_recipient}' записан в базу")
 
@@ -103,7 +100,8 @@ def load_db_operation(data) -> tuple[int, str] | Exception:
             balans=data['balans'],
             note_operation=data['note_operation'],
             card=card,
-            category=category
+            category=category,
+            recipient=recipient,
         )
         logger.info(f"Операция записана в базу. ID операции: {operation.id}")
 

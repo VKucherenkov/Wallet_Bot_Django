@@ -4,7 +4,7 @@ from django.db import transaction
 from asgiref.sync import sync_to_async
 
 from Bot.common.global_variable import categoryes, type_category
-from Bot.models import CategoryOperation, TypeOperation, Recipient
+from Bot.models import CategoryOperation, TypeOperation, Recipient, OperationUser
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ def db_categoryoperation_create(cache_timeout: int = 60 * 60):
     if not category_operations:
         # Если таблица пуста, создаем записи
         cat = [i for i in categoryes.keys()]
-        typeoperation = [(i, j) for i in cat for j, value in type_category.items() if i in value]
+        typeoperation = [(i, f'тип операции: {j}') for i in cat for j, value in type_category.items() if i in value]
 
         # Получаем все типы операций за один запрос
         type_operations = {op.name_type.lower(): op.pk for op in TypeOperation.objects.all()}
@@ -39,7 +39,8 @@ def db_categoryoperation_create(cache_timeout: int = 60 * 60):
 
         # Используем транзакцию для атомарности
         with transaction.atomic():
-            CategoryOperation.objects.bulk_create(categories_to_create)
+            for category in  categories_to_create:
+                CategoryOperation.objects.update_or_create(name_cat=category.name_cat, type=category.type)
 
         # Обновляем кэш
         cache.set(cache_key, [c.name_cat for c in categories_to_create], timeout=cache_timeout)
@@ -64,10 +65,11 @@ def get_name_category(name_recipient: str, cache_timeout: int = 60) -> str | Non
     if category_name is None:  # Если данных нет в кэше
         try:
             recipient = Recipient.objects.get(name_recipient=name_recipient.lower())
-            categories = recipient.categories.all()
+            operation_this_recipient = OperationUser.objects.filter(recipient=recipient)
+            categories = set([i.category.name_cat for i in operation_this_recipient])
 
             if len(categories) == 1:
-                category_name = categories[0].name_cat
+                category_name = categories.pop()
                 logger.info(f"Для получателя {name_recipient} найдена категория: {category_name}")
                 cache.set(cache_key, category_name, timeout=cache_timeout)  # Кэшируем на 15 минут
             elif len(categories) > 1:
@@ -101,8 +103,9 @@ def get_name_category_auto(data: str, cache_timeout: int = 60) -> list[str] | No
     if categories_name is None:  # Если данных нет в кэше
         try:
             recipient = Recipient.objects.get(name_recipient=data.lower())
-            categories = recipient.categories.all()
-            categories_name = [category.name_cat for category in categories]
+            operation_this_recipient = OperationUser.objects.filter(recipient=recipient)
+            categories_name = list(set([i.category.name_cat for i in operation_this_recipient]))
+            # categories_name = [category.name_cat for category in categories]
             logger.info(f"Для получателя {data} найдены категории: {categories_name}")
             cache.set(cache_key, categories_name, timeout=cache_timeout)  # Кэшируем на 15 минут
         except Recipient.DoesNotExist:

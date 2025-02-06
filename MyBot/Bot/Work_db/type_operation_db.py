@@ -34,7 +34,8 @@ def db_typeoperation_create(cache_timeout: int = 60 * 60):
 
         # Используем транзакцию для атомарности
         with transaction.atomic():
-            TypeOperation.objects.bulk_create(types_to_create)
+            for type in types_to_create:
+                TypeOperation.objects.update_or_create(name_type=type)
 
         # Обновляем кэш
         cache.set(cache_key, [t.name_type for t in types_to_create], timeout=cache_timeout)

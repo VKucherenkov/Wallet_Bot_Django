@@ -25,14 +25,14 @@ async def get_number_card(message: types.Message, state: FSMContext):
     :param state: Контекст состояния FSM.
     """
     cardnumber = message.text  # Сохраняем номер карты в переменной
-    await state.update_data(number_card=card_number)
+    await state.update_data(number_card=cardnumber)
 
     try:
         # Проверяем, существует ли карта
         if await card_number(cardnumber):
             # Получаем данные карты
             name_card = await card_name(cardnumber)
-            name_bank = await get_bank_name_by_card(card_number)
+            name_bank = await get_bank_name_by_card(cardnumber)
 
             # Обновляем состояние
             await state.update_data(name_card=name_card, name_bank=name_bank)

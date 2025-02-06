@@ -22,8 +22,6 @@ main_router.message.outer_middleware(UserUpdateMiddleware())
 
 
 class Command(BaseCommand):
-    help = "Запускаем бота"
-
     def handle(self, *args, **options):
         print('run')
 

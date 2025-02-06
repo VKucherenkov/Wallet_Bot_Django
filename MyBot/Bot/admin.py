@@ -2,10 +2,11 @@ from django.db.models import QuerySet
 
 from Bot.forms import RegisterUserForm
 from Bot.models import TelegramUser, CardUser, CategoryOperation, TypeOperation, OperationUser, Recipient, BankCard, \
-    Cat_Recipient, MyUser
+    MyUser
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+
 
 class MyUserAdmin(UserAdmin):
     add_form = RegisterUserForm
@@ -22,12 +23,14 @@ class MyUserAdmin(UserAdmin):
         (None, {
             'classes': ('wide',),
             'fields': ('username', 'email', 'password1', 'password2', 'is_staff', 'is_active')}
-        ),
+         ),
     )
     search_fields = ('username', 'last_name', 'email')
     ordering = ('username',)
 
+
 admin.site.register(MyUser, MyUserAdmin)
+
 
 @admin.register(TelegramUser)
 class TelegramUserAdmin(admin.ModelAdmin):
@@ -124,6 +127,7 @@ class OperationUserAdmin(admin.ModelAdmin):
                     'balans',
                     'card',
                     'category',
+                    'recipient',
                     'datetime_add',
                     'datetime_update']
     ordering = ['-datetime_amount',
@@ -134,16 +138,3 @@ class OperationUserAdmin(admin.ModelAdmin):
                      'amount_operation',
                      'balans',
                      'note_operation']
-
-
-@admin.register(Cat_Recipient)
-class Cat_RecipientAdmin(admin.ModelAdmin):
-    list_display = ['category',
-                    'recipient',
-                    'datetime_add',
-                    'datetime_update']
-    ordering = ['category',
-                'recipient']
-    list_per_page = 10
-    search_fields = ['category',
-                    'recipient']
