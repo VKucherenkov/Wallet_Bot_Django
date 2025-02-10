@@ -1,21 +1,21 @@
-html, body {
-
-  height: 100%; /* Занимаем всю высоту экрана */
-  display: grid;
-  grid-template-rows: auto 1fr auto; /* Шапка, контент, футер */
+html,
+body {
+    height: 100%; /* Занимаем всю высоту экрана */
+    display: grid;
+    grid-template-rows: auto 1fr auto; /* Шапка, контент, футер */
 }
 
 .auto-numbered {
     counter-reset: rowNumber; /* Инициализация счетчика */
-    }
+}
 
 .auto-numbered tbody tr {
-  counter-increment: rowNumber; /* Увеличение счетчика для каждой строки */
+    counter-increment: rowNumber; /* Увеличение счетчика для каждой строки */
 }
 
 .auto-numbered tbody tr td:first-child::before {
-  content: counter(rowNumber); /* Отображение номера строки */
-  margin-right: 10px;
+    content: counter(rowNumber); /* Отображение номера строки */
+    margin-right: 10px;
 }
 .img-home {
     width: 400px;
@@ -25,33 +25,33 @@ html, body {
 }
 
 footer {
-  grid-row: 3; /* Футер в третьей строке */
+    grid-row: 3; /* Футер в третьей строке */
 }
 
 .sidebar {
-  height: 533px; /* Высота на всю страницу */
-  width: 150px; /* Ширина меню */
-  position: fixed; /* Фиксированное положение */
-  top: 7vh;
-  left: 0;
-  background-color: #1b2394; /* фон */
-  padding-top: 20px;
+    height: 533px; /* Высота на всю страницу */
+    width: 150px; /* Ширина меню */
+    position: fixed; /* Фиксированное положение */
+    top: 7vh;
+    left: 0;
+    background-color: #1b2394; /* фон */
+    padding-top: 20px;
 }
 
 .sidebar a {
-  color: white; /* Белый цвет текста */
-  padding: 10px 15px;
-  text-decoration: none;
-  display: block;
+    color: white; /* Белый цвет текста */
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
 }
 
 .sidebar a:hover {
-  background-color: #575d63; /* Цвет при наведении */
+    background-color: #575d63; /* Цвет при наведении */
 }
 
 .content {
-  margin-left: 0px; /* Отступ для основного контента */
-  padding: 20px;
+    margin-left: 0px; /* Отступ для основного контента */
+    padding: 20px;
 }
 
 .my-accordion {
@@ -60,7 +60,8 @@ footer {
 }
 
 .footer {
-    margin-left: auto;}
+    margin-left: auto;
+}
 
 .author {
     margin: 5rem;
@@ -80,7 +81,7 @@ footer {
 .form-error ul {
     list-style: none;
     padding: 0;
-    color: #CC0000;
+    color: #cc0000;
 }
 
 .form-button {
@@ -89,23 +90,22 @@ footer {
 }
 
 .last {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end; /* Выравнивание элементов по правому краю */
-  gap: 10px; /* Расстояние между элементами */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* Выравнивание элементов по правому краю */
+    gap: 10px; /* Расстояние между элементами */
 }
 
-.profile h2{
+.profile h2 {
     text-align: center;
     margin: 2rem;
 }
 
 .author {
-     margin: 2rem 5rem;
+    margin: 2rem 5rem;
 }
 
-# Мессадж сообщения
-.alert {
+# Мессадж сообщения .alert {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -115,8 +115,8 @@ footer {
     padding: 20px;
 }
 
- body {
-    font-family: 'Roboto', sans-serif;
+body {
+    font-family: "Roboto", sans-serif;
 }
 .hero {
     background: #f4f4f4;
@@ -153,7 +153,7 @@ footer {
 }
 .contact-info ul li i {
     margin-right: 10px;
-    color: #007BFF;
+    color: #007bff;
 }
 .contact-form {
     background: #fff;
@@ -249,4 +249,14 @@ footer {
     font-size: 18px;
     color: #555;
     line-height: 1.6;
+}
+/* Градиент заливки футера */
+.custom-gradient {
+    background: linear-gradient(
+        0deg,
+        rgba(2, 0, 36, 1) 0%,
+        rgba(8, 8, 110, 1) 0%,
+        rgba(9, 9, 121, 1) 3%,
+        rgba(0, 212, 255, 1) 100%
+    );
 }

@@ -42,13 +42,14 @@
             <hr>
             {% endif %}
         </div>
+        <a href="{% url 'add-operation-form' %}">
+            <button class="btn btn-info">Добавить операцию</button>
+        </a>
 
         <!-- Фото -->
         <!--        <div class="content col-xxl-2 col-xl-2 col-md-2 col-sm-2 col-xs-2">-->
         <!--            <img class="w-100 img-fluid" src="{% static 'bot/images/cards.jpeg' %}">-->
         <!--        </div>-->
     </div>
-</div>
-</div>
 </div>
 {% endblock %}

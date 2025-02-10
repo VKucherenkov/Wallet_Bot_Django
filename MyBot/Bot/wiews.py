@@ -12,7 +12,7 @@ from django.views.generic import ListView, TemplateView, CreateView, DetailView,
 
 from Bot.forms import RegisterUserForm, LoginUserForm, ProfileUpdateForm, AddOperationForm, AddCardForm, \
     AddCategoryForm, AddRecipientForm
-from Bot.models import TelegramUser, CardUser, TypeOperation, CategoryOperation, OperationUser, MyUser
+from Bot.models import TelegramUser, CardUser, TypeOperation, CategoryOperation, OperationUser, MyUser, Recipient
 from Bot.utils import DataMixin
 
 logger = logging.getLogger(__name__)
@@ -267,11 +267,89 @@ class MyUserUpdate(DataMixin, UpdateView):
         return dict(list(context.items()) + list(c_def.items()))
 
 
+class AddCardView(DataMixin, CreateView):
+    model = CardUser
+    form_class = AddCardForm
+    template_name = 'bot/add_card_form.html'
+    success_url = reverse_lazy('add-operation-form')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['card_form'] = AddCardForm()
+        c_def = self.get_user_context(title='Добавление карты')
+        context.update(c_def)
+        return context
+
+    def form_valid(self, form):
+        # Получаем объект TelegramUser по telegram_id
+        telegram_user = TelegramUser.objects.get(telegram_id=self.request.user.username)
+        # Создаем объект CardUser, но не сохраняем его в базу
+        card_user = form.save(commit=False)
+        # Устанавливаем telegram_user для объекта CardUser
+        card_user.telegram_user = telegram_user
+        # Сохраняем объект в базу данных
+        card_user.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        context = self.get_context_data(form=form)
+        context['card_form'] = AddCardForm(self.request.POST)
+        return self.render_to_response(context)
+
+
+class AddCategoryView(DataMixin, CreateView):
+    model = CategoryOperation
+    form_class = AddCategoryForm
+    template_name = 'bot/add_category_form.html'
+    success_url = reverse_lazy('add-operation-form')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['category_form'] = AddCategoryForm()
+        c_def = self.get_user_context(title='Добавление категории')
+        context.update(c_def)
+        return context
+
+    def form_valid(self, form):
+        # Сохраняем объект в базу данных
+        form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        context = self.get_context_data(form=form)
+        context['category_form'] = AddCategoryForm(self.request.POST)
+        return self.render_to_response(context)
+
+
+class AddRecipientView(DataMixin, CreateView):
+    model = Recipient
+    form_class = AddRecipientForm
+    template_name = 'bot/add_recipient_form.html'
+    success_url = reverse_lazy('add-operation-form')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['recipient_form'] = AddCategoryForm()
+        c_def = self.get_user_context(title='Добавление получателя')
+        context.update(c_def)
+        return context
+
+    def form_valid(self, form):
+        # Сохраняем объект в базу данных
+        form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        context = self.get_context_data(form=form)
+        context['recipient_form'] = AddRecipientForm(self.request.POST)
+        return self.render_to_response(context)
+
+
 class AddOperationView(DataMixin, CreateView):
     model = OperationUser
     form_class = AddOperationForm
     template_name = 'bot/add_operation_form.html'
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('add-operation-form')
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -280,44 +358,18 @@ class AddOperationView(DataMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['card_form'] = AddCardForm()
-        context['category_form'] = AddCategoryForm()
-        context['recipient_form'] = AddRecipientForm()
         c_def = self.get_user_context(title='Добавление операции')
         context.update(c_def)
         return context
 
     def form_valid(self, form):
-        operation_form = form
-        card_form = AddCardForm(self.request.POST)
-        category_form = AddCategoryForm(self.request.POST)
-        recipient_form = AddRecipientForm(self.request.POST)
-
-        if (operation_form.is_valid() and card_form.is_valid() and
-                category_form.is_valid() and recipient_form.is_valid()):
-            card = card_form.save(commit=False)
-            card.telegram_user = TelegramUser.objects.get(telegram_id=self.user.username)
-            card.save()
-
-            category = category_form.save(commit=False)
-            category.save()
-
-            recipient = recipient_form.save(commit=False)
-            recipient.save()
-
-            operation = operation_form.save(commit=False)
-            operation.card = card
-            operation.category = category
-            operation.recipient = recipient
-            operation.save()
-
-            return super().form_valid(form)
-        else:
-            return self.form_invalid(form)
+        card = form.cleaned_data['card']
+        card.balans_card = form.cleaned_data.get('balans')
+        card.save()
+        form.save()
+        return super().form_valid(form)
 
     def form_invalid(self, form):
         context = self.get_context_data(form=form)
-        context['card_form'] = AddCardForm(self.request.POST)
-        context['category_form'] = AddCategoryForm(self.request.POST)
-        context['recipient_form'] = AddRecipientForm(self.request.POST)
+        context['operation_form'] = AddOperationForm(self.request.POST, user=self.request.user)
         return self.render_to_response(context)

@@ -1,0 +1,18 @@
+{% extends 'bot/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <form class="pt-3 mb-3" method="post" novalidate>
+        {% csrf_token %}
+        <div class="form-group pt-2 mb-2">
+            <div>
+                <h3>Новый получатель</h3>
+                {{ form.as_p }}
+            </div>
+            <!-- Кнопка отправки формы -->
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

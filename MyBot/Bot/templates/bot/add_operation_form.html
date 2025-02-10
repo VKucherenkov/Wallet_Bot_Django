@@ -12,76 +12,81 @@
                 <option value={{ value }}>{{ label }}</option>
                 {% endfor %}
             </select>
-            <!-- Кнопка для показа блока с кодом добавления карты -->
-            <button class="btn btn-primary" id="add-new-card-btn" type="button" onclick="toggleCardFields()">Добавить карту</button>
-        </div>
-        <div class="form-group pt-2 mb-2" id="new-card-fields">
-            <div>
-                <h3>Новая карта</h3>
-                {{ card_form.as_p }}
+            <!-- Кнопка для перехода на страницу добавления карты -->
+            <a href="{% url 'add-card-form' %}">
+                <button class="btn btn-primary" id="add-new-card-btn" type="button">
+                    Добавить карту
+                </button>
+            </a>
+            <!--        Поле выбора получателя -->
+            <div class="form-group pt-2 mb-2">
+                <label for="id_recipient">{{ form.recipient.label }}:</label>
+                <select id="id_recipient" name="recipient" data-tags="true">
+                    {% for value, label in form.recipient.field.choices %}
+                    <option value={{ value }}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <!-- Кнопка для показа страницы с кодом добавления получателя -->
+                <a href="{% url 'add-recipient-form' %}">
+                    <button class="btn btn-primary" id="add-new-recipient-btn" type="button">
+                        Добавить получателя
+                    </button>
+                </a>
             </div>
-        </div>
-        <!--        Поле выбора получателя -->
-        <div class="form-group pt-2 mb-2">
-            <label for="id_recipient">{{ form.recipient.label }}:</label>
-            <select id="id_recipient" name="recipient" data-tags="true">
-                {% for value, label in form.recipient.field.choices %}
-                <option value={{ value }}>{{ label }}</option>
-                {% endfor %}
-            </select>
-            <!-- Кнопка для показа блока с кодом добавления получателя -->
-            <button class="btn btn-primary" id="add-new-recipient-btn" type="button" onclick="toggleRecipientFields()">Добавить получателя</button>
-        </div>
-        <div class="form-group pt-2 mb-2" id="new-recipient-fields">
-            <div>
-                <h3>Новый получатель</h3>
-                {{ recipient_form.as_p }}
+            <!--        Поле выбора категории-->
+            <div class="form-group mb-2">
+                <label for="id_category">{{ form.category.label }}:</label>
+                <select id="id_category" name="category" data-tags="true">
+                    {% for value, label in form.category.field.choices %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <!-- Кнопка для показа страницы с кодом добавления карты -->
+                <a href="{% url 'add-category-form' %}">
+                    <button class="btn btn-primary mt-1" id="add-new-category-btn" type="button">
+                        Добавить категорию
+                    </button>
+                </a>
             </div>
-        </div>
-        <!--        Поле выбора категории-->
-        <div class="form-group mb-2">
-            <label for="id_category">{{ form.category.label }}:</label>
-            <select id="id_category" name="category" data-tags="true">
-                {% for value, label in form.category.field.choices %}
-                <option value="{{ value }}">{{ label }}</option>
-                {% endfor %}
-            </select>
-            <!-- Кнопка для показа блока с кодом добавления карты -->
-            <button class="btn btn-primary mt-1" id="add-new-category-btn" type="button" onclick="toggleCategoryFields()" formnovalidate>Добавить категорию</button>
-        </div>
-        <div class="form-group pt-2 mb-2" id="new-category-fields">
-            <div>
-                <h3>Новая категория</h3>
-                {{ category_form.as_p }}
+            <!-- Поле для времени операции -->
+            <div class="form-group mb-2">
+                <label for="id_datetime_amount">Время операции:</label>
+                <input type="datetime-local" id="id_datetime_amount" name="datetime_amount" class="form-input">
             </div>
-        </div>
 
-        <!-- Поле для времени операции -->
-        <div class="form-group mb-2">
-            <label for="id_datetime_amount">Время операции:</label>
-            <input type="datetime-local" id="id_datetime_amount" name="datetime_amount" class="form-input">
-        </div>
+            <!-- Поле для суммы операции -->
+            <div class="form-group mb-2">
+                <label for="id_amount_operation">Сумма по операции:</label>
+                <input type="number" id="id_amount_operation" name="amount_operation" class="form-input">
+            </div>
 
-        <!-- Поле для суммы операции -->
-        <div class="form-group mb-2">
-            <label for="id_amount_operation">Сумма по операции:</label>
-            <input type="number" id="id_amount_operation" name="amount_operation" class="form-input">
-        </div>
+            <!-- Поле для баланса после операции -->
+            <div class="form-group mb-2">
+                <label for="id_balans">Баланс после операции:</label>
+                <input type="number" id="id_balans" name="balans" class="form-input">
+            </div>
 
-        <!-- Поле для баланса после операции -->
-        <div class="form-group mb-2">
-            <label for="id_balans">Баланс после операции:</label>
-            <input type="number" id="id_balans" name="balans" class="form-input">
+            <!-- Поле для описания операции -->
+            <div class="form-group mb-2">
+                <label for="id_note_operation">Описание операции:</label>
+                <textarea id="id_note_operation" name="note_operation" class="form-input" rows="3"></textarea>
+            </div>
+            <!-- Общий блок для ошибок формы -->
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                <strong>Ошибка!</strong> Пожалуйста, исправьте следующие ошибки:
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li>{{ field }}: {{ error }}</li>
+                    {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            <!-- Кнопка отправки формы -->
+            <button type="submit" class="btn btn-primary">Сохранить</button>
         </div>
-
-        <!-- Поле для описания операции -->
-        <div class="form-group mb-2">
-            <label for="id_note_operation">Описание операции:</label>
-            <textarea id="id_note_operation" name="note_operation" class="form-input" rows="3"></textarea>
-        </div>
-
-        <!-- Кнопка отправки формы -->
-        <button type="submit" class="btn btn-primary">Сохранить</button>
     </form>
 </div>
 {% endblock %}

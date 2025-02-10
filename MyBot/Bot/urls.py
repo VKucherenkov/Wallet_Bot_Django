@@ -21,7 +21,7 @@ from django.urls import path
 
 from Bot.wiews import Cards, Categoryes, Types, TelegramUserShow, TelegramUsersShow, AllOperation, \
     RegisterUser, LoginUser, logout_user, IndexShow, MyUserUpdate, AboutShow, ContactShow, AnaliticsShow, SecurityShow, \
-    InterfaceShow, AnalizShow, AddOperationShow, AddOperationView
+    InterfaceShow, AnalizShow, AddOperationShow, AddOperationView, AddCardView, AddCategoryView, AddRecipientView
 
 urlpatterns = [
     path('', IndexShow.as_view(), name='home'),
@@ -32,6 +32,9 @@ urlpatterns = [
     path('analiz/', AnalizShow.as_view(), name='analiz'),
     path('add-operation/', AddOperationShow.as_view(), name='add-operation'),
     path('add-operation-form/', AddOperationView.as_view(), name='add-operation-form'),
+    path('add-card-form/', AddCardView.as_view(), name='add-card-form'),
+    path('add-category-form/', AddCategoryView.as_view(), name='add-category-form'),
+    path('add-recipient-form/', AddRecipientView.as_view(), name='add-recipient-form'),
     path('about/', AboutShow.as_view(), name='about'),
     path('users/', TelegramUsersShow.as_view(), name='users'),
     path('contact/', ContactShow.as_view(), name='contact'),

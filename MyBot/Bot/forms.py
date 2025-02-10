@@ -53,6 +53,11 @@ class AddCardForm(forms.ModelForm):
         model = CardUser
         fields = ['bank', 'name_card', 'number_card', 'balans_card']
 
+    def clean_number_card(self):
+        number_card = self.cleaned_data.get('number_card')
+        if len(str(number_card)) != 4 or not str(number_card).isdigit():
+            raise forms.ValidationError("Номер карты должен состоять исключительно из четырех цифр.")
+        return number_card
 
 class AddCategoryForm(forms.ModelForm):
     class Meta:
@@ -63,13 +68,13 @@ class AddCategoryForm(forms.ModelForm):
 class AddRecipientForm(forms.ModelForm):
     class Meta:
         model = Recipient
-        fields = ['name_recipient']
+        fields = ['name_recipient',]
 
 
 class AddOperationForm(forms.ModelForm):
     class Meta:
         model = OperationUser
-        fields = ['card', 'category', 'datetime_amount', 'amount_operation', 'balans', 'note_operation']
+        fields = ['card', 'category', 'recipient','datetime_amount', 'amount_operation', 'balans', 'note_operation']
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)  # Извлечение пользователя
@@ -118,6 +123,20 @@ class AddOperationForm(forms.ModelForm):
     def clean_amount_operation(self):
         """Валидация суммы операции."""
         amount = self.cleaned_data.get('amount_operation')
-        if amount <= 0:
+        if float(amount) <= 0:
             raise forms.ValidationError("Сумма операции должна быть положительной.")
         return amount
+
+    def clean_balans(self):
+        amount = float(self.cleaned_data.get('amount_operation'))
+        balans = float(self.cleaned_data.get('balans'))
+        if self.cleaned_data.get('card'):
+            number_card =  self.cleaned_data.get('card').number_card
+            balanse_card = float(CardUser.objects.get(number_card=number_card).balans_card)
+        else:
+            balanse_card = float(self.data.get('balans_card'))
+        if balanse_card - amount != balans:
+            raise forms.ValidationError(f'Неверный баланс после операции: баланс по операции = {balans};\n'
+                                        f'Правильный бланс: {balanse_card} - {amount} = {balanse_card - amount}\n'
+                                        f'Разница: {balanse_card - amount - balans}')
+        return self.cleaned_data.get('balans')
