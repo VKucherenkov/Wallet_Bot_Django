@@ -373,7 +373,6 @@ class AddCategoryView(DataMixin, CreateView):
     model = CategoryOperation
     form_class = AddCategoryForm
     template_name = 'bot/add_category_form.html'
-    success_url = reverse_lazy('add-operation-form')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -381,6 +380,15 @@ class AddCategoryView(DataMixin, CreateView):
         c_def = self.get_user_context(title='Добавление категории')
         context.update(c_def)
         return context
+
+    def get_success_url(self):
+        # Получаем URL для перенаправления из параметра `next`
+        next_url = self.request.GET.get('next')
+        # Если параметр `next` существует, перенаправляем туда
+        if next_url:
+            return next_url
+        # Если параметр `next` отсутствует, используем URL по умолчанию
+        return reverse_lazy('add-operation-form')
 
     def form_valid(self, form):
         # Сохраняем объект в базу данных

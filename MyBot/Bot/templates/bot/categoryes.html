@@ -31,6 +31,13 @@
                 {% endfor %}
                 </tbody>
             </table>
+            <input type="hidden" name="next" value={{ request.path }}>
+            <!-- Кнопка для показа страницы с кодом добавления карты -->
+            <a href="{% url 'add-category-form' %}?next={{ request.path }}">
+                <button class="btn btn-primary mt-1" id="add-category-btn" type="button">
+                    Добавить категорию
+                </button>
+            </a>
         </div>
 
         <!-- Фото -->
