@@ -6,6 +6,33 @@
 {% include 'bot/includes/accordion.html' %}
 <!-- Page content-->
 <div class="container-fluid">
+    <!-- Форма фильтрации -->
+    <form method="get" action="">
+        <label for="start_date">Начальная дата:</label>
+        <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+
+        <label for="end_date">Конечная дата:</label>
+        <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+
+        <label for="category_id">Категория операции:</label>
+        <select id="category_id" name="category">
+            <option value="">Все</option>
+            {% for operation in category %}
+            <option value="{{ operation.id }}" {% if category == operation %}selected{% endif %}>{{ operation.name_cat }}
+            </option>
+            {% endfor %}}
+        </select>
+        <label for="card_id">Карта списания:</label>
+        <select id="card_id" name="card">
+            <option value="">Все</option>
+            {% for operation in card %}
+            <option value="{{ operation.id }}" {% if card == operation %}selected{% endif %}>{{ operation }}
+            </option>
+            {% endfor %}}
+        </select>
+
+        <button class="btn btn-info" type="submit">Фильтровать</button>
+    </form>
     <div class="row">
         <!-- Основной контент -->
         <div class="content">
@@ -17,6 +44,9 @@
                 <tr>
                     <th scope="col">п/п</th>
                     <th scope="col">Время операции</th>
+                    <th scope="col">Карта списания</th>
+                    <th scope="col">Категория операции</th>
+                    <th scope="col">Тип операции</th>
                     <th scope="col">Сумма операции</th>
                     <th scope="col">Баланс после операции</th>
                     <th scope="col">Текст уведомления</th>
@@ -28,6 +58,9 @@
                 <tr>
                     <td></td>
                     <td>{{ operation.datetime_amount }}</td>
+                    <td>{{ operation.card.name_card }} {{ operation.card.number_card }}</td>
+                    <td>{{ operation.category.name_cat }}</td>
+                    <td>{{ operation.category.type.name_type }}</td>
                     <td>{{ operation.amount_operation }}</td>
                     <td>{{ operation.balans }}</td>
                     <td>{{ operation.note_operation }}</td>
@@ -44,7 +77,7 @@
             <input type="hidden" name="next" value={{ request.path }}>
         </div>
         <a href="{% url 'add-operation-form' %}?next={{ request.path }}">
-        <button class="btn btn-info">Добавить операцию</button>
+            <button class="btn btn-info">Добавить операцию</button>
         </a>
 
         <!-- Фото -->

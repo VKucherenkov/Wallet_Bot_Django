@@ -260,3 +260,19 @@ body {
         rgba(0, 212, 255, 1) 100%
     );
 }
+
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pagination a {
+    margin: 0 5px;
+    text-decoration: none;
+    color: #007bff;
+}
+
+.pagination .current {
+    font-weight: bold;
+    margin: 0 10px;
+}

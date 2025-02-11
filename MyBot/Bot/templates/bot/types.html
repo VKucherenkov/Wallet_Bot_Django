@@ -32,6 +32,12 @@
 
                 </tbody>
             </table>
+            <!-- Кнопка для показа страницы с кодом добавления карты -->
+            <a href="{% url 'add-type-form' %}?next={{ request.path }}">
+                <button class="btn btn-primary mt-1" id="add-type-btn" type="button">
+                    Добавить тип операции
+                </button>
+            </a>
         </div>
         <div class="content col-xxl-4 col-xl-4 col-md-4 col-sm-5 col-xs-6">
             <img class="w-100 img-fluid" src="{% static 'bot/images/cards.jpeg' %}">

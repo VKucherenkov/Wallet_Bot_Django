@@ -45,7 +45,31 @@
             <img class="w-100 img-fluid" src="{% static 'bot/images/cards.jpeg' %}">
         </div>
     </div>
+    <!-- Пагинация -->
+    <div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+        <!-- Ссылка на первую страницу -->
+            <a href="?page=1"><<</a>
+
+        <!-- Ссылка на предыдущую страницу -->
+            <a href="?page={{ page_obj.previous_page_number }}"><</a>
+        {% endif %}
+
+        <!-- Текущая страница -->
+        <span class="current">
+            Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+        <!-- Ссылка на следующую страницу -->
+            <a href="?page={{ page_obj.next_page_number }}">></a>
+
+        <!-- Ссылка на последнюю страницу -->
+            <a href="?page={{ page_obj.paginator.num_pages }}">>></a>
+        {% endif %}
+    </span>
+    </div>
 </div>
-</div>
-</div>
+
 {% endblock %}

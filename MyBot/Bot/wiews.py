@@ -7,7 +7,6 @@ from django.contrib.auth import logout, login
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
-from django.views import View
 from django.views.generic import ListView, TemplateView, CreateView, DetailView, UpdateView
 
 from Bot.forms import RegisterUserForm, LoginUserForm, ProfileUpdateForm, AddOperationForm, AddCardForm, \
@@ -218,6 +217,7 @@ class Types(DataMixin, ListView):
 class Categoryes(DataMixin, ListView):
     template_name = 'bot/categoryes.html'
     context_object_name = 'categoryes'
+    paginate_by = 10
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -237,6 +237,16 @@ class AllOperation(DataMixin, ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['telegram_user'] = self.kwargs['user']
+        # Передаем параметры фильтрации в контекст для отображения в шаблоне
+        context['start_date'] = self.request.GET.get('start_date', '')
+        context['end_date'] = self.request.GET.get('end_date', '')
+
+        card = CardUser.objects.all()
+        context['card'] = card
+
+        category = CategoryOperation.objects.all()
+        context['category'] = category
+
         c_def = self.get_user_context(title='Все операции')
         return dict(list(context.items()) + list(c_def.items()))
 
@@ -244,7 +254,24 @@ class AllOperation(DataMixin, ListView):
         slug = self.kwargs['userdetail_slug']
         self.kwargs['user'] = TelegramUser.objects.get(slug=slug)
         cards_user_id = [i.id for i in CardUser.objects.filter(telegram_user=self.kwargs['user'])]
-        return OperationUser.objects.filter(card__in=cards_user_id).order_by('-datetime_add')
+        # Получаем все операции для карт пользователя
+        queryset = OperationUser.objects.filter(card__in=cards_user_id).order_by('-datetime_add')
+        # Применяем фильтры, если они переданы в запросе
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        category = self.request.GET.get('category')
+        card = self.request.GET.get('card')
+        if start_date:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+            queryset = queryset.filter(datetime_amount__gte=start_date)
+        if end_date:
+            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+            queryset = queryset.filter(datetime_amount__lte=end_date)
+        if category:
+            queryset = queryset.filter(category=category)
+        if card:
+            queryset = queryset.filter(card=card)
+        return queryset
 
 
 class MyUserUpdate(DataMixin, UpdateView):
@@ -399,7 +426,6 @@ class AddCategoryView(DataMixin, CreateView):
     def form_invalid(self, form):
         messages.success(self.request, 'Категория не добавлена!')
         context = self.get_context_data(form=form)
-        # context['category_form'] = AddCategoryForm(self.request.POST)
         return self.render_to_response(context)
 
 

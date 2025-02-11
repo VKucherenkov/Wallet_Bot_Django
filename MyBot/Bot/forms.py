@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.urls import reverse_lazy
 
 from Bot.models import MyUser, OperationUser, CategoryOperation, CardUser, Recipient, TypeOperation, BankCard
 
