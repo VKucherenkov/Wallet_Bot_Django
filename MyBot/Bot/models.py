@@ -151,7 +151,7 @@ class TypeOperation(models.Model):
     """Тип операции"""
 
     name_type = models.CharField(
-        max_length=150, blank=True, null=True, unique=True, verbose_name="Наименование типа"
+        max_length=150, unique=True, verbose_name="Тип операции"
     )
     slug = AutoSlugField(
         populate_from="name_type",
@@ -188,7 +188,7 @@ class CategoryOperation(models.Model):
         verbose_name="Тип операции",
     )
     name_cat = models.CharField(
-        max_length=150, blank=True, null=True, unique=True, verbose_name="Наименование категории"
+        max_length=150, unique=True, verbose_name="Категория операции"
     )
     slug = AutoSlugField(
         populate_from="name_cat",

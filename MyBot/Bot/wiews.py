@@ -11,8 +11,9 @@ from django.views import View
 from django.views.generic import ListView, TemplateView, CreateView, DetailView, UpdateView
 
 from Bot.forms import RegisterUserForm, LoginUserForm, ProfileUpdateForm, AddOperationForm, AddCardForm, \
-    AddCategoryForm, AddRecipientForm
-from Bot.models import TelegramUser, CardUser, TypeOperation, CategoryOperation, OperationUser, MyUser, Recipient
+    AddCategoryForm, AddRecipientForm, AddTypeForm, AddBankForm
+from Bot.models import TelegramUser, CardUser, TypeOperation, CategoryOperation, OperationUser, MyUser, Recipient, \
+    BankCard
 from Bot.utils import DataMixin
 
 logger = logging.getLogger(__name__)
@@ -271,14 +272,23 @@ class AddCardView(DataMixin, CreateView):
     model = CardUser
     form_class = AddCardForm
     template_name = 'bot/add_card_form.html'
-    success_url = reverse_lazy('add-operation-form')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['card_form'] = AddCardForm()
         c_def = self.get_user_context(title='Добавление карты')
+        context['next'] = self.request.GET.get('next', '')
         context.update(c_def)
         return context
+
+    def get_success_url(self):
+        # Получаем URL для перенаправления из параметра `next`
+        next_url = self.request.GET.get('next')
+        # Если параметр `next` существует, перенаправляем туда
+        if next_url:
+            return next_url
+        # Если параметр `next` отсутствует, используем URL по умолчанию
+        return reverse_lazy('add-operation-form')
 
     def form_valid(self, form):
         # Получаем объект TelegramUser по telegram_id
@@ -289,11 +299,73 @@ class AddCardView(DataMixin, CreateView):
         card_user.telegram_user = telegram_user
         # Сохраняем объект в базу данных
         card_user.save()
+        messages.success(self.request, 'Карта добавлена!')
         return super().form_valid(form)
 
     def form_invalid(self, form):
+        messages.success(self.request, 'Карта не добавлена!')
         context = self.get_context_data(form=form)
-        context['card_form'] = AddCardForm(self.request.POST)
+        # context['card_form'] = AddCardForm(self.request.POST)
+        return self.render_to_response(context)
+
+
+class AddTypeView(DataMixin, CreateView):
+    model = TypeOperation
+    form_class = AddTypeForm
+    template_name = 'bot/add_type_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['type_form'] = AddTypeForm()
+        c_def = self.get_user_context(title='Добавление типа операции')
+        context.update(c_def)
+        return context
+
+    def get_success_url(self):
+        # Получаем URL для перенаправления из параметра `next`
+        next_url = self.request.GET.get('next')
+        # Если параметр `next` существует, перенаправляем туда
+        if next_url:
+            return next_url
+        # Если параметр `next` отсутствует, используем URL по умолчанию
+        return reverse_lazy('add-category-form')
+
+    def form_valid(self, form):
+        # Сохраняем объект в базу данных
+        form.save()
+        messages.success(self.request, 'Тип операции добавлен!')
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.success(self.request, 'Тип операции не добавлен!')
+        context = self.get_context_data(form=form)
+        context['type_form'] = AddTypeForm(self.request.POST)
+        return self.render_to_response(context)
+
+
+class AddBankView(DataMixin, CreateView):
+    model = BankCard
+    form_class = AddBankForm
+    template_name = 'bot/add_bank_form.html'
+    success_url = reverse_lazy('add-card-form')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['type_form'] = AddTypeForm()
+        c_def = self.get_user_context(title='Добавление банка')
+        context.update(c_def)
+        return context
+
+    def form_valid(self, form):
+        # Сохраняем объект в базу данных
+        form.save()
+        messages.success(self.request, 'Банк добавлен!')
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.success(self.request, 'Банк не добавлен!')
+        context = self.get_context_data(form=form)
+        context['bank_form'] = AddTypeForm(self.request.POST)
         return self.render_to_response(context)
 
 
@@ -305,7 +377,7 @@ class AddCategoryView(DataMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['category_form'] = AddCategoryForm()
+        # context['category_form'] = AddCategoryForm()
         c_def = self.get_user_context(title='Добавление категории')
         context.update(c_def)
         return context
@@ -313,11 +385,13 @@ class AddCategoryView(DataMixin, CreateView):
     def form_valid(self, form):
         # Сохраняем объект в базу данных
         form.save()
+        messages.success(self.request, 'Категория добавлена!')
         return super().form_valid(form)
 
     def form_invalid(self, form):
+        messages.success(self.request, 'Категория не добавлена!')
         context = self.get_context_data(form=form)
-        context['category_form'] = AddCategoryForm(self.request.POST)
+        # context['category_form'] = AddCategoryForm(self.request.POST)
         return self.render_to_response(context)
 
 
@@ -337,9 +411,11 @@ class AddRecipientView(DataMixin, CreateView):
     def form_valid(self, form):
         # Сохраняем объект в базу данных
         form.save()
+        messages.success(self.request, 'Получатель добавлен!')
         return super().form_valid(form)
 
     def form_invalid(self, form):
+        messages.success(self.request, 'Получатель не добавлен!')
         context = self.get_context_data(form=form)
         context['recipient_form'] = AddRecipientForm(self.request.POST)
         return self.render_to_response(context)
@@ -349,7 +425,6 @@ class AddOperationView(DataMixin, CreateView):
     model = OperationUser
     form_class = AddOperationForm
     template_name = 'bot/add_operation_form.html'
-    success_url = reverse_lazy('add-operation-form')
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -362,14 +437,25 @@ class AddOperationView(DataMixin, CreateView):
         context.update(c_def)
         return context
 
+    def get_success_url(self):
+        # Получаем URL для перенаправления из параметра `next`
+        next_url = self.request.GET.get('next')
+        # Если параметр `next` существует, перенаправляем туда
+        if next_url:
+            return next_url
+        # Если параметр `next` отсутствует, используем URL по умолчанию
+        return reverse_lazy('add-operation-form')
+
     def form_valid(self, form):
         card = form.cleaned_data['card']
         card.balans_card = form.cleaned_data.get('balans')
         card.save()
         form.save()
+        messages.success(self.request, 'Операция добавлена!')
         return super().form_valid(form)
 
     def form_invalid(self, form):
+        messages.success(self.request, 'Операция не добавлена!')
         context = self.get_context_data(form=form)
         context['operation_form'] = AddOperationForm(self.request.POST, user=self.request.user)
         return self.render_to_response(context)

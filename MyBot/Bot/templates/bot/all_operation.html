@@ -10,7 +10,7 @@
         <!-- Основной контент -->
         <div class="content">
             <h2> Все транзакции (операции) </h2>
-            <h4>Пользователь {{ telegram_user }}</h4>
+            <h4>Пользователь {{ user.first_name }} {{ user.last_name }}</h4>
             {% if all_operation %}
             <table class="table table-hover text-center auto-numbered">
                 <thead>
@@ -41,9 +41,10 @@
             <h5>У вас нет занесенных транзакций</h5>
             <hr>
             {% endif %}
+            <input type="hidden" name="next" value={{ request.path }}>
         </div>
-        <a href="{% url 'add-operation-form' %}">
-            <button class="btn btn-info">Добавить операцию</button>
+        <a href="{% url 'add-operation-form' %}?next={{ request.path }}">
+        <button class="btn btn-info">Добавить операцию</button>
         </a>
 
         <!-- Фото -->

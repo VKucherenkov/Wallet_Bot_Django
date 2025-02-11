@@ -8,8 +8,8 @@
 <div class="container-fluid">
     <div class="row">
         <div class="content col-xxl-6 col-xl-6 col-md-5 col-sm-4 col-xs-3">
-            <h2> Информация о картах (кошельках) </h2>
-            <h3> {{ telegram_user }} </h3>
+            <h2>Информация о картах (кошельках)</h2>
+            <h3>Пользователь {{ user.first_name }} {{ user.last_name }}</h3>
             {% if not cards %}
             <hr>
             <h5>
@@ -40,6 +40,13 @@
                 </tbody>
             </table>
             {% endif %}
+            <input type="hidden" name="next" value={{ request.path }}>
+            <!-- Кнопка для показа страницы с кодом добавления карты -->
+            <a href="{% url 'add-card-form' %}?next={{ request.path }}">
+                <button class="btn btn-primary mt-1" id="add-card-btn" type="button">
+                    Добавить карту
+                </button>
+            </a>
         </div>
 
         <!-- Фото -->

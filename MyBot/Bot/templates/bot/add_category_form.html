@@ -3,16 +3,41 @@
 
 {% block content %}
 <div class="container">
-    <form class="pt-3 mb-3" method="post" novalidate>
+    <form class="pt-3 mb-3" method="post">
         {% csrf_token %}
-        <div class="form-group pt-2 mb-2">
-            <div>
-                <h3>Новая категория</h3>
-                {{ form.as_p }}
-            </div>
-            <!-- Кнопка отправки формы -->
-            <button type="submit" class="btn btn-primary">Сохранить</button>
+        <h3>Новая категория</h3>
+        <div class="form-group mb-2">
+            <label for="id_type">{{ form.type.label }}:</label>
+            <select id="id_type" name="type" data-tags="true">
+                {% for value, label in form.type.field.choices %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+            <!-- Кнопка для показа страницы с кодом добавления типа операции -->
+            <a href="{% url 'add-type-form' %}">
+                <button class="btn btn-primary mt-1" id="add-new-type-btn" type="button">
+                    Добавить тип операции
+                </button>
+            </a>
         </div>
+        <div class="form-group mb-2">
+            <label for="id_category">Категория операции:</label>
+            <input type="text" id="id_category" name="name_cat" class="form-input">
+        </div>
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>Ошибка!</strong> Пожалуйста, исправьте следующие ошибки:
+            <ul>
+                {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                <li>{{ field }}: {{ error }}</li>
+                {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        <!-- Кнопка отправки формы -->
+        <button type="submit" class="btn btn-primary">Сохранить</button>
     </form>
 </div>
 {% endblock %}
