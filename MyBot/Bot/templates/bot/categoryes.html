@@ -58,7 +58,7 @@
 
         <!-- Текущая страница -->
         <span class="current">
-            Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+             {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
         </span>
 
         {% if page_obj.has_next %}
@@ -69,7 +69,9 @@
             <a href="?page={{ page_obj.paginator.num_pages }}">>></a>
         {% endif %}
     </span>
+    <div> Найдено записей: {{ total_category }}</div>
     </div>
 </div>
-
+</div>
+</div>
 {% endblock %}

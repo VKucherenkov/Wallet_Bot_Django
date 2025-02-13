@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'debug_toolbar',
     'django_select2',
+    'django_filters',
     'Bot',
     'Bot.management',
 ]

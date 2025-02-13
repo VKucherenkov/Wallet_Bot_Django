@@ -194,9 +194,8 @@ class Cards(DataMixin, ListView):
     def get_queryset(self):
         slug_user = self.kwargs['userdetail_slug']
         self.user = TelegramUser.objects.get(slug=slug_user)
-        return CardUser.objects.filter(
-            telegram_user=self.user).order_by(
-            'number_card').select_related('bank')
+        queryset = CardUser.objects.filter( telegram_user=self.user).order_by('number_card').select_related('bank')
+        return queryset
 
 
 class Types(DataMixin, ListView):
@@ -211,7 +210,8 @@ class Types(DataMixin, ListView):
         return dict(list(context.items()) + list(c_def.items()))
 
     def get_queryset(self):
-        return TypeOperation.objects.order_by('name_type')
+        queryset = TypeOperation.objects.order_by('name_type')
+        return queryset
 
 
 class Categoryes(DataMixin, ListView):
@@ -223,16 +223,24 @@ class Categoryes(DataMixin, ListView):
         context = super().get_context_data(**kwargs)
         slug = self.kwargs['userdetail_slug']
         context['telegram_user'] = TelegramUser.objects.get(slug=slug)
+        # Подсчет количества записей
+        queryset = self.get_queryset()
+        context['total_category'] = queryset.count()
+
         c_def = self.get_user_context(title='Категории операций')
         return dict(list(context.items()) + list(c_def.items()))
 
     def get_queryset(self):
-        return CategoryOperation.objects.order_by('name_cat')
+        # Получаем все категории
+        queryset = CategoryOperation.objects.order_by('name_cat')
+        return queryset
 
 
 class AllOperation(DataMixin, ListView):
+    model = OperationUser
     template_name = 'bot/all_operation.html'
     context_object_name = 'all_operation'
+    paginate_by = 6
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -240,12 +248,16 @@ class AllOperation(DataMixin, ListView):
         # Передаем параметры фильтрации в контекст для отображения в шаблоне
         context['start_date'] = self.request.GET.get('start_date', '')
         context['end_date'] = self.request.GET.get('end_date', '')
+        context['category'] = self.request.GET.get('category', '')
+        context['card'] = self.request.GET.get('card', '')
 
-        card = CardUser.objects.all()
-        context['card'] = card
+        # Подсчет количества отфильтрованных записей
+        queryset = self.get_queryset()
+        context['total_operations'] = queryset.count()  # Общее количество записей
 
-        category = CategoryOperation.objects.all()
-        context['category'] = category
+        # Передаем списки для выпадающих списков
+        context['card'] = CardUser.objects.all()
+        context['category'] = CategoryOperation.objects.all()
 
         c_def = self.get_user_context(title='Все операции')
         return dict(list(context.items()) + list(c_def.items()))
