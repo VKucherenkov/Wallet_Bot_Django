@@ -295,3 +295,12 @@ body {
 td.table-filter {
     background-color: #a6aea6;
 }
+/* Стили для финансового отчета */
+.total-row {
+    font-weight: bold;
+    background-color: #f8f9fa;
+}
+.comment {
+    color: #6c757d;
+    font-size: 0.9em;
+}

@@ -1,0 +1,135 @@
+{% extends 'bot/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Боковое меню -->
+{% include 'bot/includes/accordion.html' %}
+<!-- Page content-->
+<div class="filter-form p-2">
+    <!-- Форма фильтрации -->
+    <form method="get" action="">
+        <label for="start_date">Начальная дата:</label>
+        <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+
+        <label for="end_date">Конечная дата:</label>
+        <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+
+        <label for="card">Карта списания:</label>
+        <select id="card" name="card">
+            <option value="">Все</option>
+            {% for c in card %}
+            <option value="{{ c.id }}" {% if c.id|stringformat:"s" == request.GET.card %}selected{% endif %}>
+                {{ c.name_card }} {{ c.number_card }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button class="btn btn-info" type="submit">Фильтровать</button>
+        <a href="{{ telegram_user.get_url }}finance-report" class="btn btn-secondary">Сбросить фильтры</a>
+    </form>
+</div>
+<div class="container my-5">
+    <h1 class="text-center mb-4">Отчет по личным финансам</h1>
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <p><strong>Период:</strong> [Укажите месяц/год]</p>
+        </div>
+        <div class="col-md-6">
+            <p><strong>Валюта:</strong> [Укажите валюту, например, RUB, USD и т.д.]</p>
+        </div>
+    </div>
+
+    <!-- Доходы -->
+    <h2 class="mb-3">1. Доходы</h2>
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+        <tr>
+            <th>Категория дохода</th>
+            <th>Сумма (руб.)</th>
+            <th>Доля дохода по категории в<br>в общей сумме доходов (%)
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for cat in queryset_expence %}
+        <tr>
+            <td>{{ cat.category__name_cat }}</td>
+            <td>{{ cat.total_amount }}</td>
+            <td class="comment">{{ cat.percentage|floatformat:2 }} % </td>
+        </tr>
+        {% endfor %}
+        <tr class="total-row">
+            <td><strong>Итого доход в {{ total_count }} категориях</strong></td>
+            <td><strong>{{ total_sum_expense }}</strong></td>
+            <td><strong>{{ total_percentage_income|floatformat:0 }} %</strong></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Расходы -->
+    <h2 class="mb-3">2. Расходы</h2>
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+        <tr>
+            <th>Категория расхода</th>
+            <th>Сумма (руб.)</th>
+            <th>
+                Доля расхода по категории в<br>общей сумме расходов (%)
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for cat in finance_report %}
+        <tr>
+            <td>{{ cat.category__name_cat }}</td>
+            <td>{{ cat.total_amount }}</td>
+            <td class="comment">{{ cat.percentage|floatformat:2 }} % </td>
+        </tr>
+        {% endfor %}
+        <tr class="total-row">
+            <td><strong>Итого расходов в {{ total_count }} категориях</strong></td>
+            <td><strong>{{ total_sum }}</strong></td>
+            <td><strong>{{ total_percentage_expense|floatformat:0 }} %</strong></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Итоги -->
+    <h2 class="mb-3">3. Итоги</h2>
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+        <tr>
+            <th>Показатель</th>
+            <th>Сумма (руб.)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Общий доход (руб.)</td>
+            <td>{{ total_sum_expense }}</td>
+        </tr>
+        <tr>
+            <td>Общий расход (руб.)</td>
+            <td>{{ total_sum }}</td>
+        </tr>
+        <tr class="total-row">
+            <td><strong>Остаток (доход - расход)</strong></td>
+            <td><strong>{{ total_difference }}</strong></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Анализ и комментарии -->
+    <h2 class="mb-3">4. Анализ и комментарии</h2>
+    <div class="card">
+        <div class="card-body">
+            <p class="card-text">[Напишите краткий анализ: например, на что ушло больше всего денег, где можно сократить
+                расходы, какие цели достигнуты.]</p>
+            <p class="card-text">[Планы на следующий месяц: например, увеличить доходы, сократить расходы на развлечения
+                и т.д.]</p>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+{% endblock %}

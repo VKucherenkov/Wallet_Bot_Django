@@ -1,10 +1,12 @@
 import logging
 from datetime import datetime
+from unicodedata import category
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout, login
 from django.contrib.auth.views import LoginView
+from django.db.models import Sum, ExpressionWrapper, F, FloatField, IntegerField
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import ListView, TemplateView, CreateView, DetailView, UpdateView
@@ -194,7 +196,7 @@ class Cards(DataMixin, ListView):
     def get_queryset(self):
         slug_user = self.kwargs['userdetail_slug']
         self.user = TelegramUser.objects.get(slug=slug_user)
-        queryset = CardUser.objects.filter( telegram_user=self.user).order_by('number_card').select_related('bank')
+        queryset = CardUser.objects.filter(telegram_user=self.user).order_by('number_card').select_related('bank')
         return queryset
 
 
@@ -256,7 +258,7 @@ class AllOperation(DataMixin, ListView):
         context['total_operations'] = queryset.count()  # Общее количество записей
 
         # Передаем списки для выпадающих списков
-        context['card'] = CardUser.objects.all()
+        context['card'] = CardUser.objects.filter(telegram_user=self.kwargs['user'])
         context['category'] = CategoryOperation.objects.all()
 
         c_def = self.get_user_context(title='Все операции')
@@ -505,3 +507,129 @@ class AddOperationView(DataMixin, CreateView):
         context = self.get_context_data(form=form)
         context['operation_form'] = AddOperationForm(self.request.POST, user=self.request.user)
         return self.render_to_response(context)
+
+
+class FinanceReport(DataMixin, ListView):
+    model = OperationUser
+    template_name = 'bot/finance_report.html'
+    context_object_name = 'finance_report'
+
+    def get_queryset(self):
+        """
+        Возвращает отфильтрованный QuerySet для операций пользователя.
+        """
+        # Получаем пользователя и его карты
+        slug = self.kwargs['userdetail_slug']
+        self.kwargs['user'] = TelegramUser.objects.get(slug=slug)
+        self.cards = CardUser.objects.filter(telegram_user=self.kwargs['user'])
+
+        # Применяем фильтры, если они переданы в запросе
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        card = self.request.GET.get('card')
+
+        # Фильтруем операции по картам и категориям
+        queryset = OperationUser.objects.filter(
+            card__in=self.cards,
+            category__type__name_type__in=['расход', 'Тип операции: расход']
+        ).values('category__name_cat').annotate(
+            total_amount=Sum('amount_operation')
+        ).order_by('category__name_cat')
+
+        # Применяем фильтры по датам и карте
+        queryset = self.apply_filters(queryset, start_date, end_date, card)
+
+        # Вычисляем общую сумму и процент для каждой категории
+        self.total_sum = queryset.aggregate(total_sum=Sum('total_amount'))['total_sum'] or 0
+        queryset = queryset.annotate(
+            percentage=ExpressionWrapper(
+                F('total_amount') * 100.0 / self.total_sum,
+                output_field=FloatField()
+            )
+        )
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        """
+        Добавляет дополнительные данные в контекст шаблона.
+        """
+        context = super().get_context_data(**kwargs)
+
+        # Передаем пользователя и параметры фильтрации в контекст
+        context['telegram_user'] = self.kwargs['user']
+        context['start_date'] = self.request.GET.get('start_date', '')
+        context['end_date'] = self.request.GET.get('end_date', '')
+        context['card'] = self.request.GET.get('card', '')
+        context['cards'] = self.cards
+
+        # Подсчет общей суммы и количества записей для расходов
+        queryset = self.object_list
+        context['total_count'] = queryset.count()
+        # total_sum = queryset.aggregate(total_sum=Sum('total_amount'))['total_sum'] or 0
+        context['total_sum'] = self.total_sum
+
+        # Фильтрация и агрегация данных для доходов
+        queryset_expense = self.get_expense_queryset()
+        context['queryset_expense'] = queryset_expense
+        context['total_sum_expense'] = self.total_sum_expense
+        context['total_difference'] = context['total_sum_expense'] - context['total_sum']
+        context['total_percentage_expense'] = self.get_total_percentage(queryset_expense) # Вызов функции для получения общего процента
+        context['total_percentage_income'] = self.get_total_percentage(queryset) # Вызов функции для получения общего процента
+
+
+        # Добавляем пользовательский контекст из миксина
+        c_def = self.get_user_context(title='Все операции')
+        return {**context, **c_def}
+
+    def get_expense_queryset(self):
+        """
+        Возвращает QuerySet для операций доходов с фильтрацией и агрегацией.
+        """
+        queryset = OperationUser.objects.filter(
+            card__in=self.cards,
+            category__type__name_type__in=['Тип операции: доход']
+        ).values('category__name_cat').annotate(
+            total_amount=Sum('amount_operation')
+        ).order_by('category__name_cat')
+
+        # Применяем фильтры по датам
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        queryset = self.apply_filters(queryset, start_date, end_date)
+
+        # Вычисляем общую сумму и процент для каждой категории
+        self.total_sum_expense = queryset.aggregate(total_sum=Sum('total_amount'))['total_sum'] or 0
+        queryset = queryset.annotate(
+            percentage=ExpressionWrapper(
+                F('total_amount') * 100.0 / self.total_sum_expense,
+                output_field=FloatField()
+            )
+        )
+        return queryset
+
+    def get_total_percentage(self, queryset):
+        total_percentage = queryset.aggregate(total_percentage=Sum('percentage'))
+        return total_percentage.get('total_percentage')
+
+    def apply_filters(self, queryset, start_date=None, end_date=None, card=None):
+        """
+        Применяет фильтры по датам и карте к переданному QuerySet.
+        """
+        if start_date:
+            try:
+                start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+                queryset = queryset.filter(datetime_amount__gte=start_date)
+            except ValueError:
+                pass  # Игнорируем некорректные даты
+
+        if end_date:
+            try:
+                end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+                queryset = queryset.filter(datetime_amount__lte=end_date)
+            except ValueError:
+                pass  # Игнорируем некорректные даты
+
+        if card:
+            queryset = queryset.filter(card=card)
+
+        return queryset

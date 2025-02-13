@@ -22,7 +22,7 @@ from django.urls import path
 from Bot.wiews import Cards, Categoryes, Types, TelegramUserShow, TelegramUsersShow, AllOperation, \
     RegisterUser, LoginUser, logout_user, IndexShow, MyUserUpdate, AboutShow, ContactShow, AnaliticsShow, SecurityShow, \
     InterfaceShow, AnalizShow, AddOperationShow, AddOperationView, AddCardView, AddCategoryView, AddRecipientView, \
-    AddTypeView, AddBankView
+    AddTypeView, AddBankView, FinanceReport
 
 urlpatterns = [
     path('', IndexShow.as_view(), name='home'),
@@ -50,5 +50,7 @@ urlpatterns = [
     path('user/<slug:userdetail_slug>/types/', Types.as_view(), name='types'),
     path('user/<slug:userdetail_slug>/categoryes/', Categoryes.as_view(), name='categoryes'),
     path('user/<slug:userdetail_slug>/all_operation/', AllOperation.as_view(), name='all_operation'),
+    path('user/<slug:userdetail_slug>/finance-report/', FinanceReport.as_view(), name='finance-report'),
+
 
 ]
