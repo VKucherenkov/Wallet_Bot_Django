@@ -90,9 +90,11 @@ class TypeOperationAdmin(admin.ModelAdmin):
 
 @admin.register(CardUser)
 class CardUserAdmin(admin.ModelAdmin):
-    list_display = ['name_card',
+    list_display = ['type_card',
+                    'name_card',
                     'number_card',
                     'balans_card',
+                    'credit_limit',
                     'telegram_user',
                     'bank',
                     'datetime_add',

@@ -565,7 +565,6 @@ class FinanceReport(DataMixin, ListView):
         # Подсчет общей суммы и количества записей для расходов
         queryset = self.object_list
         context['total_count'] = queryset.count()
-        # total_sum = queryset.aggregate(total_sum=Sum('total_amount'))['total_sum'] or 0
         context['total_sum'] = self.total_sum
 
         # Фильтрация и агрегация данных для доходов
@@ -573,13 +572,40 @@ class FinanceReport(DataMixin, ListView):
         context['queryset_expense'] = queryset_expense
         context['total_sum_expense'] = self.total_sum_expense
         context['total_difference'] = context['total_sum_expense'] - context['total_sum']
-        context['total_percentage_expense'] = self.get_total_percentage(queryset_expense) # Вызов функции для получения общего процента
-        context['total_percentage_income'] = self.get_total_percentage(queryset) # Вызов функции для получения общего процента
+        context['total_percentage_expense'] = self.get_total_percentage(
+            queryset_expense)  # Вызов функции для получения общего процента
+        context['total_percentage_income'] = self.get_total_percentage(
+            queryset)  # Вызов функции для получения общего процента
 
+        # Фильтрация и агрегация данных для кредитной карты
+        card = CardUser.objects.get(id=context['card']) if context['card'] else ''
+        if card and card.type_card == 'кредитная':
+            credit_limit, balance_in, balance_end, total_in = self.get_credit_card_operation(queryset, card,
+                                                                                             context['start_date'],
+                                                                                             context['end_date'],
+                                                                                             context[
+                                                                                                 'total_sum'])
+            context['credit_limit'] = credit_limit
+            context['balance_in'] = balance_in
+            context['balance_end'] = balance_end
+            context['total_in'] = total_in
+            context['debt_in'] = credit_limit - balance_in
+            context['debt_end'] = credit_limit - balance_end
+            context['difference'] = total_in - context['total_sum']
 
         # Добавляем пользовательский контекст из миксина
         c_def = self.get_user_context(title='Все операции')
         return {**context, **c_def}
+
+    def get_credit_card_operation(self, queryset, card, start_date, end_date, total_sum):
+        credit_limit = card.credit_limit
+        queryset_credit_card = OperationUser.objects.filter(card=card).order_by('datetime_add')
+        queryset_credit_card = self.apply_filters(queryset_credit_card, start_date, end_date, card)
+        balance_in = queryset_credit_card.first().balans
+        balance_end = queryset_credit_card.last().balans
+        total_amount = queryset[0]['total_amount']
+        total_in = total_amount - total_sum
+        return credit_limit, balance_in, balance_end, total_in
 
     def get_expense_queryset(self):
         """

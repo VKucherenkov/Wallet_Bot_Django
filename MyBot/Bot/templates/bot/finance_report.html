@@ -17,7 +17,7 @@
         <label for="card">Карта списания:</label>
         <select id="card" name="card">
             <option value="">Все</option>
-            {% for c in card %}
+            {% for c in cards %}
             <option value="{{ c.id }}" {% if c.id|stringformat:"s" == request.GET.card %}selected{% endif %}>
                 {{ c.name_card }} {{ c.number_card }}
             </option>
@@ -32,10 +32,18 @@
     <h1 class="text-center mb-4">Отчет по личным финансам</h1>
     <div class="row mb-4">
         <div class="col-md-6">
-            <p><strong>Период:</strong> [Укажите месяц/год]</p>
+            {% if start_date and not end_date %}
+            <p><strong class="p-2">Период:</strong>с {{ start_date }} по настоящее время</p>
+            {% elif start_date and end_date %}
+            <p><strong class="p-2">Период:</strong>с {{ start_date }} по {{ end_date }}</p>
+            {% elif not start_date and end_date %}
+            <p><strong class="p-2">Период:</strong>с момента регистрации по {{ end_date }}</p>
+            {% else %}
+            <p><strong class="p-2">Период:</strong>с момента регистрации по настоящее время</p>
+            {% endif %}
         </div>
         <div class="col-md-6">
-            <p><strong>Валюта:</strong> [Укажите валюту, например, RUB, USD и т.д.]</p>
+            <p><strong>Валюта:</strong> RUB</p>
         </div>
     </div>
 
@@ -51,7 +59,7 @@
         </tr>
         </thead>
         <tbody>
-        {% for cat in queryset_expence %}
+        {% for cat in queryset_expense %}
         <tr>
             <td>{{ cat.category__name_cat }}</td>
             <td>{{ cat.total_amount }}</td>
@@ -118,7 +126,63 @@
         </tr>
         </tbody>
     </table>
+    {% if credit_limit %}
+    <!-- Информация по кредитной карте -->
+    <h2 class="mb-3">4. Кредитная карта</h2>
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+        <tr>
+            <th>Показатель</th>
+            <th>Сумма (руб.)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Кредитный лимит (руб.)</td>
+            <td>{{ credit_limit }}</td>
+        </tr>
+         <tr>
+            <td>Баланс на начало периода(руб.)</td>
+            <td>{{ balance_in }}</td>
+        </tr>
+        <tr>
+            <td>Задолженность по карте на начало периода (руб.)</td>
+            <td>{{ debt_in }}</td>
+        </tr>
+        <tr>
+            <td>Израсходовано (руб.)</td>
+            <td>{{ total_sum }}</td>
+        </tr>
+        <tr>
+            <td>Пополнено (руб.)</td>
+            <td>{{ total_in }}</td>
+        </tr>
+         <tr>
+            <td>Баланс на конец (руб.)</td>
+            <td>{{ balance_end }}</td>
+        </tr>
+        <tr class="total-row">
+            <td><strong>Разница (пополнено - израсходовано)</strong></td>
+            <td><strong>{{ difference }}</strong></td>
+        </tr>
+        <tr class="total-row">
+            <td><strong>Задолженность по карте на конец периода (руб.)</strong></td>
+            <td><strong>{{ debt_end }}</strong></td>
+        </tr>
+        </tbody>
+    </table>
+    <!-- Анализ и комментарии -->
+    <h2 class="mb-3">5. Анализ и комментарии</h2>
+    <div class="card">
+        <div class="card-body">
+            <p class="card-text">[Напишите краткий анализ: например, на что ушло больше всего денег, где можно сократить
+                расходы, какие цели достигнуты.]</p>
+            <p class="card-text">[Планы на следующий месяц: например, увеличить доходы, сократить расходы на развлечения
+                и т.д.]</p>
+        </div>
 
+    </div>
+    {% else %}
     <!-- Анализ и комментарии -->
     <h2 class="mb-3">4. Анализ и комментарии</h2>
     <div class="card">
@@ -129,6 +193,7 @@
                 и т.д.]</p>
         </div>
     </div>
+    {% endif %}
 </div>
 </div>
 </div>

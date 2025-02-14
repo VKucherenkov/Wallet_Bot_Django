@@ -106,6 +106,9 @@ class BankCard(models.Model):
 
 class CardUser(models.Model):
     """Карты пользователя"""
+    DEBET = "дебетовая"
+    KREDIT = "кредитная"
+    TYPE_CARD = [(DEBET, "дебетовая"), (KREDIT, "кредитная")]
 
     telegram_user = models.ForeignKey(
         TelegramUser,
@@ -118,6 +121,16 @@ class CardUser(models.Model):
         on_delete=models.CASCADE,
         related_name="cards_bank",
         verbose_name="Банк",
+    )
+    type_card = models.CharField(
+        max_length=10, choices=TYPE_CARD, blank=True, null=True, verbose_name="Тип карты"
+    )
+    credit_limit = models.DecimalField(
+        "Кредитный лимит карты",
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True,
     )
     name_card = models.CharField(
         max_length=150, blank=True, null=True, verbose_name="Наименование карты"
