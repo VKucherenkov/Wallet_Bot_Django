@@ -15,6 +15,8 @@ class ParserHand(StatesGroup):
 class ParserAuto(StatesGroup):
     start_state = State()
     card_name_state = State()
+    card_type_state = State()
+    card_credit_state = State()
     bank_state_auto = State()
     recipient_state = State()
     type_state_auto = State()

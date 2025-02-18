@@ -3,12 +3,12 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 
 from Bot.FSM_processing.states import ParserAuto
-from Bot.Work_db.category_operation_db import get_name_category_auto
+from Bot.Work_db.category_operation_db import get_name_category_auto, get_categories_for_keyboard
 from Bot.Work_db.recipient_db import get_recipient_db
 from Bot.keyboard.reply_keybord import get_bank_kbd, get_prev_cancel_kbd, get_recipient_kbd, get_category_kbd, \
-    get_yes_no_kbd
+    get_yes_no_kbd, get_card_type_kbd
 from Bot.validators.valid_bank import validator_bank
-from Bot.validators.valid_card_name import validator_name_card
+from Bot.validators.valid_card_name import validator_name_card, validator_type_card, validator_limit_card
 
 router = Router(name=__name__)
 
@@ -16,15 +16,56 @@ router = Router(name=__name__)
 async def get_name_card(message: types.Message,
                         state: FSMContext):
     await state.update_data(name_card=message.text.lower())
-    await state.set_state(ParserAuto.bank_state_auto)
-    await message.answer(f'Введите наименование банка или выберете из предложенных ниже',
+    await state.set_state(ParserAuto.card_type_state)
+    await message.answer(f'Введите тип карты',
                          parse_mode=ParseMode.HTML,
-                         reply_markup=get_bank_kbd())
+                         reply_markup=get_card_type_kbd())
 
 
 @router.message(ParserAuto.card_name_state)
 async def get_invalid_name_card(message: types.Message,):
     await message.answer(f'Введите корректное имя карты',
+                         parse_mode=ParseMode.HTML,
+                         reply_markup=get_prev_cancel_kbd())
+
+
+@router.message(ParserAuto.card_type_state, F.text, F.func(validator_type_card))
+async def get_name_card(message: types.Message,
+                        state: FSMContext):
+    await state.update_data(type_card=message.text.lower())
+    if message.text.lower() == 'дебетовая':
+        await state.update_data(credit_limit=0)
+        await state.set_state(ParserAuto.bank_state_auto)
+        await message.answer(f'Введите наименование банка или выберете из предложенных ниже',
+                             parse_mode=ParseMode.HTML,
+                             reply_markup=get_bank_kbd())
+    else:
+        await state.set_state(ParserAuto.card_credit_state)
+        await message.answer(f'Введите кредитный лимит по карте',
+                             parse_mode=ParseMode.HTML,
+                             reply_markup=get_prev_cancel_kbd())
+
+
+@router.message(ParserAuto.card_type_state)
+async def get_invalid_name_card(message: types.Message,):
+    await message.answer(f'Введите корректный тип карты',
+                         parse_mode=ParseMode.HTML,
+                         reply_markup=get_card_type_kbd()())
+
+
+@router.message(ParserAuto.card_credit_state, F.text, F.func(validator_limit_card))
+async def get_name_card(message: types.Message,
+                        state: FSMContext):
+    await state.update_data(credit_limit=message.text)
+    await state.set_state(ParserAuto.bank_state_auto)
+    await message.answer(f'Введите наименование банка или выберете из предложенных ниже',
+                             parse_mode=ParseMode.HTML,
+                             reply_markup=get_bank_kbd())
+
+
+@router.message(ParserAuto.card_credit_state)
+async def get_invalid_name_card(message: types.Message,):
+    await message.answer(f'Введите корректный лимит по карте',
                          parse_mode=ParseMode.HTML,
                          reply_markup=get_prev_cancel_kbd())
 
@@ -43,9 +84,10 @@ async def get_name_bank(message: types.Message,
                          reply_markup=get_recipient_kbd(recipient_lst))
     elif len(category_lst) != 1:
         await state.set_state(ParserAuto.category_state_auto)
+        category_lst = await get_categories_for_keyboard()
         await message.answer(f'Введите категорию операции или выберете из списка ниже',
                              parse_mode=ParseMode.HTML,
-                             reply_markup=get_category_kbd())
+                             reply_markup=get_category_kbd(category_lst))
     else:
         data = await state.update_data(name_cat=category_lst[0])
         text = ''

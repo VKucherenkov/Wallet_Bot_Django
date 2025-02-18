@@ -601,9 +601,9 @@ class FinanceReport(DataMixin, ListView):
         credit_limit = card.credit_limit
         queryset_credit_card = OperationUser.objects.filter(card=card).order_by('datetime_add')
         queryset_credit_card = self.apply_filters(queryset_credit_card, start_date, end_date, card)
-        balance_in = queryset_credit_card.first().balans
-        balance_end = queryset_credit_card.last().balans
-        total_amount = queryset[0]['total_amount']
+        balance_in = queryset_credit_card.first().balans +  queryset_credit_card.first().amount_operation if queryset_credit_card.first() else credit_limit
+        balance_end = queryset_credit_card.last().balans if queryset_credit_card.last() else credit_limit
+        total_amount = queryset[0]['total_amount'] if queryset else 0
         total_in = total_amount - total_sum
         return credit_limit, balance_in, balance_end, total_in
 

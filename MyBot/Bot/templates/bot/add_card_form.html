@@ -21,6 +21,18 @@
             </a>
         </div>
         <div class="form-group mb-2">
+            <label for="id_type_card">{{ form.type_card.label }}:</label>
+            <select id="id_type_card" name="type_card" data-tags="true">
+                {% for value, label in form.type_card.field.choices %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group mb-2">
+            <label for="id_credit_limit_card">Кредитный лимит карты:</label>
+            <input type="text" id="id_credit_limit_card" name="credit_limit" class="form-input">
+        </div>
+        <div class="form-group mb-2">
             <label for="id_name_card">Имя карты:</label>
             <input type="text" id="id_name_card" name="name_card" class="form-input">
         </div>

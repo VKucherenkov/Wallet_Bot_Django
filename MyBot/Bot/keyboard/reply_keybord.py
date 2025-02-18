@@ -4,7 +4,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemo
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 from Bot.Work_db.category_operation_db import get_categories_for_keyboard
-from Bot.common.global_variable import type_category, categoryes, banks
+from Bot.common.global_variable import type_category, categoryes, banks, card_type
 
 logger = logging.getLogger(name=__name__)
 
@@ -127,6 +127,16 @@ def get_card_kbd(card_list):
         builder.button(text=f'{button["Номер"]}')
     if not card_list:
         builder.button(text=f'Сохраненные карты отсутствуют')
+    builder.adjust(3)
+    builder.row(KeyboardButton(text='Назад'),
+                KeyboardButton(text='Отмена'))
+    return builder.as_markup(resize_keyboard=True)
+
+
+def get_card_type_kbd():
+    builder = ReplyKeyboardBuilder()
+    for type in card_type.values():
+        builder.button(text=type)
     builder.adjust(3)
     builder.row(KeyboardButton(text='Назад'),
                 KeyboardButton(text='Отмена'))

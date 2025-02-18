@@ -48,9 +48,15 @@ class ProfileUpdateForm(forms.ModelForm):
 
 
 class AddCardForm(forms.ModelForm):
+    DEBET = 'дебетовая'
+    CREDIT = 'кредитная'
+    TYPE_CHOICES = [
+        (DEBET, 'дебетовая'),
+        (CREDIT, 'кредитная')
+    ]
     class Meta:
         model = CardUser
-        fields = ['bank', 'name_card', 'number_card', 'balans_card']
+        fields = ['bank', 'type_card', 'credit_limit','name_card', 'number_card', 'balans_card']
 
     bank = forms.ModelChoiceField(
         label='Выберете банк эмитент карты',
@@ -58,6 +64,11 @@ class AddCardForm(forms.ModelForm):
         queryset=BankCard.objects.all(),
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label="Выбрать/добавить банк",
+    )
+    type_card = forms.ChoiceField(
+        required=True,
+        choices=TYPE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
     )
 
     def clean_number_card(self):

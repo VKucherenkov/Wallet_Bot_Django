@@ -60,7 +60,7 @@ def get_bank_name_by_card(number_card: int, cache_timeout: int = 60 * 60) -> str
             logger.info(f"Для карты {number_card} найден банк: {bank_name}")
             # Кэшируем результат
             cache.set(cache_key, bank_name, timeout=cache_timeout)
-        except BankCard.DoesNotExist:
+        except CardUser.DoesNotExist:
             logger.error(f"Карта с номером {number_card} не найдена в базе данных.")
             return None
         except Exception as err:

@@ -145,3 +145,16 @@ def card_list_for_kb(message):
     except Exception as e:
         logger.error(f"Ошибка при получении списка карт: {e}")
         return []
+
+
+@sync_to_async
+def get_type_card(number_card):
+
+    type_card = CardUser.objects.get(number_card=number_card).type_card
+    return type_card if type_card else None
+
+
+@sync_to_async
+def get_credit_limit_card(number_card):
+    credit_limit = CardUser.objects.get(number_card=number_card).credit_limit
+    return credit_limit if credit_limit else None

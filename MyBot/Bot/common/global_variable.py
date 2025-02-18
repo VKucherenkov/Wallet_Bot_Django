@@ -38,6 +38,11 @@ categoryes = {
     "Табак": ["Табак"],
 }
 
+card_type = {
+    'debet': 'дебетовая',
+    'credit': 'кредитная'
+}
+
 data_parser = {
     'name_bank': '',
     'name_card': '',

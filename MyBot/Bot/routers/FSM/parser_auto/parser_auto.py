@@ -117,7 +117,9 @@ async def update_state(state, data):
         name_cat=data['name_cat'],
         name_type=data['name_type'],
         datetime_amount=data['datetime_amount'],
-        note_operation=data['note_operation']
+        note_operation=data['note_operation'],
+        credit_limit = data['credit_limit'],
+        type_card = data['type_card']
     )
 
 async def handle_missing_data(message, state, data):

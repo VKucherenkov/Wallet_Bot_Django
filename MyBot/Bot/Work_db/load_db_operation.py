@@ -62,7 +62,9 @@ def load_db_operation(data) -> tuple[int, str] | Exception:
                 'name_card': data['name_card'].lower(),
                 'balans_card': data['balans'],
                 'bank': bank,
-                'telegram_user': user
+                'telegram_user': user,
+                'credit_limit': data['credit_limit'],
+                'type_card': data['type_card']
             }
         )
         if not created:
