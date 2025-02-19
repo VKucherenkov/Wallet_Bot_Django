@@ -526,7 +526,7 @@ class FinanceReport(DataMixin, ListView):
         # Применяем фильтры, если они переданы в запросе
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')
-        card = self.request.GET.get('card')
+        self.card = self.request.GET.get('card')
 
         # Фильтруем операции по картам и категориям
         queryset = OperationUser.objects.filter(
@@ -537,7 +537,7 @@ class FinanceReport(DataMixin, ListView):
         ).order_by('category__name_cat')
 
         # Применяем фильтры по датам и карте
-        queryset = self.apply_filters(queryset, start_date, end_date, card)
+        queryset = self.apply_filters(queryset, start_date, end_date, self.card)
 
         # Вычисляем общую сумму и процент для каждой категории
         self.total_sum = queryset.aggregate(total_sum=Sum('total_amount'))['total_sum'] or 0
@@ -601,10 +601,15 @@ class FinanceReport(DataMixin, ListView):
         credit_limit = card.credit_limit
         queryset_credit_card = OperationUser.objects.filter(card=card).order_by('datetime_add')
         queryset_credit_card = self.apply_filters(queryset_credit_card, start_date, end_date, card)
-        balance_in = queryset_credit_card.first().balans +  queryset_credit_card.first().amount_operation if queryset_credit_card.first() else credit_limit
-        balance_end = queryset_credit_card.last().balans if queryset_credit_card.last() else credit_limit
-        total_amount = queryset[0]['total_amount'] if queryset else 0
-        total_in = total_amount - total_sum
+        if 'доход' in queryset_credit_card.first().category.type.name_type:
+            balance_in = queryset_credit_card.first().balans - queryset_credit_card.first().amount_operation if queryset_credit_card.first() else card.balans_card
+            total_in = self.total_sum_expense
+        elif 'расход' in queryset_credit_card.first().category.type.name_type:
+            balance_in = queryset_credit_card.first().balans + queryset_credit_card.first().amount_operation if queryset_credit_card.first() else card.balans_card
+            total_amount = queryset[0]['total_amount'] if queryset else 0
+            total_in = total_amount - total_sum
+        balance_end = queryset_credit_card.last().balans if queryset_credit_card.last() else card.balans_card
+
         return credit_limit, balance_in, balance_end, total_in
 
     def get_expense_queryset(self):
@@ -621,7 +626,7 @@ class FinanceReport(DataMixin, ListView):
         # Применяем фильтры по датам
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')
-        queryset = self.apply_filters(queryset, start_date, end_date)
+        queryset = self.apply_filters(queryset, start_date, end_date, self.card)
 
         # Вычисляем общую сумму и процент для каждой категории
         self.total_sum_expense = queryset.aggregate(total_sum=Sum('total_amount'))['total_sum'] or 0
