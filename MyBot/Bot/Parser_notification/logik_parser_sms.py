@@ -66,7 +66,7 @@ async def parser_logic_notification(message: types.Message):
         await parse_withdrawal(data_parser, msg, lines)
 
     # Обработка покупки, зачисления, перевода и т.д.
-    elif any(keyword in lines[1].lower() for keyword in ['покупка', 'зачислен', 'оплата', 'возвр', 'перевод от', 'перевод']):
+    elif any(keyword in lines[1].lower() for keyword in ['покупка', 'капитал', 'зачислен', 'оплата', 'возвр', 'перевод от', 'перевод']):
         await parse_income_or_payment(data_parser, msg, lines)
 
     # Дополнительные данные
@@ -83,8 +83,8 @@ async def parser_logic_notification(message: types.Message):
 async def parse_withdrawal(data_parser, msg, lines):
     """Обработка списания."""
     data_parser['number_card'] = extract_card_number(msg, '*', 4)
-    if data_parser['number_card'] == '7473':
-        data_parser['number_card'] = '8314'
+    if data_parser['number_card'] == '8314':
+        data_parser['number_card'] = '7473'
     data_parser['name_bank'] = 'Сбербанк'
     data_parser['name_recipient'] = 'Сбербанк'
     data_parser['amount_operation'] = extract_amount(lines[2], 'р')
@@ -93,16 +93,25 @@ async def parse_withdrawal(data_parser, msg, lines):
 
 async def parse_income_or_payment(data_parser, msg, lines):
     """Обработка зачислений, покупок, переводов и т.д."""
-    data_parser['number_card'] = extract_card_number(msg, '•', 4)
-    if data_parser['number_card'] == '7473':
-        data_parser['number_card'] = '8314'
+    data_parser['number_card'] = extract_card_number_buy(msg, '•', 4)
+    if data_parser['number_card'] == '8314':
+        data_parser['number_card'] = '7473'
     data_parser['name_recipient'] = ' '.join(lines[1].split()[1:])
     data_parser['name_bank'] = await get_bank_name_by_card(data_parser['number_card'])
-    data_parser['amount_operation'] = lines[2][:-2].replace(',', '.').replace(' ', '').replace('+', '')
+    # data_parser['amount_operation'] = lines[2][:-2].replace(',', '.').replace(' ', '').replace('+', '')
+    data_parser['amount_operation'] = ''.join(lines[2].split()[:-1]).replace(',', '.')
     data_parser['balans'] = ''.join(lines[-1].split()[1:-1]).replace(',', '.')
 
 
 def extract_card_number(msg, symbol, length):
+    """Извлечение номера карты."""
+    try:
+        return msg[msg.rindex(symbol) + 1: msg.rindex(symbol) + 1 + length]
+    except ValueError:
+        return "Неизвестно"
+
+
+def extract_card_number_buy(msg, symbol, length):
     """Извлечение номера карты."""
     try:
         return msg[msg.rindex(symbol) + 2: msg.rindex(symbol) + 2 + length]

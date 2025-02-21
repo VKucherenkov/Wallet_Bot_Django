@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout, login
 from django.contrib.auth.views import LoginView
-from django.db.models import Sum, ExpressionWrapper, F, FloatField, IntegerField
+from django.db.models import Sum, ExpressionWrapper, F, FloatField, IntegerField, DecimalField
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import ListView, TemplateView, CreateView, DetailView, UpdateView
@@ -103,7 +103,7 @@ class ContactShow(DataMixin, TemplateView):
 class RegisterUser(DataMixin, CreateView):
     form_class = RegisterUserForm
     template_name = 'bot/register.html'
-    success_url = reverse_lazy('login')
+    success_url = reverse_lazy('home')
 
     def form_valid(self, form):
         user = form.save()
@@ -122,7 +122,8 @@ class RegisterUser(DataMixin, CreateView):
                            gender=form.instance.gender, )
         login(self.request, user)
 
-        return redirect(f'{user_in.get_url()}')
+        return redirect('home')
+        # return redirect(f'{user_in.get_url()}')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -576,6 +577,7 @@ class FinanceReport(DataMixin, ListView):
             queryset_expense)  # Вызов функции для получения общего процента
         context['total_percentage_income'] = self.get_total_percentage(
             queryset)  # Вызов функции для получения общего процента
+        context['total_count_expense'] = queryset_expense.count()
 
         # Фильтрация и агрегация данных для кредитной карты
         card = CardUser.objects.get(id=context['card']) if context['card'] else ''
@@ -603,11 +605,11 @@ class FinanceReport(DataMixin, ListView):
         queryset_credit_card = self.apply_filters(queryset_credit_card, start_date, end_date, card)
         if 'доход' in queryset_credit_card.first().category.type.name_type:
             balance_in = queryset_credit_card.first().balans - queryset_credit_card.first().amount_operation if queryset_credit_card.first() else card.balans_card
-            total_in = self.total_sum_expense
+
         elif 'расход' in queryset_credit_card.first().category.type.name_type:
             balance_in = queryset_credit_card.first().balans + queryset_credit_card.first().amount_operation if queryset_credit_card.first() else card.balans_card
-            total_amount = queryset[0]['total_amount'] if queryset else 0
-            total_in = total_amount - total_sum
+
+        total_in = self.total_sum_expense if self.total_sum_expense else 0
         balance_end = queryset_credit_card.last().balans if queryset_credit_card.last() else card.balans_card
 
         return credit_limit, balance_in, balance_end, total_in
@@ -618,7 +620,7 @@ class FinanceReport(DataMixin, ListView):
         """
         queryset = OperationUser.objects.filter(
             card__in=self.cards,
-            category__type__name_type__in=['Тип операции: доход']
+            category__type__name_type__in=['доход']
         ).values('category__name_cat').annotate(
             total_amount=Sum('amount_operation')
         ).order_by('category__name_cat')
@@ -640,7 +642,7 @@ class FinanceReport(DataMixin, ListView):
 
     def get_total_percentage(self, queryset):
         total_percentage = queryset.aggregate(total_percentage=Sum('percentage'))
-        return total_percentage.get('total_percentage')
+        return total_percentage.get('total_percentage') if total_percentage.get('total_percentage') else 100
 
     def apply_filters(self, queryset, start_date=None, end_date=None, card=None):
         """

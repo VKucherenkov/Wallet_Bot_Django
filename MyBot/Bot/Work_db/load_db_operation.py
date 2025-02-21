@@ -46,7 +46,14 @@ def load_db_operation(data) -> tuple[int, str] | Exception:
         # Логируем результат
         logger.info(f"Получатель '{recipient.name_recipient}' записан в базу")
 
-        # Создаем или получаем банк
+        if data.get('name_bank_out', None):
+            # Создаем или получаем банк списания
+            bank_out, _ = BankCard.objects.get_or_create(
+                name_bank=data['name_bank_out'].lower()
+            )
+            logger.info(f"Банк списания'{bank_out.name_bank}' записан в базу")
+
+        # Создаем или получаем банк зачисления
         bank, _ = BankCard.objects.get_or_create(
             name_bank=data['name_bank'].lower()
         )
@@ -55,6 +62,40 @@ def load_db_operation(data) -> tuple[int, str] | Exception:
         # Получаем пользователя
         user = TelegramUser.objects.get(telegram_id=data['telegram_id'])
 
+        if data.get('number_card_out', None):
+            # Создаем или обновляем карту списания
+            card_out, created_out = CardUser.objects.get_or_create(
+                number_card=data['number_card_out'],
+                defaults={
+                    'name_card': data['name_card_out'].lower(),
+                    'balans_card': data['balans_out'],
+                    'bank': bank_out,
+                    'telegram_user': user,
+                    'credit_limit': data['credit_limit_out'],
+                    'type_card': data['type_card_out']
+                }
+            )
+        if not created_out and data.get('number_card_out', None):
+            # Обновляем баланс карты списания
+            if data['balans_out'] == card_out.balans_card - data['amount_operation_out']:
+                card_out.balans_card = data['balans_out']
+                card_out.save()
+            # elif data['balans_out'] == card.balans_card - data['amount_operation_out']:
+            #     card.balans_card = data['balans_out']
+            #     card.save()
+            else:
+                error_message = (
+                    f'Ошибка обновления баланса карты списания\n'
+                    f'Баланс до операции: {card_out.balans_card}\n'
+                    f'Сумма по операции: {data["amount_operation_out"]}\n'
+                    f'Баланс после операции должен быть: {card_out.balans_card - data["amount_operation_out"]}\n'
+                    f'Вы ввели сумму: {data["balans_out"]}\n'
+                    f'Разница: {card_out.balans_card} - {data["amount_operation_out"]} - {data["balans_out"]} = '
+                    f'{card_out.balans_card - data["amount_operation_out"] - data["balans_out"]}'
+                )
+                logger.error(error_message)
+                return ValueError(error_message)
+        logger.info(f"Карта списания'{card_out.name_card}-{card_out.number_card}' записана в базу")
         # Создаем или обновляем карту
         card, created = CardUser.objects.get_or_create(
             number_card=data['number_card'],
@@ -87,7 +128,7 @@ def load_db_operation(data) -> tuple[int, str] | Exception:
                 )
                 logger.error(error_message)
                 return ValueError(error_message)
-        logger.info(f"Карта '{card.name_card}' записана в базу")
+        logger.info(f"Карта '{card.name_card}-{card.number_card}' записана в базу")
 
         # Формируем текстовое представление данных
         text = '\n'.join(f'<code>{key:<17} ------ {value}</code>' for key, value in data.items())
@@ -95,7 +136,18 @@ def load_db_operation(data) -> tuple[int, str] | Exception:
         if not data.get('note_operation'):
             data['note_operation'] = text_note_operation
 
-        # Создаем операцию
+        if data.get('number_card_out', None):
+            # Создаем операцию списания
+            operation_out = OperationUser.objects.create(
+                datetime_amount=data['datetime_amount_out'],
+                amount_operation=data['amount_operation_out'],
+                balans=data['balans_out'],
+                note_operation=data['note_operation'],
+                card=card_out,
+                category=category,
+                recipient=recipient,
+            )
+        # Создаем операцию зачисления
         operation = OperationUser.objects.create(
             datetime_amount=data['datetime_amount'],
             amount_operation=data['amount_operation'],
@@ -105,9 +157,15 @@ def load_db_operation(data) -> tuple[int, str] | Exception:
             category=category,
             recipient=recipient,
         )
-        logger.info(f"Операция записана в базу. ID операции: {operation.id}")
 
-        return operation.id, text
+        op = ''
+        if data.get('number_card_out', None):
+            logger.info(f"Операция списания записана в базу. ID операции: {operation_out.id}")
+            op += str(operation_out.id)
+        logger.info(f"Операция записана в базу. ID операции: {operation.id}")
+        op += str(operation.id)
+
+        return op, text
 
     except Exception as err:
         logger.error(f"Произошла ошибка при обработке операции: {err}", exc_info=True)

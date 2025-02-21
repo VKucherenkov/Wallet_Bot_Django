@@ -188,7 +188,7 @@ class TypeOperation(models.Model):
         return reverse("type-detail", args=[self.slug])
 
     def __str__(self):
-        return f"Тип операции: {self.name_type}"
+        return f"{self.name_type}"
 
 
 class CategoryOperation(models.Model):

@@ -26,7 +26,7 @@ def db_categoryoperation_create(cache_timeout: int = 60 * 60):
     if not category_operations:
         # Если таблица пуста, создаем записи
         cat = [i for i in categoryes.keys()]
-        typeoperation = [(i, f'тип операции: {j}') for i in cat for j, value in type_category.items() if i in value]
+        typeoperation = [(i, j) for i in cat for j, value in type_category.items() if i in value]
 
         # Получаем все типы операций за один запрос
         type_operations = {op.name_type.lower(): op.pk for op in TypeOperation.objects.all()}

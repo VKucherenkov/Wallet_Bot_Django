@@ -15,11 +15,19 @@ router = Router(name=__name__)
 async def get_name_category(message: types.Message,
                             state: FSMContext):
     await state.update_data(name_cat=message.text.lower())
-    await state.set_state(ParserHand.card_number_state)
-    card_list = await card_list_for_kb(message)
-    await message.answer(f'Введите номер новой карты, или выберите из предложенных ниже',
-                         parse_mode=ParseMode.HTML,
-                         reply_markup=get_card_kbd(card_list))
+    if message.text.lower() == 'перевод':
+        await state.set_state(ParserHand.card_number_state_out)
+        card_list = await card_list_for_kb(message)
+        await message.answer(f'Введите номер новой карты с которой'
+                             f'списываются денежные средства, или выберите из предложенных ниже',
+                             parse_mode=ParseMode.HTML,
+                             reply_markup=get_card_kbd(card_list))
+    else:
+        await state.set_state(ParserHand.card_number_state)
+        card_list = await card_list_for_kb(message)
+        await message.answer(f'Введите номер новой карты, или выберите из предложенных ниже',
+                             parse_mode=ParseMode.HTML,
+                             reply_markup=get_card_kbd(card_list))
 
 
 
