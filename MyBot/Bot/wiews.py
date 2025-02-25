@@ -1,13 +1,12 @@
 import logging
 from datetime import datetime
-from unicodedata import category
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout, login
 from django.contrib.auth.views import LoginView
-from django.db.models import Sum, ExpressionWrapper, F, FloatField, IntegerField, DecimalField
-from django.shortcuts import redirect, render
+from django.db.models import Sum, ExpressionWrapper, F, FloatField
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, TemplateView, CreateView, DetailView, UpdateView
 
@@ -228,14 +227,16 @@ class Categoryes(DataMixin, ListView):
         context['telegram_user'] = TelegramUser.objects.get(slug=slug)
         # Подсчет количества записей
         queryset = self.get_queryset()
-        context['total_category'] = queryset.count()
+        context['total_category'] = len(queryset)
 
         c_def = self.get_user_context(title='Категории операций')
         return dict(list(context.items()) + list(c_def.items()))
 
     def get_queryset(self):
         # Получаем все категории
-        queryset = CategoryOperation.objects.order_by('name_cat')
+        queryset = CategoryOperation.objects.select_related(
+            'type'  # Загружаем связанную модель Type
+        ).all().order_by('name_cat')
         return queryset
 
 
@@ -252,15 +253,17 @@ class AllOperation(DataMixin, ListView):
         context['start_date'] = self.request.GET.get('start_date', '')
         context['end_date'] = self.request.GET.get('end_date', '')
         context['category'] = self.request.GET.get('category', '')
+        context['type'] = self.request.GET.get('type', '')
         context['card'] = self.request.GET.get('card', '')
 
         # Подсчет количества отфильтрованных записей
-        queryset = self.get_queryset()
-        context['total_operations'] = queryset.count()  # Общее количество записей
+        queryset = self.object_list
+        context['total_operations'] = len(queryset)  # Общее количество записей
 
         # Передаем списки для выпадающих списков
-        context['card'] = CardUser.objects.filter(telegram_user=self.kwargs['user'])
+        context['card'] = CardUser.objects.filter(telegram_user__telegram_id=self.kwargs['userdetail_slug'])
         context['category'] = CategoryOperation.objects.all()
+        context['type'] = TypeOperation.objects.all()
 
         c_def = self.get_user_context(title='Все операции')
         return dict(list(context.items()) + list(c_def.items()))
@@ -268,13 +271,14 @@ class AllOperation(DataMixin, ListView):
     def get_queryset(self):
         slug = self.kwargs['userdetail_slug']
         self.kwargs['user'] = TelegramUser.objects.get(slug=slug)
-        cards_user_id = [i.id for i in CardUser.objects.filter(telegram_user=self.kwargs['user'])]
+        cards_user_id = CardUser.objects.filter(telegram_user__telegram_id=slug).values_list('id', flat=True)
         # Получаем все операции для карт пользователя
         queryset = OperationUser.objects.filter(card__in=cards_user_id).order_by('-datetime_add')
         # Применяем фильтры, если они переданы в запросе
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')
         category = self.request.GET.get('category')
+        type = self.request.GET.get('type')
         card = self.request.GET.get('card')
         if start_date:
             start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
@@ -284,8 +288,15 @@ class AllOperation(DataMixin, ListView):
             queryset = queryset.filter(datetime_amount__lte=end_date)
         if category:
             queryset = queryset.filter(category=category)
+        if type:
+            queryset = queryset.filter(category__type=type)
         if card:
             queryset = queryset.filter(card=card)
+        queryset = queryset.select_related(
+            'card',  # Загружаем связанную модель Card
+            'category',  # Загружаем связанную модель Category
+            'category__type'  # Загружаем связанную модель Type через Category
+        ).all()
         return queryset
 
 
@@ -609,7 +620,10 @@ class FinanceReport(DataMixin, ListView):
         elif 'расход' in queryset_credit_card.first().category.type.name_type:
             balance_in = queryset_credit_card.first().balans + queryset_credit_card.first().amount_operation if queryset_credit_card.first() else card.balans_card
 
-        total_in = self.total_sum_expense if self.total_sum_expense else 0
+        total_in = \
+        queryset_credit_card.filter(category__name_cat='оплата кредита').aggregate(total_in=Sum('amount_operation'))[
+            'total_in'] or 0
+        # total_in = self.total_sum_expense if self.total_sum_expense else 0
         balance_end = queryset_credit_card.last().balans if queryset_credit_card.last() else card.balans_card
 
         return credit_limit, balance_in, balance_end, total_in

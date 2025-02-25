@@ -13,7 +13,6 @@ from Bot.Work_db.type_operation_db import name_type
 logger = logging.getLogger(__name__)
 
 
-
 def get_datetime(msg: str) -> datetime:
     """
     Извлекает дату и время из строки сообщения и возвращает объект datetime с временной зоной.
@@ -23,13 +22,16 @@ def get_datetime(msg: str) -> datetime:
     :raises ValueError: Если формат строки не соответствует ожидаемому.
     """
     try:
-        # Извлекаем дату и время из строки
-        date_str = msg[msg.index('[') + 1: msg.index('[') + 1 + 10]
-        time_str = msg[msg.index(']') + 1 - 6: msg.index(']')]
+        if '[' in msg and ']' in msg:
+            # Извлекаем дату и время из строки
+            date_str = msg[msg.index('[') + 1: msg.index('[') + 1 + 10]
+            time_str = msg[msg.index(']') + 1 - 6: msg.index(']')]
 
-        # Разбираем дату и время
-        day, month, year = map(int, date_str.split('.'))
-        hours, minutes = map(int, time_str.split(':'))
+            # Разбираем дату и время
+            day, month, year = map(int, date_str.split('.'))
+            hours, minutes = map(int, time_str.split(':'))
+        else:
+            day, month, year, hours, minutes = map(int, msg.split(','))
 
         # Создаем объект datetime
         specific_time = datetime(year, month, day, hours, minutes, 0, 0)

@@ -1,5 +1,6 @@
 from aiogram import Router
 
+from Bot.routers.FSM.parser_hand.date_amount_state import router as date_amount_state
 from Bot.routers.FSM.parser_hand.parser_hand import router as parser_hand
 from Bot.routers.FSM.parser_hand.type_operation_state import router as type_operation_state
 from Bot.routers.FSM.parser_hand.recepient_state import router as recepient_state
@@ -13,6 +14,7 @@ router = Router(name=__name__)
 router.include_router(parser_hand)
 router.include_router(recepient_state)
 router.include_router(type_operation_state)
+router.include_router(date_amount_state)
 router.include_router(category_operation_state)
 router.include_router(card_user_state)
 router.include_router(bank_card_state)

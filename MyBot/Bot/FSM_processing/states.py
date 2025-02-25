@@ -3,6 +3,7 @@ from aiogram.fsm.state import StatesGroup, State
 
 class ParserHand(StatesGroup):
     recipient_state = State()
+    date_amount_state = State()
     type_state = State()
     category_state = State()
     card_number_state_out = State()

@@ -24,6 +24,15 @@
             </option>
             {% endfor %}
         </select>
+        <label for="type">Тип операции:</label>
+        <select id="type" name="type">
+            <option value="">Все</option>
+            {% for cat in type %}
+            <option value="{{ cat.id }}" {% if cat.id|stringformat:"s" == request.GET.type %}selected{% endif %}>
+                {{ cat.name_type }}
+            </option>
+            {% endfor %}
+        </select>
         <label for="card">Карта списания:</label>
         <select id="card" name="card">
             <option value="">Все</option>
@@ -49,8 +58,8 @@
                 <th scope="col">п/п</th>
                 <th scope="col">Время операции</th>
                 <th scope="col">Карта списания</th>
-                <th scope="col">Категория операции</th>
                 <th scope="col">Тип операции</th>
+                <th scope="col">Категория операции</th>
                 <th scope="col">Сумма операции</th>
                 <th scope="col">Баланс после операции</th>
                 <th scope="col">Текст уведомления</th>
@@ -73,12 +82,16 @@
                 {% else %}
                 <td>{{ operation.card.name_card }} {{ operation.card.number_card }}</td>
                 {% endif %}
+                {% if request.GET.type %}
+                <td class="table-filter">{{ operation.category.type.name_type }}</td>
+                {% else %}
+                <td>{{ operation.category.type.name_type }}</td>
+                {% endif %}
                 {% if request.GET.category %}
                 <td class="table-filter">{{ operation.category.name_cat }}</td>
                 {% else %}
                 <td>{{ operation.category.name_cat }}</td>
                 {% endif %}
-                <td>{{ operation.category.type.name_type }}</td>
                 <td>{{ operation.amount_operation }}</td>
                 <td>{{ operation.balans }}</td>
                 <td>{{ operation.note_operation }}</td>
@@ -107,10 +120,10 @@
     <span class="step-links">
         {% if page_obj.has_previous %}
         <!-- Ссылка на первую страницу -->
-            <a href="?page=1{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if category %}&category={{ request.GET.category }}{% endif %}{% if card %}&card={{ request.GET.card }}{% endif %}"><<</a>
+            <a href="?page=1{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if category %}&category={{ request.GET.category }}{% endif %}{% if type %}&type={{ request.GET.type }}{% endif %}{% if card %}&card={{ request.GET.card }}{% endif %}"><<</a>
 
         <!-- Ссылка на предыдущую страницу -->
-            <a href="?page={{ page_obj.previous_page_number }}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if category %}&category={{ request.GET.category }}{% endif %}{% if card %}&card={{ request.GET.card }}{% endif %}"><</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if category %}&category={{ request.GET.category }}{% endif %}{% if type %}&type={{ request.GET.type }}{% endif %}{% if card %}&card={{ request.GET.card }}{% endif %}"><</a>
         {% endif %}
 
         <!-- Текущая страница -->
@@ -120,10 +133,10 @@
 
         {% if page_obj.has_next %}
         <!-- Ссылка на следующую страницу -->
-            <a href="?page={{ page_obj.next_page_number }}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if category %}&category={{ request.GET.category }}{% endif %}{% if card %}&card={{ request.GET.card }}{% endif %}">></a>
+            <a href="?page={{ page_obj.next_page_number }}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if category %}&category={{ request.GET.category }}{% endif %}{% if type %}&type={{ request.GET.type }}{% endif %}{% if card %}&card={{ request.GET.card }}{% endif %}">></a>
 
         <!-- Ссылка на последнюю страницу -->
-            <a href="?page={{ page_obj.paginator.num_pages }}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if category %}&category={{ request.GET.category }}{% endif %}{% if card %}&card={{ request.GET.card }}{% endif %}">>></a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if category %}&category={{ request.GET.category }}{% endif %}{% if type %}&type={{ request.GET.type }}{% endif %}{% if card %}&card={{ request.GET.card }}{% endif %}">>></a>
         {% endif %}
     </span>
     <div> Найдено записей: {{ total_operations }}</div>

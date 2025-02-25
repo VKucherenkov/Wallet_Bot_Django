@@ -137,31 +137,6 @@ async def get_invalid_number_card(message: types.Message):
         )
 
 
-# @router.message(ParserHand.card_number_state)
-# async def get_invalid_number_card(message: types.Message):
-#     """
-#     Обрабатывает ввод некорректного номера карты и предлагает выбрать карту из списка.
-#
-#     :param message: Объект сообщения от пользователя.
-#     """
-#     try:
-#         # Получаем список карт для клавиатуры
-#         card_list = await card_list_for_kb(message)
-#
-#         # Отправляем сообщение с клавиатурой
-#         await message.answer(
-#             "Введите корректный номер карты или выберите карту из списка:",
-#             parse_mode=ParseMode.HTML,
-#             reply_markup=get_card_kbd(card_list)
-#         )
-#     except Exception as e:
-#         logger.error(f"Ошибка при обработке некорректного номера карты: {e}")
-#         await message.answer(
-#             "Произошла ошибка. Пожалуйста, попробуйте ещё раз.",
-#             parse_mode=ParseMode.HTML
-#         )
-
-
 @router.message(ParserHand.card_name_state_out, F.text, F.func(validator_name_card))
 async def get_name_card(message: types.Message, state: FSMContext):
     """

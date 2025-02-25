@@ -20,7 +20,7 @@ async def get_balance(message: types.Message,
                         state: FSMContext):
     tz = pytz.timezone("Asia/Novosibirsk")
     balance_out = message.text.replace(',', '.').replace(' ', '').replace('[NBSP]', '')
-    await state.update_data(balans_out=Decimal(balance_out), datetime_amount_out=datetime.datetime.now(tz), telegram_id_out=message.from_user.id)
+    await state.update_data(balans_out=Decimal(balance_out), telegram_id_out=message.from_user.id)
     await state.set_state(ParserHand.card_number_state)
     card_list = await card_list_for_kb(message)
     await message.answer(f'Введите номер новой карты для зачисления денежных средств,'
@@ -34,7 +34,7 @@ async def get_balance(message: types.Message,
                         state: FSMContext):
     tz = pytz.timezone("Asia/Novosibirsk")
     balance = message.text.replace(',', '.').replace(' ', '').replace('[NBSP]', '')
-    data = await state.update_data(balans=Decimal(balance), datetime_amount=datetime.datetime.now(tz), telegram_id=message.from_user.id)
+    data = await state.update_data(balans=Decimal(balance), telegram_id=message.from_user.id)
     await state.clear()
     await message.answer(f'Проверьте правильность введенной операции.',
                          parse_mode=ParseMode.HTML,

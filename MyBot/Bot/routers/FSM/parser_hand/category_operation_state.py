@@ -4,6 +4,7 @@ from aiogram.fsm.context import FSMContext
 
 from Bot.FSM_processing.states import ParserHand
 from Bot.Work_db.card_work import card_list_for_kb
+from Bot.Work_db.category_operation_db import get_categories_for_keyboard
 
 from Bot.keyboard.reply_keybord import start_kbd, get_card_kbd, get_category_kbd
 from Bot.validators.valid_categoryes import validator_categoryes
@@ -18,7 +19,7 @@ async def get_name_category(message: types.Message,
     if message.text.lower() == 'перевод':
         await state.set_state(ParserHand.card_number_state_out)
         card_list = await card_list_for_kb(message)
-        await message.answer(f'Введите номер новой карты с которой'
+        await message.answer(f'Введите номер новой карты с которой '
                              f'списываются денежные средства, или выберите из предложенных ниже',
                              parse_mode=ParseMode.HTML,
                              reply_markup=get_card_kbd(card_list))
@@ -33,6 +34,7 @@ async def get_name_category(message: types.Message,
 
 @router.message(ParserHand.category_state)
 async def get_invalid_name_category(message: types.Message, ):
+    categories = await get_categories_for_keyboard()
     await message.answer(f'Введите корректную категорию операции',
                          parse_mode=ParseMode.HTML,
-                         reply_markup=get_category_kbd())
+                         reply_markup=get_category_kbd(categories))

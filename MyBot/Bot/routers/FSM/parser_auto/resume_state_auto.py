@@ -27,7 +27,7 @@ async def get_balance_yes(message: types.Message, state: FSMContext):
         result, text = await load_db_operation(data)
 
         # Формируем сообщение для пользователя
-        if isinstance(result, int):
+        if result:
             response_text = (
                 f'<code>Данные по операции записаны в базу данных.\n'
                 f'ID операции: {result}</code>'
