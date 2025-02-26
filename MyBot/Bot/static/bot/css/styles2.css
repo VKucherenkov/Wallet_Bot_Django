@@ -304,3 +304,7 @@ td.table-filter {
     color: #6c757d;
     font-size: 0.9em;
 }
+/* Стили для показа итогов по всем операциям */
+.total-operation {
+    text-align: left;
+}

@@ -1,4 +1,5 @@
 import datetime
+import logging
 from decimal import Decimal
 
 import pytz
@@ -13,6 +14,8 @@ from Bot.keyboard.reply_keybord import start_kbd, get_prev_cancel_kbd, get_card_
 from Bot.validators.valid_balance import validator_balance
 
 router = Router(name=__name__)
+
+logger = logging.getLogger(__name__)
 
 
 @router.message(ParserHand.balance_state_out, F.text, F.func(validator_balance))
@@ -51,7 +54,11 @@ async def get_invalid_balance(message: types.Message,):
 
 
 async def resume_input_notification(message: types.Message, data):
-    result, text = await load_db_operation(data)
+    try:
+        result, text = await load_db_operation(data)
+    except Exception as err:
+        logger.error(f"Произошла ошибка при обработке операции: {err}", exc_info=True)
+        return err
     if type(result) in [str]:
         text += '\n<code>Данные по операции записаны в базу данных.' + '\n' + f'ID операции:  {result}</code>'
     else:

@@ -259,6 +259,15 @@ class AllOperation(DataMixin, ListView):
         # Подсчет количества отфильтрованных записей
         queryset = self.object_list
         context['total_operations'] = len(queryset)  # Общее количество записей
+        context['total_expense'] = \
+            queryset.filter(category__type__name_type='расход').aggregate(total_expense=Sum('amount_operation'))[
+                'total_expense'] or 0
+        context['total_income'] = \
+            queryset.filter(category__type__name_type='доход').aggregate(total_income=Sum('amount_operation'))[
+                'total_income'] or 0
+        context['total_refund'] = \
+            queryset.filter(category__type__name_type='возврат').aggregate(total_refund=Sum('amount_operation'))[
+                'total_refund'] or 0
 
         # Передаем списки для выпадающих списков
         context['card'] = CardUser.objects.filter(telegram_user__telegram_id=self.kwargs['userdetail_slug'])
@@ -576,7 +585,7 @@ class FinanceReport(DataMixin, ListView):
 
         # Подсчет общей суммы и количества записей для расходов
         queryset = self.object_list
-        context['total_count'] = queryset.count()
+        context['total_count'] = len(queryset)
         context['total_sum'] = self.total_sum
 
         # Фильтрация и агрегация данных для доходов
@@ -588,7 +597,16 @@ class FinanceReport(DataMixin, ListView):
             queryset_expense)  # Вызов функции для получения общего процента
         context['total_percentage_income'] = self.get_total_percentage(
             queryset)  # Вызов функции для получения общего процента
-        context['total_count_expense'] = queryset_expense.count()
+        context['total_count_expense'] = len(queryset_expense)
+
+        # Фильтрация и агрегация данных для возвратов
+        queryset_refund = self.get_refund_queryset()
+        context['queryset_refund'] = queryset_refund
+        context['total_sum_refund'] = self.total_sum_refund
+        context['total_difference'] = context['total_sum_refund'] - context['total_sum']
+        context['total_percentage_refund'] = self.get_total_percentage(
+            queryset_refund)  # Вызов функции для получения общего процента
+        context['total_count_refund'] = len(queryset_refund)
 
         # Фильтрация и агрегация данных для кредитной карты
         card = CardUser.objects.get(id=context['card']) if context['card'] else ''
@@ -601,14 +619,40 @@ class FinanceReport(DataMixin, ListView):
             context['credit_limit'] = credit_limit
             context['balance_in'] = balance_in
             context['balance_end'] = balance_end
-            context['total_in'] = total_in
+            context['total_in'] = total_in + self.total_sum_refund if self.total_sum_refund else total_in
             context['debt_in'] = credit_limit - balance_in
             context['debt_end'] = credit_limit - balance_end
-            context['difference'] = total_in - context['total_sum']
+            context['difference'] = context['total_in'] - context['total_sum']
 
         # Добавляем пользовательский контекст из миксина
         c_def = self.get_user_context(title='Все операции')
         return {**context, **c_def}
+
+    def get_refund_queryset(self):
+        """
+        Возвращает QuerySet для операций доходов с фильтрацией и агрегацией.
+        """
+        queryset = OperationUser.objects.filter(
+            card__in=self.cards,
+            category__type__name_type__in=['возврат']
+        ).values('category__name_cat').annotate(
+            total_amount=Sum('amount_operation')
+        ).order_by('category__name_cat')
+
+        # Применяем фильтры по датам
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        queryset = self.apply_filters(queryset, start_date, end_date, self.card)
+
+        # Вычисляем общую сумму и процент для каждой категории
+        self.total_sum_refund = queryset.aggregate(total_sum=Sum('total_amount'))['total_sum'] or 0
+        queryset = queryset.annotate(
+            percentage=ExpressionWrapper(
+                F('total_amount') * 100.0 / self.total_sum_refund,
+                output_field=FloatField()
+            )
+        )
+        return queryset
 
     def get_credit_card_operation(self, queryset, card, start_date, end_date, total_sum):
         credit_limit = card.credit_limit
@@ -621,8 +665,9 @@ class FinanceReport(DataMixin, ListView):
             balance_in = queryset_credit_card.first().balans + queryset_credit_card.first().amount_operation if queryset_credit_card.first() else card.balans_card
 
         total_in = \
-        queryset_credit_card.filter(category__name_cat='оплата кредита').aggregate(total_in=Sum('amount_operation'))[
-            'total_in'] or 0
+            queryset_credit_card.filter(category__name_cat='оплата кредита').aggregate(
+                total_in=Sum('amount_operation'))[
+                'total_in'] or 0
         # total_in = self.total_sum_expense if self.total_sum_expense else 0
         balance_end = queryset_credit_card.last().balans if queryset_credit_card.last() else card.balans_card
 

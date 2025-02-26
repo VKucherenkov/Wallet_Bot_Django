@@ -54,9 +54,10 @@ class AddCardForm(forms.ModelForm):
         (DEBET, 'дебетовая'),
         (CREDIT, 'кредитная')
     ]
+
     class Meta:
         model = CardUser
-        fields = ['bank', 'type_card', 'credit_limit','name_card', 'number_card', 'balans_card']
+        fields = ['bank', 'type_card', 'credit_limit', 'name_card', 'number_card', 'balans_card']
 
     bank = forms.ModelChoiceField(
         label='Выберете банк эмитент карты',

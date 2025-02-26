@@ -74,8 +74,35 @@
         </tbody>
     </table>
 
+    <!-- Возвраты -->
+    <h2 class="mb-3">2. Возвраты</h2>
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+        <tr>
+            <th>Категория возврата</th>
+            <th>Сумма (руб.)</th>
+            <th>Доля возврата по категории в<br>в общей сумме возвратов (%)
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for cat in queryset_refund %}
+        <tr>
+            <td>{{ cat.category__name_cat }}</td>
+            <td>{{ cat.total_amount|floatformat:2 }}</td>
+            <td class="comment">{{ cat.percentage|floatformat:2 }} % </td>
+        </tr>
+        {% endfor %}
+        <tr class="total-row">
+            <td><strong>Итого возврат в {{ total_count_refund }} категориях</strong></td>
+            <td><strong>{{ total_sum_refund|floatformat:2 }}</strong></td>
+            <td><strong>{{ total_percentage_income|floatformat:0 }} %</strong></td>
+        </tr>
+        </tbody>
+    </table>
+
     <!-- Расходы -->
-    <h2 class="mb-3">2. Расходы</h2>
+    <h2 class="mb-3">3. Расходы</h2>
     <table class="table table-bordered table-hover">
         <thead class="table-light">
         <tr>
@@ -103,7 +130,7 @@
     </table>
 
     <!-- Итоги -->
-    <h2 class="mb-3">3. Итоги</h2>
+    <h2 class="mb-3">4. Итоги</h2>
     <table class="table table-bordered table-hover">
         <thead class="table-light">
         <tr>
@@ -116,19 +143,32 @@
             <td>Общий доход (руб.)</td>
             <td>{{ total_sum_expense|floatformat:2 }}</td>
         </tr>
+        {% if total_sum_refund %}
+         <tr>
+            <td>Общий возврат (руб.)</td>
+            <td>{{ total_sum_refund|floatformat:2 }}</td>
+        </tr>
+        {% endif %}
         <tr>
             <td>Общий расход (руб.)</td>
             <td>{{ total_sum|floatformat:2 }}</td>
         </tr>
+        {% if total_sum_refund %}
+        <tr class="total-row">
+            <td><strong>Разница (доход + возврат - расход)</strong></td>
+            <td><strong>{{ total_difference|floatformat:2 }}</strong></td>
+        </tr>
+        {% else %}
         <tr class="total-row">
             <td><strong>Разница (доход - расход)</strong></td>
             <td><strong>{{ total_difference|floatformat:2 }}</strong></td>
         </tr>
+        {% endif %}
         </tbody>
     </table>
     {% if credit_limit %}
     <!-- Информация по кредитной карте -->
-    <h2 class="mb-3">4. Кредитная карта</h2>
+    <h2 class="mb-3">5. Кредитная карта</h2>
     <table class="table table-bordered table-hover">
         <thead class="table-light">
         <tr>
@@ -155,7 +195,7 @@
         </tr>
         <tr>
             <td>Пополнено (руб.)</td>
-            <td>{{ total_in }}</td>
+            <td>{{ total_in|floatformat:2 }}</td>
         </tr>
          <tr>
             <td>Баланс на конец (руб.)</td>
@@ -172,7 +212,7 @@
         </tbody>
     </table>
     <!-- Анализ и комментарии -->
-    <h2 class="mb-3">5. Анализ и комментарии</h2>
+    <h2 class="mb-3">6. Анализ и комментарии</h2>
     <div class="card">
         <div class="card-body">
             <p class="card-text">[Напишите краткий анализ: например, на что ушло больше всего денег, где можно сократить
@@ -184,7 +224,7 @@
     </div>
     {% else %}
     <!-- Анализ и комментарии -->
-    <h2 class="mb-3">4. Анализ и комментарии</h2>
+    <h2 class="mb-3">5. Анализ и комментарии</h2>
     <div class="card">
         <div class="card-body">
             <p class="card-text">[Напишите краткий анализ: например, на что ушло больше всего денег, где можно сократить

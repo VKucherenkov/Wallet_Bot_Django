@@ -139,7 +139,11 @@
             <a href="?page={{ page_obj.paginator.num_pages }}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if category %}&category={{ request.GET.category }}{% endif %}{% if type %}&type={{ request.GET.type }}{% endif %}{% if card %}&card={{ request.GET.card }}{% endif %}">>></a>
         {% endif %}
     </span>
-    <div> Найдено записей: {{ total_operations }}</div>
+    <div class="total-operation"> Найдено записей: {{ total_operations }}, в том числе:
+        <div>- расходы на общую сумму: {{ total_expense|floatformat:2 }} рублей;</div>
+        <div>- доходы на общую сумму: {{ total_income|floatformat:2 }} рублей;</div>
+        <div>- возвраты на общую сумму: {{ total_refund|floatformat:2 }} рублей.</div>
+    </div>
 </div>
 </div>
 </div>
