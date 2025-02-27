@@ -272,7 +272,7 @@ class AllOperation(DataMixin, ListView):
 
         # Передаем списки для выпадающих списков
         context['card'] = CardUser.objects.filter(telegram_user__telegram_id=self.kwargs['userdetail_slug'])
-        context['category'] = CategoryOperation.objects.all()
+        context['category'] = CategoryOperation.objects.all().order_by('name_cat')
         context['type'] = TypeOperation.objects.all()
         context['recipient'] = Recipient.objects.all().order_by('name_recipient')
 
@@ -284,7 +284,7 @@ class AllOperation(DataMixin, ListView):
         self.kwargs['user'] = TelegramUser.objects.get(slug=slug)
         cards_user_id = CardUser.objects.filter(telegram_user__telegram_id=slug).values_list('id', flat=True)
         # Получаем все операции для карт пользователя
-        queryset = OperationUser.objects.filter(card__in=cards_user_id).order_by('-datetime_add')
+        queryset = OperationUser.objects.filter(card__in=cards_user_id).order_by('-datetime_amount')
         # Применяем фильтры, если они переданы в запросе
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')
@@ -312,7 +312,7 @@ class AllOperation(DataMixin, ListView):
             'category__type',  # Загружаем связанную модель Type через Category
             'recipient'
         ).all()
-        return queryset
+        return queryset.order_by('-datetime_amount', 'category')
 
 
 class MyUserUpdate(DataMixin, UpdateView):
@@ -661,7 +661,7 @@ class FinanceReport(DataMixin, ListView):
 
     def get_credit_card_operation(self, card, start_date, end_date, total_sum):
         credit_limit = card.credit_limit
-        queryset_credit_card = OperationUser.objects.filter(card=card).order_by('datetime_add')
+        queryset_credit_card = OperationUser.objects.filter(card=card).order_by('datetime_amount')
         queryset_credit_card = self.apply_filters(queryset_credit_card, start_date, end_date, card)
         if 'доход' in queryset_credit_card.first().category.type.name_type:
             balance_in = queryset_credit_card.first().balans - queryset_credit_card.first().amount_operation if queryset_credit_card.first() else card.balans_card
