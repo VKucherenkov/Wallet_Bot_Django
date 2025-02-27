@@ -255,6 +255,7 @@ class AllOperation(DataMixin, ListView):
         context['category'] = self.request.GET.get('category', '')
         context['type'] = self.request.GET.get('type', '')
         context['card'] = self.request.GET.get('card', '')
+        context['recipient'] = self.request.GET.get('recipient', '')
 
         # Подсчет количества отфильтрованных записей
         queryset = self.object_list
@@ -273,6 +274,7 @@ class AllOperation(DataMixin, ListView):
         context['card'] = CardUser.objects.filter(telegram_user__telegram_id=self.kwargs['userdetail_slug'])
         context['category'] = CategoryOperation.objects.all()
         context['type'] = TypeOperation.objects.all()
+        context['recipient'] = Recipient.objects.all().order_by('name_recipient')
 
         c_def = self.get_user_context(title='Все операции')
         return dict(list(context.items()) + list(c_def.items()))
@@ -289,6 +291,7 @@ class AllOperation(DataMixin, ListView):
         category = self.request.GET.get('category')
         type = self.request.GET.get('type')
         card = self.request.GET.get('card')
+        recipient = self.request.GET.get('recipient')
         if start_date:
             start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
             queryset = queryset.filter(datetime_amount__gte=start_date)
@@ -301,10 +304,13 @@ class AllOperation(DataMixin, ListView):
             queryset = queryset.filter(category__type=type)
         if card:
             queryset = queryset.filter(card=card)
+        if recipient:
+            queryset = queryset.filter(recipient=recipient)
         queryset = queryset.select_related(
             'card',  # Загружаем связанную модель Card
             'category',  # Загружаем связанную модель Category
-            'category__type'  # Загружаем связанную модель Type через Category
+            'category__type',  # Загружаем связанную модель Type через Category
+            'recipient'
         ).all()
         return queryset
 
@@ -592,7 +598,6 @@ class FinanceReport(DataMixin, ListView):
         queryset_expense = self.get_expense_queryset()
         context['queryset_expense'] = queryset_expense
         context['total_sum_expense'] = self.total_sum_expense
-        context['total_difference'] = context['total_sum_expense'] - context['total_sum']
         context['total_percentage_expense'] = self.get_total_percentage(
             queryset_expense)  # Вызов функции для получения общего процента
         context['total_percentage_income'] = self.get_total_percentage(
@@ -603,15 +608,15 @@ class FinanceReport(DataMixin, ListView):
         queryset_refund = self.get_refund_queryset()
         context['queryset_refund'] = queryset_refund
         context['total_sum_refund'] = self.total_sum_refund
-        context['total_difference'] = context['total_sum_refund'] - context['total_sum']
         context['total_percentage_refund'] = self.get_total_percentage(
             queryset_refund)  # Вызов функции для получения общего процента
         context['total_count_refund'] = len(queryset_refund)
+        context['total_difference'] = context['total_sum_expense'] + context['total_sum_refund'] - context['total_sum']
 
         # Фильтрация и агрегация данных для кредитной карты
         card = CardUser.objects.get(id=context['card']) if context['card'] else ''
         if card and card.type_card == 'кредитная':
-            credit_limit, balance_in, balance_end, total_in = self.get_credit_card_operation(queryset, card,
+            credit_limit, balance_in, balance_end, total_in = self.get_credit_card_operation(card,
                                                                                              context['start_date'],
                                                                                              context['end_date'],
                                                                                              context[
@@ -654,7 +659,7 @@ class FinanceReport(DataMixin, ListView):
         )
         return queryset
 
-    def get_credit_card_operation(self, queryset, card, start_date, end_date, total_sum):
+    def get_credit_card_operation(self, card, start_date, end_date, total_sum):
         credit_limit = card.credit_limit
         queryset_credit_card = OperationUser.objects.filter(card=card).order_by('datetime_add')
         queryset_credit_card = self.apply_filters(queryset_credit_card, start_date, end_date, card)
@@ -665,7 +670,7 @@ class FinanceReport(DataMixin, ListView):
             balance_in = queryset_credit_card.first().balans + queryset_credit_card.first().amount_operation if queryset_credit_card.first() else card.balans_card
 
         total_in = \
-            queryset_credit_card.filter(category__name_cat='оплата кредита').aggregate(
+            queryset_credit_card.filter(category__name_cat='перевод').aggregate(
                 total_in=Sum('amount_operation'))[
                 'total_in'] or 0
         # total_in = self.total_sum_expense if self.total_sum_expense else 0

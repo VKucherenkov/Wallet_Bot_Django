@@ -42,6 +42,15 @@
             </option>
             {% endfor %}
         </select>
+        <label for="recipient">Получатель платежа:</label>
+        <select id="recipient" name="recipient">
+            <option value="">Все</option>
+            {% for c in recipient %}
+            <option value="{{ c.id }}" {% if c.id|stringformat:"s" == request.GET.recipient %}selected{% endif %}>
+                {{ c.name_recipient }}
+            </option>
+            {% endfor %}
+        </select>
         <button class="btn btn-info" type="submit">Фильтровать</button>
         <a href="{{ telegram_user.get_url }}all_operation" class="btn btn-secondary">Сбросить фильтры</a>
     </form>
@@ -120,10 +129,10 @@
     <span class="step-links">
         {% if page_obj.has_previous %}
         <!-- Ссылка на первую страницу -->
-            <a href="?page=1{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if category %}&category={{ request.GET.category }}{% endif %}{% if type %}&type={{ request.GET.type }}{% endif %}{% if card %}&card={{ request.GET.card }}{% endif %}"><<</a>
+            <a href="?page=1{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if category %}&category={{ request.GET.category }}{% endif %}{% if type %}&type={{ request.GET.type }}{% endif %}{% if card %}&card={{ request.GET.card }}{% endif %}{% if recipient %}&recipient={{ request.GET.recipient }}{% endif %}"><<</a>
 
         <!-- Ссылка на предыдущую страницу -->
-            <a href="?page={{ page_obj.previous_page_number }}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if category %}&category={{ request.GET.category }}{% endif %}{% if type %}&type={{ request.GET.type }}{% endif %}{% if card %}&card={{ request.GET.card }}{% endif %}"><</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if category %}&category={{ request.GET.category }}{% endif %}{% if type %}&type={{ request.GET.type }}{% endif %}{% if card %}&card={{ request.GET.card }}{% endif %}{% if recipient %}&recipient={{ request.GET.recipient }}{% endif %}"><</a>
         {% endif %}
 
         <!-- Текущая страница -->
@@ -133,10 +142,10 @@
 
         {% if page_obj.has_next %}
         <!-- Ссылка на следующую страницу -->
-            <a href="?page={{ page_obj.next_page_number }}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if category %}&category={{ request.GET.category }}{% endif %}{% if type %}&type={{ request.GET.type }}{% endif %}{% if card %}&card={{ request.GET.card }}{% endif %}">></a>
+            <a href="?page={{ page_obj.next_page_number }}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if category %}&category={{ request.GET.category }}{% endif %}{% if type %}&type={{ request.GET.type }}{% endif %}{% if card %}&card={{ request.GET.card }}{% endif %}{% if recipient %}&recipient={{ request.GET.recipient }}{% endif %}">></a>
 
         <!-- Ссылка на последнюю страницу -->
-            <a href="?page={{ page_obj.paginator.num_pages }}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if category %}&category={{ request.GET.category }}{% endif %}{% if type %}&type={{ request.GET.type }}{% endif %}{% if card %}&card={{ request.GET.card }}{% endif %}">>></a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if category %}&category={{ request.GET.category }}{% endif %}{% if type %}&type={{ request.GET.type }}{% endif %}{% if card %}&card={{ request.GET.card }}{% endif %}{% if recipient %}&recipient={{ request.GET.recipient }}{% endif %}">>></a>
         {% endif %}
     </span>
     <div class="total-operation"> Найдено записей: {{ total_operations }}, в том числе:

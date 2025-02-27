@@ -80,9 +80,9 @@ def load_db_operation(data) -> tuple[int, str] | Exception:
                 if data['balans_out'] == card_out.balans_card - data['amount_operation_out']:
                     card_out.balans_card = data['balans_out']
                     card_out.save()
-                # elif data['balans_out'] == card.balans_card - data['amount_operation_out']:
-                #     card.balans_card = data['balans_out']
-                #     card.save()
+                elif data['balans_out'] == card_out.balans_card + data['amount_operation_out']:
+                    card_out.balans_card = data['balans_out']
+                    card_out.save()
                 else:
                     error_message = (
                         f'Ошибка обновления баланса карты списания\n'
