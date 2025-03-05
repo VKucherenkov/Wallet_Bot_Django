@@ -72,7 +72,8 @@ def load_db_operation(data) -> tuple[int, str] | Exception:
                     'bank': bank_out,
                     'telegram_user': user,
                     'credit_limit': data['credit_limit_out'],
-                    'type_card': data['type_card_out']
+                    'type_card': data['type_card_out'],
+                    'currency_card': data['currency_card_out'],
                 }
             )
             if not created_out and data.get('number_card_out', None):
@@ -105,7 +106,8 @@ def load_db_operation(data) -> tuple[int, str] | Exception:
                 'bank': bank,
                 'telegram_user': user,
                 'credit_limit': data['credit_limit'],
-                'type_card': data['type_card']
+                'type_card': data['type_card'],
+                'currency_card': data['currency_card']
             }
         )
         if not created:

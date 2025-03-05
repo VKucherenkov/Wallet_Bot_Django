@@ -91,6 +91,13 @@ def get_prev_cancel_kbd():
     return builder.as_markup(resize_keyboard=True)
 
 
+def get_currency_kbd():
+    builder = ReplyKeyboardBuilder()
+    builder.button(text="Доллар")
+    builder.button(text="Рубль")
+    return builder.as_markup(resize_keyboard=True)
+
+
 def get_type_kbd(types):
     builder = ReplyKeyboardBuilder()
     for button in sorted(types):

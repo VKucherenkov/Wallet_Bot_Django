@@ -148,6 +148,11 @@ def card_list_for_kb(message):
 
 
 @sync_to_async
+def get_currency_card(number_card):
+    currency_card = CardUser.objects.get(number_card=number_card).currency_card
+    return currency_card if currency_card else None
+
+@sync_to_async
 def get_type_card(number_card):
     type_card = CardUser.objects.get(number_card=number_card).type_card
     return type_card if type_card else None

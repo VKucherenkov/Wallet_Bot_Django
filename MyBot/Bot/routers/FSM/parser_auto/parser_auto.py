@@ -108,6 +108,7 @@ async def notify_admin(message):
 async def update_state(state, data):
     await state.update_data(
         number_card=data['number_card'],
+        currency_card=data['currency_card'],
         name_card=data['name_card'],
         name_bank=data['name_bank'],
         balans=Decimal(data['balans']),

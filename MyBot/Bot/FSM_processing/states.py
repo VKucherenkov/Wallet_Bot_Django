@@ -8,6 +8,7 @@ class ParserHand(StatesGroup):
     category_state = State()
     card_number_state_out = State()
     card_name_state_out = State()
+    card_currency_state_out = State()
     card_type_state_out = State()
     card_credit_state_out = State()
     bank_state_out = State()
@@ -15,6 +16,7 @@ class ParserHand(StatesGroup):
     balance_state_out = State()
     card_number_state = State()
     card_name_state = State()
+    card_currency_state = State()
     card_type_state = State()
     card_credit_state = State()
     bank_state = State()
@@ -25,6 +27,7 @@ class ParserHand(StatesGroup):
 class ParserAuto(StatesGroup):
     start_state = State()
     card_name_state = State()
+    card_currency_state = State()
     card_type_state = State()
     card_credit_state = State()
     bank_state_auto = State()

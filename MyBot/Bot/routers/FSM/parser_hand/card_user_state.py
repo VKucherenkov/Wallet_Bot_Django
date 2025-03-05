@@ -6,9 +6,12 @@ from aiogram.fsm.context import FSMContext
 
 from Bot.FSM_processing.states import ParserHand
 from Bot.Work_db.bank_db import get_bank_name_by_card
-from Bot.Work_db.card_work import card_number, card_name, card_list_for_kb, get_credit_limit_card, get_type_card
-from Bot.keyboard.reply_keybord import get_bank_kbd, get_prev_cancel_kbd, get_card_kbd, get_card_type_kbd
-from Bot.validators.valid_card_name import validator_name_card, validator_type_card, validator_limit_card
+from Bot.Work_db.card_work import card_number, card_name, card_list_for_kb, get_credit_limit_card, get_type_card, \
+    get_currency_card
+from Bot.keyboard.reply_keybord import get_bank_kbd, get_prev_cancel_kbd, get_card_kbd, get_card_type_kbd, \
+    get_currency_kbd
+from Bot.validators.valid_card_name import validator_name_card, validator_type_card, validator_limit_card, \
+    validator_currency_card
 from Bot.validators.valid_card_number import validator_card_number
 
 
@@ -35,10 +38,11 @@ async def get_number_card(message: types.Message, state: FSMContext):
             name_card_out = await card_name(cardnumber)
             name_bank_out = await get_bank_name_by_card(cardnumber)
             type_card_out = await get_type_card(cardnumber)
+            currency_card_out = await get_currency_card(cardnumber)
             credit_limit_out = await get_credit_limit_card(cardnumber)
 
             # Обновляем состояние
-            await state.update_data(name_card_out=name_card_out, name_bank_out=name_bank_out, type_card_out=type_card_out, credit_limit_out=credit_limit_out)
+            await state.update_data(name_card_out=name_card_out, name_bank_out=name_bank_out, type_card_out=type_card_out, currency_card_out=currency_card_out, credit_limit_out=credit_limit_out)
             await state.set_state(ParserHand.operation_state_out)
 
             # Запрашиваем сумму операции
@@ -82,10 +86,11 @@ async def get_number_card(message: types.Message, state: FSMContext):
             name_card = await card_name(cardnumber)
             name_bank = await get_bank_name_by_card(cardnumber)
             type_card = await get_type_card(cardnumber)
+            currency_card = await get_currency_card(cardnumber)
             credit_limit = await get_credit_limit_card(cardnumber)
 
             # Обновляем состояние
-            await state.update_data(name_card=name_card, name_bank=name_bank, type_card=type_card, credit_limit=credit_limit)
+            await state.update_data(name_card=name_card, name_bank=name_bank, currency_card=currency_card, type_card=type_card, credit_limit=credit_limit)
             await state.set_state(ParserHand.operation_state)
 
             # Запрашиваем сумму операции
@@ -140,7 +145,7 @@ async def get_invalid_number_card(message: types.Message):
 @router.message(ParserHand.card_name_state_out, F.text, F.func(validator_name_card))
 async def get_name_card(message: types.Message, state: FSMContext):
     """
-    Обрабатывает ввод названия карты и переходит к запросу наименования банка.
+    Обрабатывает ввод названия карты и переходит к запросу валюты карты.
 
     :param message: Объект сообщения от пользователя.
     :param state: Контекст состояния FSM.
@@ -150,26 +155,26 @@ async def get_name_card(message: types.Message, state: FSMContext):
         card_name_out = message.text.lower()
         await state.update_data(name_card_out=card_name_out)
 
-        # Переходим к следующему шагу — запросу наименования банка
-        await state.set_state(ParserHand.card_type_state_out)
+        # Переходим к следующему шагу — запросу валюты карты
+        await state.set_state(ParserHand.card_currency_state_out)
         await message.answer(
-            "Введите тип карты:",
+            "Введите валюту карты:",
             parse_mode=ParseMode.HTML,
-            reply_markup=get_card_type_kbd()
+            reply_markup=get_currency_kbd()
         )
     except Exception as e:
         logger.error(f"Ошибка при обработке названия карты: {e}")
         await message.answer(
             "Произошла ошибка. Пожалуйста, попробуйте ещё раз.",
             parse_mode=ParseMode.HTML,
-            reply_markup=get_bank_kbd()
+            reply_markup=get_prev_cancel_kbd()
         )
 
 
 @router.message(ParserHand.card_name_state, F.text, F.func(validator_name_card))
 async def get_name_card(message: types.Message, state: FSMContext):
     """
-    Обрабатывает ввод названия карты и переходит к запросу наименования банка.
+    Обрабатывает ввод названия карты и переходит к запросу валюты карты.
 
     :param message: Объект сообщения от пользователя.
     :param state: Контекст состояния FSM.
@@ -179,19 +184,19 @@ async def get_name_card(message: types.Message, state: FSMContext):
         card_name = message.text.lower()
         await state.update_data(name_card=card_name)
 
-        # Переходим к следующему шагу — запросу наименования банка
-        await state.set_state(ParserHand.card_type_state)
+        # Переходим к следующему шагу — запросу валюты карты
+        await state.set_state(ParserHand.card_currency_state)
         await message.answer(
-            "Введите тип карты:",
+            "Введите валюту карты:",
             parse_mode=ParseMode.HTML,
-            reply_markup=get_card_type_kbd()
+            reply_markup=get_currency_kbd()
         )
     except Exception as e:
         logger.error(f"Ошибка при обработке названия карты: {e}")
         await message.answer(
             "Произошла ошибка. Пожалуйста, попробуйте ещё раз.",
             parse_mode=ParseMode.HTML,
-            reply_markup=get_bank_kbd()
+            reply_markup=get_prev_cancel_kbd()
         )
 
 
@@ -216,6 +221,88 @@ async def get_invalid_name_card(message: types.Message):
             "Произошла ошибка. Пожалуйста, попробуйте ещё раз.",
             parse_mode=ParseMode.HTML,
             reply_markup=get_prev_cancel_kbd()
+        )
+
+
+@router.message(ParserHand.card_currency_state_out, F.text, F.func(validator_currency_card))
+async def get_name_card(message: types.Message, state: FSMContext):
+    """
+    Обрабатывает ввод валюты карты и переходит к запросу типа карты.
+
+    :param message: Объект сообщения от пользователя.
+    :param state: Контекст состояния FSM.
+    """
+    try:
+        # Сохраняем валюту карты в состоянии
+        card_currency_out = message.text.lower()
+        await state.update_data(currency_card_out=card_currency_out)
+
+        # Переходим к следующему шагу — запросу типа карты
+        await state.set_state(ParserHand.card_type_state_out)
+        await message.answer(
+            "Введите тип карты:",
+            parse_mode=ParseMode.HTML,
+            reply_markup=get_card_type_kbd()
+        )
+    except Exception as e:
+        logger.error(f"Ошибка при обработке валюты карты: {e}")
+        await message.answer(
+            "Произошла ошибка. Пожалуйста, попробуйте ещё раз.",
+            parse_mode=ParseMode.HTML,
+            reply_markup=get_currency_kbd()
+        )
+
+
+@router.message(ParserHand.card_currency_state, F.text, F.func(validator_currency_card))
+async def get_currency_card(message: types.Message, state: FSMContext):
+    """
+    Обрабатывает ввод валюты карты и переходит к запросу типа карты.
+
+    :param message: Объект сообщения от пользователя.
+    :param state: Контекст состояния FSM.
+    """
+    try:
+        # Сохраняем валюту карты в состоянии
+        card_currency = message.text.lower()
+        await state.update_data(currency_card=card_currency)
+
+        # Переходим к следующему шагу — запросу типа карты
+        await state.set_state(ParserHand.card_type_state)
+        await message.answer(
+            "Введите тип карты:",
+            parse_mode=ParseMode.HTML,
+            reply_markup=get_card_type_kbd()
+        )
+    except Exception as e:
+        logger.error(f"Ошибка при обработке валюты карты: {e}")
+        await message.answer(
+            "Произошла ошибка. Пожалуйста, попробуйте ещё раз.",
+            parse_mode=ParseMode.HTML,
+            reply_markup=get_currency_kbd()
+        )
+
+
+@router.message(ParserHand.card_currency_state_out)
+@router.message(ParserHand.card_currency_state)
+async def get_invalid_currency_card(message: types.Message):
+    """
+    Обрабатывает ввод некорректной валюты карты и просит пользователя ввести корректную валюту.
+
+    :param message: Объект сообщения от пользователя.
+    """
+    try:
+        # Отправляем сообщение с просьбой ввести корректную валюту карты
+        await message.answer(
+            "Введите корректную валюту карты. Пример: 'USD'.",
+            parse_mode=ParseMode.HTML,
+            reply_markup=get_currency_kbd()
+        )
+    except Exception as e:
+        logger.error(f"Ошибка при обработке некорректной валюты карты: {e}")
+        await message.answer(
+            "Произошла ошибка. Пожалуйста, попробуйте ещё раз.",
+            parse_mode=ParseMode.HTML,
+            reply_markup=get_currency_kbd()
         )
 
 

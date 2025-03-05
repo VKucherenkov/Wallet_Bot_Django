@@ -6,9 +6,10 @@ from Bot.FSM_processing.states import ParserAuto
 from Bot.Work_db.category_operation_db import get_name_category_auto, get_categories_for_keyboard
 from Bot.Work_db.recipient_db import get_recipient_db
 from Bot.keyboard.reply_keybord import get_bank_kbd, get_prev_cancel_kbd, get_recipient_kbd, get_category_kbd, \
-    get_yes_no_kbd, get_card_type_kbd
+    get_yes_no_kbd, get_card_type_kbd, get_currency_kbd
 from Bot.validators.valid_bank import validator_bank
-from Bot.validators.valid_card_name import validator_name_card, validator_type_card, validator_limit_card
+from Bot.validators.valid_card_name import validator_name_card, validator_type_card, validator_limit_card, \
+    validator_currency_card
 
 router = Router(name=__name__)
 
@@ -16,10 +17,10 @@ router = Router(name=__name__)
 async def get_name_card(message: types.Message,
                         state: FSMContext):
     await state.update_data(name_card=message.text.lower())
-    await state.set_state(ParserAuto.card_type_state)
-    await message.answer(f'Введите тип карты',
+    await state.set_state(ParserAuto.card_currency_state)
+    await message.answer(f'Введите валюту карты',
                          parse_mode=ParseMode.HTML,
-                         reply_markup=get_card_type_kbd())
+                         reply_markup=get_currency_kbd())
 
 
 @router.message(ParserAuto.card_name_state)
@@ -27,6 +28,23 @@ async def get_invalid_name_card(message: types.Message,):
     await message.answer(f'Введите корректное имя карты',
                          parse_mode=ParseMode.HTML,
                          reply_markup=get_prev_cancel_kbd())
+
+
+@router.message(ParserAuto.card_currency_state, F.text, F.func(validator_currency_card))
+async def get_currency_card(message: types.Message,
+                        state: FSMContext):
+    await state.update_data(currency_card=message.text.lower())
+    await state.set_state(ParserAuto.card_type_state)
+    await message.answer(f'Введите тип карты',
+                         parse_mode=ParseMode.HTML,
+                         reply_markup=get_card_type_kbd())
+
+
+@router.message(ParserAuto.card_currency_state)
+async def get_invalid_currency_card(message: types.Message,):
+    await message.answer(f'Введите корректную валюту карты',
+                         parse_mode=ParseMode.HTML,
+                         reply_markup=get_currency_kbd())
 
 
 @router.message(ParserAuto.card_type_state, F.text, F.func(validator_type_card))

@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 from aiogram import types
 
 from Bot.Work_db.bank_db import get_bank_name_by_card
-from Bot.Work_db.card_work import card_name, get_type_card, get_credit_limit_card
+from Bot.Work_db.card_work import card_name, get_type_card, get_credit_limit_card, get_currency_card
 from Bot.Work_db.category_operation_db import get_name_category_auto, get_name_category
 from Bot.Work_db.type_operation_db import name_type
 
@@ -75,6 +75,7 @@ async def parser_logic_notification(message: types.Message):
     data_parser['name_card'] = await card_name(data_parser['number_card'])
     data_parser['name_cat'] = await get_name_category(data_parser['name_recipient'])
     data_parser['type_card'] = await get_type_card(data_parser['number_card']) if data_parser['name_card'] else None
+    data_parser['currency_card'] = await get_currency_card(data_parser['number_card']) if data_parser['name_card'] else None
     data_parser['credit_limit'] = await get_credit_limit_card(data_parser['number_card']) if data_parser['name_card'] else None
 
     # Форматирование данных для вывода
