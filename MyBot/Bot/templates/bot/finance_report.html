@@ -59,7 +59,7 @@
         </tr>
         </thead>
         <tbody>
-        {% for cat in queryset_expense %}
+        {% for cat in queryset_income %}
         <tr>
             <td>{{ cat.category__name_cat }}</td>
             <td>{{ cat.total_amount|floatformat:2 }}</td>
@@ -67,8 +67,8 @@
         </tr>
         {% endfor %}
         <tr class="total-row">
-            <td><strong>Итого доход в {{ total_count_expense }} категориях</strong></td>
-            <td><strong>{{ total_sum_expense|floatformat:2 }}</strong></td>
+            <td><strong>Итого доход в {{ total_count_income }} категориях</strong></td>
+            <td><strong>{{ total_sum_income|floatformat:2 }}</strong></td>
             <td><strong>{{ total_percentage_income|floatformat:0 }} %</strong></td>
         </tr>
         </tbody>
@@ -96,7 +96,7 @@
         <tr class="total-row">
             <td><strong>Итого возврат в {{ total_count_refund }} категориях</strong></td>
             <td><strong>{{ total_sum_refund|floatformat:2 }}</strong></td>
-            <td><strong>{{ total_percentage_income|floatformat:0 }} %</strong></td>
+            <td><strong>{{ total_percentage_refund|floatformat:0 }} %</strong></td>
         </tr>
         </tbody>
     </table>
@@ -114,7 +114,7 @@
         </tr>
         </thead>
         <tbody>
-        {% for cat in finance_report %}
+        {% for cat in queryset_expense %}
         <tr>
             <td>{{ cat.category__name_cat }}</td>
             <td>{{ cat.total_amount|floatformat:2 }}</td>
@@ -122,9 +122,9 @@
         </tr>
         {% endfor %}
         <tr class="total-row">
-            <td><strong>Итого расходов в {{ total_count }} категориях</strong></td>
-            <td><strong>{{ total_sum|floatformat:2 }}</strong></td>
-            <td><strong>{{ total_percentage_income|floatformat:0 }} %</strong></td>
+            <td><strong>Итого расходов в {{ total_count_expense }} категориях</strong></td>
+            <td><strong>{{ total_sum_expense|floatformat:2 }}</strong></td>
+            <td><strong>{{ total_percentage_expense|floatformat:0 }} %</strong></td>
         </tr>
         </tbody>
     </table>
@@ -141,7 +141,7 @@
         <tbody>
         <tr>
             <td>Общий доход (руб.)</td>
-            <td>{{ total_sum_expense|floatformat:2 }}</td>
+            <td>{{ total_sum_income|floatformat:2 }}</td>
         </tr>
         {% if total_sum_refund %}
          <tr>
@@ -151,19 +151,12 @@
         {% endif %}
         <tr>
             <td>Общий расход (руб.)</td>
-            <td>{{ total_sum|floatformat:2 }}</td>
+            <td>{{ total_sum_expense|floatformat:2 }}</td>
         </tr>
-        {% if total_sum_refund %}
         <tr class="total-row">
-            <td><strong>Разница (доход + возврат - расход)</strong></td>
+            <td><strong>Разница (доход {% if total_sum_refund %}+ возврат {% endif %} - расход)</strong></td>
             <td><strong>{{ total_difference|floatformat:2 }}</strong></td>
         </tr>
-        {% else %}
-        <tr class="total-row">
-            <td><strong>Разница (доход - расход)</strong></td>
-            <td><strong>{{ total_difference|floatformat:2 }}</strong></td>
-        </tr>
-        {% endif %}
         </tbody>
     </table>
     {% if credit_limit %}
@@ -183,15 +176,15 @@
         </tr>
          <tr>
             <td>Баланс на начало периода(руб.)</td>
-            <td>{{ balance_in }}</td>
+            <td>{{ balance_in|floatformat:2 }}</td>
         </tr>
         <tr>
             <td>Задолженность по карте на начало периода (руб.)</td>
-            <td>{{ debt_in }}</td>
+            <td>{{ debt_in|floatformat:2 }}</td>
         </tr>
         <tr>
             <td>Израсходовано (руб.)</td>
-            <td>{{ total_sum|floatformat:2 }}</td>
+            <td>{{ total_sum_expense|floatformat:2 }}</td>
         </tr>
         <tr>
             <td>Пополнено (руб.)</td>

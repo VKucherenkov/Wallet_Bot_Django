@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout, login
 from django.contrib.auth.views import LoginView
-from django.db.models import Sum, ExpressionWrapper, F, FloatField
+from django.db.models import ExpressionWrapper, Sum, Case, When, Value, FloatField, F, Count, DecimalField
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, TemplateView, CreateView, DetailView, UpdateView
@@ -542,38 +542,90 @@ class FinanceReport(DataMixin, ListView):
     context_object_name = 'finance_report'
 
     def get_queryset(self):
-        """
-        Возвращает отфильтрованный QuerySet для операций пользователя.
-        """
         # Получаем пользователя и его карты
         slug = self.kwargs['userdetail_slug']
         self.kwargs['user'] = TelegramUser.objects.get(slug=slug)
         self.cards = CardUser.objects.filter(telegram_user=self.kwargs['user'])
 
-        # Применяем фильтры, если они переданы в запросе
-        start_date = self.request.GET.get('start_date')
-        end_date = self.request.GET.get('end_date')
-        self.card = self.request.GET.get('card')
-
-        # Фильтруем операции по картам и категориям
+        """
+        Возвращает объединенный QuerySet для доходов и возвратов.
+        """
+        # Фильтруем операции по картам и типам (доход и возврат)
         queryset = OperationUser.objects.filter(
             card__in=self.cards,
-            category__type__name_type__in=['расход', 'Тип операции: расход']
-        ).values('category__name_cat').annotate(
-            total_amount=Sum('amount_operation')
+            category__type__name_type__in=['доход', 'возврат', 'расход']
+        ).select_related('card', 'category', 'category__type')
+
+        # Применяем фильтры по датам
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        card = self.request.GET.get('card')
+        queryset = self.apply_filters(queryset, start_date, end_date, card)
+
+        # Агрегируем данные по категориям
+        queryset = queryset.values('category__name_cat').annotate(
+            total_income=Sum(
+                Case(
+                    When(category__type__name_type='доход', then='amount_operation'),
+                    default=Value(0),
+                    output_field=DecimalField()
+                )
+            ),
+            total_refund=Sum(
+                Case(
+                    When(category__type__name_type='возврат', then='amount_operation'),
+                    default=Value(0),
+                    output_field=DecimalField()
+                )
+            ),
+            total_expense=Sum(
+                Case(
+                    When(category__type__name_type='расход', then='amount_operation'),
+                    default=Value(0),
+                    output_field=DecimalField()
+                )
+            ),
+            income_count=Count(
+                Case(
+                    When(category__type__name_type='доход', then=1),
+                    output_field=FloatField()
+                )
+            ),
+            refund_count=Count(
+                Case(
+                    When(category__type__name_type='возврат', then=1),
+                    output_field=FloatField()
+                )
+            ),
+            expense_count=Count(
+                Case(
+                    When(category__type__name_type='возврат', then=1),
+                    output_field=FloatField()
+                )
+            )
         ).order_by('category__name_cat')
 
-        # Применяем фильтры по датам и карте
-        queryset = self.apply_filters(queryset, start_date, end_date, self.card)
+        # Вычисляем общие суммы для доходов, возвратов и расходов
+        self.total_sum_income = queryset.aggregate(total_sum_income=Sum('total_income'))['total_sum_income'] or 0
+        self.total_sum_refund = queryset.aggregate(total_sum_refund=Sum('total_refund'))['total_sum_refund'] or 0
+        self.total_sum_expense = queryset.aggregate(total_sum_expense=Sum('total_expense'))['total_sum_expense'] or 0
 
-        # Вычисляем общую сумму и процент для каждой категории
-        self.total_sum = queryset.aggregate(total_sum=Sum('total_amount'))['total_sum'] or 0
+        # Вычисляем проценты для каждой категории
         queryset = queryset.annotate(
-            percentage=ExpressionWrapper(
-                F('total_amount') * 100.0 / self.total_sum,
+            income_percentage=ExpressionWrapper(
+                F('total_income') * 100.0 / self.total_sum_income,
+                output_field=FloatField()
+            ),
+            refund_percentage=ExpressionWrapper(
+                F('total_refund') * 100.0 / self.total_sum_refund,
+                output_field=FloatField()
+            ),
+            expense_percentage=ExpressionWrapper(
+                F('total_expense') * 100.0 / self.total_sum_expense,
                 output_field=FloatField()
             )
         )
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -591,122 +643,100 @@ class FinanceReport(DataMixin, ListView):
 
         # Подсчет общей суммы и количества записей для расходов
         queryset = self.object_list
-        context['total_count'] = len(queryset)
-        context['total_sum'] = self.total_sum
 
-        # Фильтрация и агрегация данных для доходов
-        queryset_expense = self.get_expense_queryset()
-        context['queryset_expense'] = queryset_expense
-        context['total_sum_expense'] = self.total_sum_expense
-        context['total_percentage_expense'] = self.get_total_percentage(
-            queryset_expense)  # Вызов функции для получения общего процента
-        context['total_percentage_income'] = self.get_total_percentage(
-            queryset)  # Вызов функции для получения общего процента
-        context['total_count_expense'] = len(queryset_expense)
+        # Разделяем данные для доходов, возвратов и расходов
+        income_queryset = [
+            {
+                'category__name_cat': item['category__name_cat'],
+                'total_amount': item['total_income'],
+                'percentage': item['income_percentage']
+            }
+            for item in queryset if item['total_income'] > 0
+        ]
 
-        # Фильтрация и агрегация данных для возвратов
-        queryset_refund = self.get_refund_queryset()
-        context['queryset_refund'] = queryset_refund
+        refund_queryset = ([
+            {
+                'category__name_cat': item['category__name_cat'],
+                'total_amount': item['total_refund'],
+                'percentage': item['refund_percentage']
+            }
+            for item in queryset if item['total_refund'] > 0
+        ])
+
+        expense_queryset = ([
+            {
+                'category__name_cat': item['category__name_cat'],
+                'total_amount': item['total_expense'],
+                'percentage': item['expense_percentage']
+            }
+            for item in queryset if item['total_expense'] > 0
+        ])
+
+        # Добавляем данные в контекст
+        context['queryset_income'] = income_queryset
+        context['queryset_refund'] = refund_queryset
+        context['queryset_expense'] = expense_queryset
+        context['total_sum_income'] = self.total_sum_income
         context['total_sum_refund'] = self.total_sum_refund
-        context['total_percentage_refund'] = self.get_total_percentage(
-            queryset_refund)  # Вызов функции для получения общего процента
-        context['total_count_refund'] = len(queryset_refund)
-        context['total_difference'] = context['total_sum_expense'] + context['total_sum_refund'] - context['total_sum']
+        context['total_sum_expense'] = self.total_sum_expense
+
+        context['total_count_income'] = len(income_queryset)
+        context['total_count_refund'] = len(refund_queryset)
+        context['total_count_expense'] = len(expense_queryset)
+
+        context['total_percentage_income'] = queryset.aggregate(total_percentage=Sum('income_percentage'))[
+                                                 'total_percentage'] or 0
+        context['total_percentage_refund'] = queryset.aggregate(total_percentage=Sum('refund_percentage'))[
+                                                 'total_percentage'] or 0
+        context['total_percentage_expense'] = queryset.aggregate(total_percentage=Sum('expense_percentage'))[
+                                                  'total_percentage'] or 0
+
+        context['total_difference'] = context['total_sum_income'] + context['total_sum_refund'] - context[
+            'total_sum_expense']
 
         # Фильтрация и агрегация данных для кредитной карты
         card = CardUser.objects.get(id=context['card']) if context['card'] else ''
         if card and card.type_card == 'кредитная':
-            credit_limit, balance_in, balance_end, total_in = self.get_credit_card_operation(card,
-                                                                                             context['start_date'],
-                                                                                             context['end_date'],
-                                                                                             context[
-                                                                                                 'total_sum'])
-            context['credit_limit'] = credit_limit
+            balance_in, balance_end, total_in = self.get_credit_card_operation(
+                card,
+                context['start_date'],
+                context['end_date']
+            )
+            context['credit_limit'] = card.credit_limit
             context['balance_in'] = balance_in
             context['balance_end'] = balance_end
-            context['total_in'] = total_in + self.total_sum_refund if self.total_sum_refund else total_in
-            context['debt_in'] = credit_limit - balance_in
-            context['debt_end'] = credit_limit - balance_end
-            context['difference'] = context['total_in'] - context['total_sum']
+            context['total_in'] = total_in + context['total_sum_refund'] if context['total_sum_refund'] else total_in
+            context['debt_in'] = card.credit_limit - balance_in
+            context['debt_end'] = card.credit_limit - balance_end
+            context['difference'] = context['total_in'] - context['total_sum_expense']
 
         # Добавляем пользовательский контекст из миксина
         c_def = self.get_user_context(title='Все операции')
         return {**context, **c_def}
 
-    def get_refund_queryset(self):
-        """
-        Возвращает QuerySet для операций доходов с фильтрацией и агрегацией.
-        """
-        queryset = OperationUser.objects.filter(
-            card__in=self.cards,
-            category__type__name_type__in=['возврат']
-        ).values('category__name_cat').annotate(
-            total_amount=Sum('amount_operation')
-        ).order_by('category__name_cat')
-
-        # Применяем фильтры по датам
-        start_date = self.request.GET.get('start_date')
-        end_date = self.request.GET.get('end_date')
-        queryset = self.apply_filters(queryset, start_date, end_date, self.card)
-
-        # Вычисляем общую сумму и процент для каждой категории
-        self.total_sum_refund = queryset.aggregate(total_sum=Sum('total_amount'))['total_sum'] or 0
-        queryset = queryset.annotate(
-            percentage=ExpressionWrapper(
-                F('total_amount') * 100.0 / self.total_sum_refund,
-                output_field=FloatField()
-            )
-        )
-        return queryset
-
-    def get_credit_card_operation(self, card, start_date, end_date, total_sum):
-        credit_limit = card.credit_limit
+    def get_credit_card_operation(self, card, start_date, end_date):
+    # def get_credit_card_operation(self, queryset, card):
+        # credit_limit = card.credit_limit
         queryset_credit_card = OperationUser.objects.filter(card=card).order_by('datetime_amount')
         queryset_credit_card = self.apply_filters(queryset_credit_card, start_date, end_date, card)
-        if 'доход' in queryset_credit_card.first().category.type.name_type:
-            balance_in = queryset_credit_card.first().balans - queryset_credit_card.first().amount_operation if queryset_credit_card.first() else card.balans_card
 
-        elif 'расход' in queryset_credit_card.first().category.type.name_type:
-            balance_in = queryset_credit_card.first().balans + queryset_credit_card.first().amount_operation if queryset_credit_card.first() else card.balans_card
+        # Получаем первую и последнюю операции в одном запросе
+        first_operation = queryset_credit_card.order_by('datetime_amount').first()
+        last_operation = queryset_credit_card.order_by('-datetime_amount').first()
+
+        # Вычисляем начальный и конечный баланс
+        balance_in = first_operation.balans - first_operation.amount_operation if first_operation and first_operation.category.type.name_type == 'доход' else (
+            first_operation.balans + first_operation.amount_operation if first_operation and first_operation.category.type.name_type == 'расход' else card.balans_card
+        )
+
+        balance_end = last_operation.balans if last_operation else card.balans_card
 
         total_in = \
             queryset_credit_card.filter(category__name_cat='перевод').aggregate(
                 total_in=Sum('amount_operation'))[
                 'total_in'] or 0
-        # total_in = self.total_sum_expense if self.total_sum_expense else 0
-        balance_end = queryset_credit_card.last().balans if queryset_credit_card.last() else card.balans_card
 
-        return credit_limit, balance_in, balance_end, total_in
-
-    def get_expense_queryset(self):
-        """
-        Возвращает QuerySet для операций доходов с фильтрацией и агрегацией.
-        """
-        queryset = OperationUser.objects.filter(
-            card__in=self.cards,
-            category__type__name_type__in=['доход']
-        ).values('category__name_cat').annotate(
-            total_amount=Sum('amount_operation')
-        ).order_by('category__name_cat')
-
-        # Применяем фильтры по датам
-        start_date = self.request.GET.get('start_date')
-        end_date = self.request.GET.get('end_date')
-        queryset = self.apply_filters(queryset, start_date, end_date, self.card)
-
-        # Вычисляем общую сумму и процент для каждой категории
-        self.total_sum_expense = queryset.aggregate(total_sum=Sum('total_amount'))['total_sum'] or 0
-        queryset = queryset.annotate(
-            percentage=ExpressionWrapper(
-                F('total_amount') * 100.0 / self.total_sum_expense,
-                output_field=FloatField()
-            )
-        )
-        return queryset
-
-    def get_total_percentage(self, queryset):
-        total_percentage = queryset.aggregate(total_percentage=Sum('percentage'))
-        return total_percentage.get('total_percentage') if total_percentage.get('total_percentage') else 100
+        return balance_in, balance_end, total_in
 
     def apply_filters(self, queryset, start_date=None, end_date=None, card=None):
         """
