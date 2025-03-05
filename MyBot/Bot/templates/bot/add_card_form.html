@@ -29,6 +29,14 @@
             </select>
         </div>
         <div class="form-group mb-2">
+            <label for="id_currency_card">{{ form.currency_card.label }}:</label>
+            <select id="id_currency_card" name="currency_card" data-tags="true">
+                {% for value, label in form.currency_card.field.choices %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group mb-2">
             <label for="id_credit_limit_card">Кредитный лимит карты:</label>
             <input type="text" id="id_credit_limit_card" name="credit_limit" class="form-input">
         </div>
@@ -42,7 +50,7 @@
         </div>
         <div class="form-group mb-2">
             <label for="id_balans_card">Баланс карты:</label>
-            <input type="number" id="id_balans_card" name="balans_card" class="form-input">
+            <input id="id_balans_card" name="balans_card" class="form-input">
         </div>
         <!-- Общий блок для ошибок формы -->
         {% if form.errors %}

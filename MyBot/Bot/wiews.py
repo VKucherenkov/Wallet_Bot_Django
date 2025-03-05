@@ -373,7 +373,6 @@ class AddCardView(DataMixin, CreateView):
     def form_invalid(self, form):
         messages.success(self.request, 'Карта не добавлена!')
         context = self.get_context_data(form=form)
-        # context['card_form'] = AddCardForm(self.request.POST)
         return self.render_to_response(context)
 
 

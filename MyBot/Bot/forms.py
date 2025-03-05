@@ -54,10 +54,16 @@ class AddCardForm(forms.ModelForm):
         (DEBET, 'дебетовая'),
         (CREDIT, 'кредитная')
     ]
+    USD = 'доллар'
+    RUB = 'рубль'
+    CURRENCY_CHOICES = [
+        (USD, 'доллар'),
+        (RUB, 'рубль')
+    ]
 
     class Meta:
-        model = CardUser
-        fields = ['bank', 'type_card', 'credit_limit', 'name_card', 'number_card', 'balans_card']
+            model = CardUser
+            fields = ['bank', 'type_card', 'currency_card', 'credit_limit', 'name_card', 'number_card', 'balans_card']
 
     bank = forms.ModelChoiceField(
         label='Выберете банк эмитент карты',
@@ -67,10 +73,23 @@ class AddCardForm(forms.ModelForm):
         empty_label="Выбрать/добавить банк",
     )
     type_card = forms.ChoiceField(
+        label='Тип карты',
         required=True,
         choices=TYPE_CHOICES,
         widget=forms.Select(attrs={'class': 'form-control'}),
     )
+    currency_card = forms.ChoiceField(
+        label='Валюта карты',
+        required=True,
+        choices=CURRENCY_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+    )
+
+    def clean_balans_card(self):
+        balans_card = self.cleaned_data.get('balans_card')
+        # if len(str(number_card)) != 4 or not str(number_card).isdigit():
+        #     raise forms.ValidationError("Номер карты должен состоять исключительно из четырех цифр.")
+        return balans_card
 
     def clean_number_card(self):
         number_card = self.cleaned_data.get('number_card')

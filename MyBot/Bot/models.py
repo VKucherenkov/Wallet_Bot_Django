@@ -108,7 +108,10 @@ class CardUser(models.Model):
     """Карты пользователя"""
     DEBET = "дебетовая"
     KREDIT = "кредитная"
+    USD = 'доллар'
+    RUB = 'рубль'
     TYPE_CARD = [(DEBET, "дебетовая"), (KREDIT, "кредитная")]
+    CURRENCY_CARD = [(USD, 'доллар'), (RUB, 'рубль')]
 
     telegram_user = models.ForeignKey(
         TelegramUser,
@@ -125,6 +128,9 @@ class CardUser(models.Model):
     type_card = models.CharField(
         max_length=10, choices=TYPE_CARD, blank=True, null=True, verbose_name="Тип карты"
     )
+    currency_card = models.CharField(
+        max_length=10, choices=CURRENCY_CARD, blank=True, null=True, verbose_name="Валюта карты"
+    )
     credit_limit = models.DecimalField(
         "Кредитный лимит карты",
         max_digits=10,
@@ -135,7 +141,8 @@ class CardUser(models.Model):
     name_card = models.CharField(
         max_length=150, blank=True, null=True, verbose_name="Наименование карты"
     )
-    number_card = models.IntegerField("Номер карты", null=True, unique=True)
+    number_card = models.CharField(
+        verbose_name="Номер карты", max_length=4, null=True, unique=True)
     balans_card = models.DecimalField(
         "Баланс карты",
         max_digits=10,

@@ -91,6 +91,7 @@ class TypeOperationAdmin(admin.ModelAdmin):
 @admin.register(CardUser)
 class CardUserAdmin(admin.ModelAdmin):
     list_display = ['type_card',
+                    'currency_card',
                     'name_card',
                     'number_card',
                     'balans_card',
@@ -99,6 +100,10 @@ class CardUserAdmin(admin.ModelAdmin):
                     'bank',
                     'datetime_add',
                     'datetime_update']
+    list_editable = [
+                    'currency_card',
+                    ]
+    actions = ['set_usd', 'set_rub']
     ordering = ['name_card',
                 'number_card',
                 'balans_card']
@@ -106,6 +111,22 @@ class CardUserAdmin(admin.ModelAdmin):
     search_fields = ['name_card',
                      'number_card',
                      'balans_card']
+
+    @admin.action(description='Установить валюту в доллар')
+    def set_usd(self, request, qs: QuerySet):
+        count_update = qs.update(currency_card=CardUser.USD)
+        self.message_user(
+            request,
+            f'Было обновлено {count_update} записей'
+        )
+
+    @admin.action(description='Установить валюту в рубль')
+    def set_rub(self, request, qs: QuerySet):
+        count_update = qs.update(currency_card=CardUser.RUB)
+        self.message_user(
+            request,
+            f'Было обновлено {count_update} записей'
+        )
 
 
 @admin.register(Recipient)
