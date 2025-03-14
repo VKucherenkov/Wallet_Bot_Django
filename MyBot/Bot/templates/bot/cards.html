@@ -7,7 +7,7 @@
 <!-- Основной контент -->
 <div class="container-fluid">
     <div class="row">
-        <div class="content col-xxl-6 col-xl-6 col-md-5 col-sm-4 col-xs-3">
+        <div class="content col-xxl-8 col-xl-6 col-md-5 col-sm-4 col-xs-3">
             <h2>Информация о картах (счетах)</h2>
             <h3>Пользователь {{ user.first_name }} {{ user.last_name }}</h3>
             {% if not cards %}
@@ -24,16 +24,18 @@
                     <th scope="col">Банк</th>
                     <th scope="col">Имя карты</th>
                     <th scope="col">Номер карты</th>
+                    <th scope="col">Валюта карты</th>
                     <th scope="col">Баланс (руб.)</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for card in cards %}
-                <tr>
+                <tr id="id_row">
                     <td></td>
                     <td>{{ card.bank }}</td>
                     <td>{{ card.name_card }}</td>
                     <td><a href="#">{{ card.number_card }}</a></td>
+                    <td id="id_currency">{{ card.currency_card }}</td>
                     <td>{{ card.balans_card }}</td>
                 </tr>
                 {% endfor %}

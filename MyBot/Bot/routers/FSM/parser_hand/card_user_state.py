@@ -225,7 +225,7 @@ async def get_invalid_name_card(message: types.Message):
 
 
 @router.message(ParserHand.card_currency_state_out, F.text, F.func(validator_currency_card))
-async def get_name_card(message: types.Message, state: FSMContext):
+async def get_currency_card_out_input(message: types.Message, state: FSMContext):
     """
     Обрабатывает ввод валюты карты и переходит к запросу типа карты.
 
@@ -254,7 +254,7 @@ async def get_name_card(message: types.Message, state: FSMContext):
 
 
 @router.message(ParserHand.card_currency_state, F.text, F.func(validator_currency_card))
-async def get_currency_card(message: types.Message, state: FSMContext):
+async def get_currency_card_input(message: types.Message, state: FSMContext):
     """
     Обрабатывает ввод валюты карты и переходит к запросу типа карты.
 

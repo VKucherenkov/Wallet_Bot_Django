@@ -40,6 +40,24 @@ window.addEventListener('DOMContentLoaded', event => {
 
 });
 
+// Выделение цветом полей в зависимости от валюты карты/счета в cards.html
+function setTableRowColors() {
+    // Получаем все строки таблицы
+    const rows = document.querySelectorAll('#id_row');
+    // Проходим по каждой строке
+    rows.forEach(row => {
+        // Получаем значение валюты из колонки
+        const currency = row.querySelector('#id_currency').textContent.trim();
+        // Устанавливаем цвет строки в зависимости от значения валюты
+        if (currency === 'доллар') {
+            row.style.backgroundColor = 'lightgreen';
+        } else if (currency === 'рубль') {
+            row.style.backgroundColor = 'lightblue';
+        } else {
+            row.style.backgroundColor = 'white'; // или любой другой цвет по умолчанию
+        }
+    });
+}
 
 // Скрытие и добавления поля для ввода новой карты в add_operation_form.html
 function toggleCardFields() {
@@ -107,9 +125,13 @@ function toggleCategoryFields() {
 //                }
 //            }
 
-// Инициализация при загрузке страницы add_operation_form.html
-//document.addEventListener("DOMContentLoaded", function() {
-//    if (window.location.pathname === '/add-operation-form/') {
+// Инициализация функции при загрузке страницы cards.html
+document.addEventListener("DOMContentLoaded", function() {
+    if (window.location.pathname.includes('cards')) {
+        setTableRowColors();
+    }
+    });
+
 //        var cardChoice = document.getElementById("id_card");
 //        var categoryChoice = document.getElementById("id_category");
 //        var recipientChoice = document.getElementById("id_recipient");
